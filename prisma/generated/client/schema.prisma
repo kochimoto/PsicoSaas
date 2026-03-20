@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("PSICOLOGO") // SUPER_ADMIN, PSICOLOGO, FUNCIONARIO, PACIENTE
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenantOwner Tenant?   @relation("TenantOwner")
+  patient     Patient?
+  employee    Employee?
+}
+
+model Tenant {
+  id         String  @id @default(cuid())
+  ownerId    String  @unique
+  owner      User    @relation("TenantOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  plan       String  @default("FREE") // FREE, VIP_MENSAL, VIP_ANUAL
+  clinicName String?
+
+  whatsappEnabled Boolean @default(false)
+  whatsappNumber  String?
+  whatsappMessage String? @default("Olá {nome}, sua sessão está marcada para amanhã às {hora}. Responda para confirmar!")
+
+  stripeCustomerId         String?
+  stripeSubscriptionId     String?
+  stripeSubscriptionStatus String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patients        Patient[]
+  appointments    Appointment[]
+  documents       Document[]
+  transactions    Transaction[]
+  employees       Employee[]
+  clinicalRecords ClinicalRecord[]
+}
+
+model Patient {
+  id      String  @id @default(cuid())
+  name    String
+  email   String?
+  phone   String?
+  cpf     String?
+  address String?
+  notes   String?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments    Appointment[]
+  documents       Document[]
+  transactions    Transaction[]
+  clinicalRecords ClinicalRecord[]
+}
+
+model Employee {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  roleName String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appointment {
+  id               String   @id @default(cuid())
+  date             DateTime
+  status           String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELED
+  notes            String?
+  patientConfirmed Boolean  @default(false)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id          String  @id @default(cuid())
+  name        String
+  fileUrl     String
+  type        String // LAUDO, RECIBO, OUTRO
+  patientRead Boolean @default(false)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  amount      Float
+  date        DateTime
+  description String
+  type        String // INCOME, EXPENSE
+  status      String   @default("PENDING") // PENDING, PAID, CANCELLED
+  paymentLink String?
+  receiptUrl  String?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ClinicalRecord {
+  id      String   @id @default(cuid())
+  date    DateTime @default(now())
+  content String
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
