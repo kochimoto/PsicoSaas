@@ -13,7 +13,8 @@ export default async function EditPatientPage({ params }: { params: { id: string
   if (!tenant) return redirect("/login");
 
   const patient = await prisma.patient.findFirst({
-    where: { id: params.id, tenantId: tenant.id }
+    where: { id: params.id, tenantId: tenant.id },
+    include: { user: { select: { id: true, email: true } } }
   });
 
   if (!patient) return redirect("/dashboard/pacientes");

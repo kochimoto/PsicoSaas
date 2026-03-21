@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginAction } from "../actions/auth";
 import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -74,13 +75,13 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">E-mail</label>
+              <label className="block text-sm font-medium text-slate-700">E-mail ou Usuário</label>
               <div className="mt-1">
                 <input
-                  type="email"
+                  type="text"
                   {...register("email")}
                   className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                  placeholder="voce@exemplo.com"
+                  placeholder="Seu e-mail ou nome de usuário"
                 />
                 {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
               </div>
@@ -118,6 +119,27 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-slate-500 font-medium whitespace-nowrap">Ou continue com</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition-all active:scale-95"
+              >
+                <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-5 h-5 mr-3" alt="Google" />
+                Entrar com Google
+              </button>
+            </div>
+          </div>
 
           <div className="mt-6 border-t border-slate-200 pt-6 text-center text-sm">
             <span className="text-slate-500">Não tem uma conta? </span>

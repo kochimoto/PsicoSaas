@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-export async function createAppointmentAction(data: { patientId: string, date: Date, notes?: string, recurring?: "NONE" | "WEEKLY" | "BIWEEKLY", occurrences?: number }) {
+export async function createAppointmentAction(data: { patientId: string, date: Date, notes?: string, recurring?: "NONE" | "WEEKLY" | "BIWEEKLY", occurrences?: number, serviceId?: string | null }) {
   const session = await getSession();
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 

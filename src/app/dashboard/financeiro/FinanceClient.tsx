@@ -17,15 +17,18 @@ type Transaction = {
   date: Date | string | number;
   status: string;
   patient: { name: string } | null;
+  service?: { name: string } | null;
 };
+type Service = { id: string; name: string; price: number };
 
-export default function FinanceClient({ initialTransactions, patients }: { initialTransactions: Transaction[], patients: Patient[] }) {
+export default function FinanceClient({ initialTransactions, patients, services }: { initialTransactions: Transaction[], patients: Patient[], services: Service[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [patientId, setPatientId] = useState("");
+  const [serviceId, setServiceId] = useState("");
   const [editTxId, setEditTxId] = useState("");
   
   const [loading, setLoading] = useState(false);
@@ -66,7 +69,8 @@ export default function FinanceClient({ initialTransactions, patients }: { initi
         amount: parsedAmount, 
         type, 
         date: dateTime, 
-        patientId: patientId || undefined 
+        patientId: patientId || undefined,
+        serviceId: serviceId || undefined
       });
     }
     
@@ -88,7 +92,7 @@ export default function FinanceClient({ initialTransactions, patients }: { initi
         <h2 className="text-xl font-bold text-slate-800">Histórico de Lançamentos</h2>
         <button 
           onClick={() => {
-            setEditTxId(""); setType("INCOME"); setDescription(""); setAmount(""); setDate(format(new Date(), 'yyyy-MM-dd')); setPatientId(""); setError(""); setIsModalOpen(true);
+            setEditTxId(""); setType("INCOME"); setDescription(""); setAmount(""); setDate(format(new Date(), 'yyyy-MM-dd')); setPatientId(""); setServiceId(""); setError(""); setIsModalOpen(true);
           }}
           className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)]"
         >
@@ -106,7 +110,7 @@ export default function FinanceClient({ initialTransactions, patients }: { initi
             <p className="text-slate-500 max-w-sm mx-auto font-medium mb-8">Você ainda não registrou entradas ou saídas financeiras na sua clínica.</p>
             <button 
               onClick={() => {
-                setEditTxId(""); setType("INCOME"); setDescription(""); setAmount(""); setDate(format(new Date(), 'yyyy-MM-dd')); setPatientId(""); setError(""); setIsModalOpen(true);
+                setEditTxId(""); setType("INCOME"); setDescription(""); setAmount(""); setDate(format(new Date(), 'yyyy-MM-dd')); setPatientId(""); setServiceId(""); setError(""); setIsModalOpen(true);
               }}
               className="text-emerald-600 font-bold hover:text-emerald-700"
             >
@@ -126,6 +130,9 @@ export default function FinanceClient({ initialTransactions, patients }: { initi
                     <span>{format(new Date(t.date), "dd 'de' MMMM, yyyy", { locale: ptBR })}</span>
                     {t.patient && (
                       <span className="text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md inline-flex max-w-max">Paciente: {t.patient.name}</span>
+                    )}
+                    {t.service && (
+                      <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md inline-flex max-w-max">Serviço: {t.service.name}</span>
                     )}
                   </div>
                 </div>
@@ -223,18 +230,43 @@ export default function FinanceClient({ initialTransactions, patients }: { initi
                 </div>
 
                 {type === 'INCOME' && (
-                  <div className="animate-in fade-in zoom-in-95 duration-200">
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Vincular a Paciente (Opcional)</label>
-                    <select 
-                      value={patientId} 
-                      onChange={e => setPatientId(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-slate-700"
-                    >
-                      <option value="">Nenhum...</option>
-                      {patients.map(p => (
-                         <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </select>
+                  <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Vincular Serviço</label>
+                        <select 
+                          value={serviceId} 
+                          onChange={e => {
+                            const val = e.target.value;
+                            setServiceId(val);
+                            const svc = services.find(s => s.id === val);
+                            if (svc) {
+                              setAmount(svc.price.toString());
+                              if (!description) setDescription(svc.name);
+                            }
+                          }}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-slate-700"
+                        >
+                          <option value="">Nenhum...</option>
+                          {services.map(s => (
+                             <option key={s.id} value={s.id}>{s.name} (R$ {s.price})</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Vincular Paciente</label>
+                        <select 
+                          value={patientId} 
+                          onChange={e => setPatientId(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-slate-700"
+                        >
+                          <option value="">Nenhum...</option>
+                          {patients.map(p => (
+                             <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 )}
                 

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, LogOut, Menu, MessageCircle, Crown } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, LogOut, Menu, MessageCircle, Crown, Tag } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
   { name: 'Início', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Pacientes', href: '/dashboard/pacientes', icon: Users },
   { name: 'Agenda', href: '/dashboard/agenda', icon: Calendar },
+  { name: 'Serviços', href: '/dashboard/servicos', icon: Tag },
   { name: 'Financeiro', href: '/dashboard/financeiro', icon: Wallet },
   { name: 'Documentos', href: '/dashboard/documentos', icon: FileText },
   { name: 'WhatsApp', href: '/dashboard/whatsapp', icon: MessageCircle },
@@ -64,11 +65,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className="p-4 border-t border-slate-100">
           <button
-            onClick={() => {
-              document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-              router.push("/login");
+            onClick={async () => {
+              const { logoutAction } = await import("@/app/actions/auth");
+              await logoutAction();
             }}
-            className="flex items-center w-full px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-all"
+            className="flex items-center w-full px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-all font-bold"
           >
             <LogOut className="mr-3 h-5 w-5 text-red-500" />
             Sair da Conta

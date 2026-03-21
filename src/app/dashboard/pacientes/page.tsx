@@ -4,13 +4,20 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, User } from "lucide-react";
 
-export default async function PacientesPage() {
+export default async function PacientesPage({ searchParams }: { searchParams: { status?: string } }) {
   const session = await getSession();
   if (!session) return redirect("/login");
 
+  const status = searchParams.status || "active";
+
   const tenant = await prisma.tenant.findUnique({
     where: { ownerId: session.user.id },
-    include: { patients: { orderBy: { name: 'asc' } } }
+    include: { 
+      patients: { 
+        where: status === "all" ? {} : { active: status === "active" },
+        orderBy: { name: 'asc' } 
+      } 
+    }
   });
 
   if (!tenant) return redirect("/login");
@@ -32,7 +39,13 @@ export default async function PacientesPage() {
       </div>
 
       <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center gap-3">
+        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl w-fit">
+            <Link href="/dashboard/pacientes?status=active" className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${status === 'active' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Ativos</Link>
+            <Link href="/dashboard/pacientes?status=inactive" className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${status === 'inactive' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Inativos</Link>
+            <Link href="/dashboard/pacientes?status=all" className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${status === 'all' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Todos</Link>
+          </div>
+          
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input 
@@ -64,13 +77,13 @@ export default async function PacientesPage() {
                 <tr className="bg-slate-50/50 text-slate-500 text-sm border-b border-slate-100">
                   <th className="px-6 py-4 font-medium">Nome Completo</th>
                   <th className="px-6 py-4 font-medium">Contato</th>
-                  <th className="px-6 py-4 font-medium">Portal</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
                   <th className="px-6 py-4 font-medium text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {tenant.patients.map((patient: any) => (
-                  <tr key={patient.id} className="hover:bg-slate-50 transition-colors group">
+                  <tr key={patient.id} className={`hover:bg-slate-50 transition-colors group ${!patient.active ? 'bg-slate-50/50 grayscale-[0.5] opacity-80' : ''}`}>
                     <td className="px-6 py-4">
                       <div className="font-semibold text-slate-900">{patient.name}</div>
                       <div className="text-sm text-slate-500">{patient.cpf || "Sem CPF"}</div>
@@ -80,11 +93,20 @@ export default async function PacientesPage() {
                       <div className="text-sm text-slate-500">{patient.email || "-"}</div>
                     </td>
                     <td className="px-6 py-4">
-                      {patient.userId ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">Ativo</span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">Não criado</span>
-                      )}
+                      <div className="flex flex-col gap-1.5">
+                        <span className={`inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                          patient.active 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                        }`}>
+                          {patient.active ? 'Ativo' : 'Inativo'}
+                        </span>
+                        {patient.userId && (
+                          <span className="inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100">
+                            Tem Portal
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link href={`/dashboard/pacientes/${patient.id}`} className="text-sm font-medium text-blue-600 hover:text-blue-800 opacity-0 group-hover:opacity-100 transition-opacity">

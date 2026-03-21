@@ -14,10 +14,12 @@ type Appointment = {
   date: Date | string | number;
   status: string;
   patient: { name: string; phone?: string | null } | null;
+  service?: { name: string } | null;
 };
+type Service = { id: string; name: string; price: number };
 type TenantSettings = { whatsappEnabled: boolean; whatsappMessage: string };
 
-export default function AgendaClient({ initialAppointments, patients, tenantSettings }: { initialAppointments: Appointment[], patients: Patient[], tenantSettings: TenantSettings }) {
+export default function AgendaClient({ initialAppointments, patients, services, tenantSettings }: { initialAppointments: Appointment[], patients: Patient[], services: Service[], tenantSettings: TenantSettings }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [patientId, setPatientId] = useState("");
   const [date, setDate] = useState("");
@@ -25,12 +27,13 @@ export default function AgendaClient({ initialAppointments, patients, tenantSett
   const [recurring, setRecurring] = useState<"NONE"|"WEEKLY"|"BIWEEKLY">("NONE");
   const [occurrences, setOccurrences] = useState(4);
   const [editAppId, setEditAppId] = useState("");
+  const [serviceId, setServiceId] = useState("");
   const [loading, setLoading] = useState(false);
   const [workingId, setWorkingId] = useState("");
   const [error, setError] = useState("");
 
   function openNewModal() {
-    setEditAppId(""); setPatientId(""); setDate(""); setTime(""); setRecurring("NONE"); setOccurrences(4); setError(""); setIsModalOpen(true);
+    setEditAppId(""); setPatientId(""); setServiceId(""); setDate(""); setTime(""); setRecurring("NONE"); setOccurrences(4); setError(""); setIsModalOpen(true);
   }
 
   function openEditModal(app: Appointment) {
@@ -62,7 +65,7 @@ export default function AgendaClient({ initialAppointments, patients, tenantSett
     if (editAppId) {
       res = await updateAppointmentDateAction(editAppId, dateTime);
     } else {
-      res = await createAppointmentAction({ patientId, date: dateTime, recurring, occurrences });
+      res = await createAppointmentAction({ patientId, date: dateTime, recurring, occurrences, serviceId: serviceId || null });
     }
 
     if (res?.error) {
@@ -132,6 +135,7 @@ export default function AgendaClient({ initialAppointments, patients, tenantSett
                       <h4 className={`text-lg sm:text-xl font-bold ${appointment.status === 'CANCELED' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>{appointment.patient?.name || "Paciente Removido"}</h4>
                       <div className="flex items-center gap-3 sm:gap-4 mt-2 text-sm font-semibold text-slate-500 flex-wrap">
                         <span className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg text-slate-600"><Clock className="w-4 h-4 text-slate-400" /> {format(new Date(appointment.date), 'HH:mm')}</span>
+                        {appointment.service && <span className="flex items-center gap-1.5 text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 font-bold">{appointment.service.name}</span>}
                         {appointment.status === 'COMPLETED' && <span className="flex items-center gap-1.5 text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200"><CheckCircle2 className="w-4 h-4" /> Concluído</span>}
                         {appointment.status === 'CANCELED' && <span className="flex items-center gap-1.5 text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200"><Ban className="w-4 h-4" /> Cancelado</span>}
                         {appointment.status === 'SCHEDULED' && <span className="flex items-center gap-1.5 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">Agendado</span>}
@@ -197,18 +201,33 @@ export default function AgendaClient({ initialAppointments, patients, tenantSett
               {error && <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100">{error}</div>}
               
               {!editAppId && (
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Paciente</label>
-                  <select 
-                    value={patientId} 
-                    onChange={e => setPatientId(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
-                  >
-                    <option value="">Selecione um paciente...</option>
-                    {patients.map(p => (
-                       <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Paciente</label>
+                    <select 
+                      value={patientId} 
+                      onChange={e => setPatientId(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                    >
+                      <option value="">Selecione...</option>
+                      {patients.map(p => (
+                         <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Serviço</label>
+                    <select 
+                      value={serviceId} 
+                      onChange={e => setServiceId(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                    >
+                      <option value="">Nenhum (Manual)</option>
+                      {services.map(s => (
+                         <option key={s.id} value={s.id}>{s.name} (R$ {s.price})</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               )}
               

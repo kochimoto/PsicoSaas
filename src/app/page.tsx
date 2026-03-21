@@ -20,7 +20,10 @@ export default function LandingPage() {
             <Link href="#precos" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">
               Planos
             </Link>
-            <Link href="/login" className="text-sm font-bold text-teal-700 hover:text-teal-800 transition-colors ml-4">
+            <Link href="/portal" className="hidden sm:block text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors border-l border-slate-200 pl-6 h-6 flex items-center">
+              Portal do Paciente
+            </Link>
+            <Link href="/login" className="text-sm font-bold text-teal-700 hover:text-teal-800 transition-colors">
               Entrar
             </Link>
             <Link

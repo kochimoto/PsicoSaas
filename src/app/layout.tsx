@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: "Plataforma completa para gestão de clínicas de psicologia",
 };
 
+import { Providers } from "@/components/Providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,7 +26,11 @@ export default function RootLayout({
       className={`${poppins.variable} font-sans h-full antialiased`}
       suppressHydrationWarning
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col bg-slate-50 text-slate-900">{children}</body>
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-export async function createTransactionAction(data: { description: string, amount: number, type: 'INCOME' | 'EXPENSE', date: Date, patientId?: string }) {
+export async function createTransactionAction(data: { description: string, amount: number, type: 'INCOME' | 'EXPENSE', date: Date, patientId?: string, serviceId?: string }) {
   const session = await getSession();
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
@@ -20,7 +20,8 @@ export async function createTransactionAction(data: { description: string, amoun
         date: data.date,
         status: "PAID",
         tenantId: tenant.id,
-        patientId: data.patientId || null
+        patientId: data.patientId || null,
+        serviceId: data.serviceId || null
       }
     });
 

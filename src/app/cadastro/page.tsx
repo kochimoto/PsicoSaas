@@ -8,6 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerAction } from "../actions/auth";
 import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 const registerSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -152,6 +153,27 @@ function RegisterForm() {
               </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-slate-500 font-medium whitespace-nowrap">Ou continue com</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition-all active:scale-95"
+              >
+                <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-5 h-5 mr-3" alt="Google" />
+                Cadastrar com Google
+              </button>
+            </div>
+          </div>
 
           <div className="mt-6 border-t border-slate-200 pt-6 text-center text-sm">
             <span className="text-slate-500">Já tem uma conta? </span>

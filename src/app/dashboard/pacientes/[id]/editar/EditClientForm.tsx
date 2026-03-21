@@ -15,6 +15,8 @@ const patientSchema = z.object({
   phone: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
+  active: z.boolean().default(true),
+  portalPassword: z.string().min(6, "Senha deve ter 6 caracteres").optional().or(z.literal("")),
 });
 
 type PatientData = z.infer<typeof patientSchema>;
@@ -33,7 +35,9 @@ export default function EditClientForm({ patient }: { patient: any }) {
       email: patient.email,
       phone: patient.phone,
       address: patient.address,
-      notes: patient.notes
+      notes: patient.notes,
+      active: patient.active ?? true,
+      portalPassword: ""
     }
   });
 
@@ -108,6 +112,34 @@ export default function EditClientForm({ patient }: { patient: any }) {
           <label className="block text-sm font-bold text-slate-700 mb-2">Anotações Internas (Opcional)</label>
           <textarea {...register("notes")} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"></textarea>
         </div>
+
+        <div className="pt-4 border-t border-slate-100 flex items-center justify-between bg-slate-50 p-6 rounded-2xl">
+          <div>
+            <h4 className="font-bold text-slate-900">Status do Prontuário</h4>
+            <p className="text-sm text-slate-500 font-medium">Pacientes inativos não aparecem na lista padrão.</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" {...register("active")} className="sr-only peer" />
+            <div className="w-14 h-8 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+
+        {patient.userId && (
+          <div className="pt-4 space-y-4">
+             <h3 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Acesso ao Portal</h3>
+             <div>
+               <label className="block text-sm font-bold text-slate-700 mb-2">Alterar Senha do Paciente</label>
+               <input 
+                 type="password" 
+                 {...register("portalPassword")} 
+                 placeholder="Deixe em branco para manter a atual"
+                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700" 
+               />
+               {errors.portalPassword && <p className="mt-1 text-xs text-red-500">{errors.portalPassword.message}</p>}
+               <p className="mt-2 text-xs text-slate-400 font-medium">O login do paciente é: <span className="font-bold">{patient.portalLogin}</span></p>
+             </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-100">

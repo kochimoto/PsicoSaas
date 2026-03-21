@@ -17,8 +17,15 @@ export default async function PatientDetailsPage({ params }: { params: { id: str
     where: { id: params.id, tenantId: tenant.id },
     include: {
       clinicalRecords: { orderBy: { date: 'desc' } },
-      appointments: { orderBy: { date: 'desc' }, take: 5 },
-      documents: { orderBy: { createdAt: 'desc' }, include: { patient: { select: { name: true } } } }
+      appointments: { 
+        orderBy: { date: 'desc' },
+        include: { service: { select: { name: true } } }
+      },
+      documents: { orderBy: { createdAt: 'desc' }, include: { patient: { select: { name: true } } } },
+      transactions: {
+        orderBy: { date: 'desc' },
+        include: { service: { select: { name: true } } }
+      }
     }
   });
 
@@ -96,10 +103,41 @@ export default async function PatientDetailsPage({ params }: { params: { id: str
                <p className="text-sm font-medium text-slate-500">Nenhuma sessão agendada no momento.</p>
             ) : (
                <div className="space-y-3">
-                 {patient.appointments.map(app => (
-                   <div key={app.id} className="px-4 py-3 bg-slate-50 rounded-2xl text-sm border border-slate-100 flex justify-between items-center">
-                     <span className="font-bold text-slate-700">{new Date(app.date).toLocaleDateString('pt-BR')}</span>
-                     <span className="font-semibold text-slate-500">{new Date(app.date).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+                  {patient.appointments.map(app => (
+                    <div key={app.id} className="px-4 py-3 bg-slate-50 rounded-2xl text-sm border border-slate-100 space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-slate-700">{new Date(app.date).toLocaleDateString('pt-BR')}</span>
+                        <span className="font-semibold text-slate-500">{new Date(app.date).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+                      </div>
+                      {app.service && (
+                        <p className="text-xs font-bold text-blue-600">{app.service.name}</p>
+                      )}
+                    </div>
+                  ))}
+               </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+              <Activity className="w-5 h-5 text-emerald-600" /> Histórico Financeiro
+            </h2>
+            {patient.transactions.length === 0 ? (
+               <p className="text-sm font-medium text-slate-500">Nenhum lançamento vinculado.</p>
+            ) : (
+               <div className="space-y-3">
+                 {patient.transactions.map(tx => (
+                   <div key={tx.id} className="px-4 py-3 bg-slate-50 rounded-2xl text-sm border border-slate-100">
+                     <div className="flex justify-between items-start">
+                       <span className="font-bold text-slate-700 line-clamp-1">{tx.description}</span>
+                       <span className={`font-black tracking-tight shrink-0 ml-2 ${tx.type === 'INCOME' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                         {tx.type === 'INCOME' ? '+' : '-'} R$ {Math.abs(tx.amount).toFixed(2).replace('.', ',')}
+                       </span>
+                     </div>
+                     <div className="flex justify-between items-center mt-1 text-[11px] font-bold text-slate-400 uppercase">
+                       <span>{new Date(tx.date).toLocaleDateString('pt-BR')}</span>
+                       {tx.service && <span>{tx.service.name}</span>}
+                     </div>
                    </div>
                  ))}
                </div>

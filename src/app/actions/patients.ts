@@ -86,8 +86,17 @@ export async function updatePatientAction(id: string, data: PatientData) {
     const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    const patient = await prisma.patient.findFirst({ where: { id, tenantId: tenant.id } });
+    const patient = await prisma.patient.findFirst({ where: { id, tenantId: tenant.id }, include: { user: true } });
     if (!patient) return { error: "Paciente não encontrado" };
+
+    // Update User if needed (e.g. password)
+    if (patient.userId && data.portalPassword) {
+      const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
+      await prisma.user.update({
+        where: { id: patient.userId },
+        data: { password: hashedPassword }
+      });
+    }
 
     await prisma.patient.update({
       where: { id },
@@ -97,14 +106,16 @@ export async function updatePatientAction(id: string, data: PatientData) {
         phone: data.phone || null,
         cpf: data.cpf || null,
         address: data.address || null,
-        notes: data.notes || null
+        notes: data.notes || null,
+        active: data.active
       }
     });
 
     revalidatePath("/dashboard/pacientes");
     revalidatePath(`/dashboard/pacientes/${id}`);
     return { success: true };
-  } catch (err) {
+  } catch (error) {
+    console.error(error);
     return { error: "Erro interno ao atualizar paciente." };
   }
 }

@@ -19,9 +19,17 @@ export default async function AgendaPage() {
     orderBy: { name: 'asc' }
   });
 
+  const services = await prisma.service.findMany({
+    where: { tenantId: tenant.id },
+    orderBy: { name: 'asc' }
+  });
+
   const appointments = await prisma.appointment.findMany({
     where: { tenantId: tenant.id, date: { gte: new Date(new Date().setHours(0,0,0,0)) } },
-    include: { patient: { select: { name: true, phone: true } } },
+    include: { 
+      patient: { select: { name: true, phone: true } },
+      service: { select: { name: true } }
+    },
     orderBy: { date: 'asc' }
   });
 
@@ -37,6 +45,7 @@ export default async function AgendaPage() {
       <AgendaClient 
         initialAppointments={appointments} 
         patients={patients} 
+        services={services}
         tenantSettings={{
           whatsappEnabled: tenant.whatsappEnabled,
           whatsappMessage: tenant.whatsappMessage || ""
