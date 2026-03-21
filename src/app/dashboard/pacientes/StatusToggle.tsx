@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { togglePatientStatusAction } from "@/app/actions/patients";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function StatusToggle({ id, active }: { id: string; active: boolean }) {
   const [isPending, startTransition] = useTransition();
@@ -10,8 +11,10 @@ export default function StatusToggle({ id, active }: { id: string; active: boole
   const handleToggle = () => {
     startTransition(async () => {
       const result = await togglePatientStatusAction(id);
-      if (result.error) {
-        alert(result.error);
+      if (result.success) {
+        toast.success(active ? "Paciente inativado" : "Paciente ativado");
+      } else if (result.error) {
+        toast.error(result.error);
       }
     });
   };

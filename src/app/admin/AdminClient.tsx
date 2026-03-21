@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users, Server, DollarSign, CheckCircle2, MoreVertical, Key, Trash2, Shield } from "lucide-react";
+import { Users, Server, DollarSign, Key, Trash2, Shield } from "lucide-react";
 import { updateTenantPlanAction, deleteAccountAction, resetPasswordAction } from "@/app/actions/admin";
 import { useRouter } from "next/navigation";
 

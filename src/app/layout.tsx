@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: "Plataforma completa para gestão de clínicas de psicologia",
 };
 
-import { Providers } from "@/components/Providers";
+import Providers from "@/components/Providers";
 
 export default function RootLayout({
   children,

@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { LogOut } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { logoutAction } from "@/app/actions/auth";
 import AdminClient from "./AdminClient";

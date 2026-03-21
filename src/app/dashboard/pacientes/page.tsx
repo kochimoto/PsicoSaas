@@ -5,11 +5,12 @@ import Link from "next/link";
 import { Plus, Search, User } from "lucide-react";
 import StatusToggle from "./StatusToggle";
 
-export default async function PacientesPage({ searchParams }: { searchParams: { status?: string } }) {
+export default async function PacientesPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const session = await getSession();
   if (!session) return redirect("/login");
 
-  const status = searchParams.status || "active";
+  const { status: statusParam } = await searchParams;
+  const status = statusParam || "active";
 
   const tenant = await prisma.tenant.findUnique({
     where: { ownerId: session.user.id },

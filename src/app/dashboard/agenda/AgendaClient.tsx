@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Calendar as CalendarIcon, Clock, Plus, X, MessageCircle, CheckCircle2, Ban, Edit2 } from "lucide-react";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createAppointmentAction, updateAppointmentStatusAction, updateAppointmentDateAction } from "@/app/actions/appointments";
@@ -70,8 +71,10 @@ export default function AgendaClient({ initialAppointments, patients, services, 
 
     if (res?.error) {
       setError(res.error);
+      toast.error(res.error);
     } else {
       setIsModalOpen(false);
+      toast.success(editAppId ? "Sessão Remarcada" : "Sessão Agendada");
       router.refresh();
     }
     setLoading(false);
@@ -79,7 +82,13 @@ export default function AgendaClient({ initialAppointments, patients, services, 
 
   async function handleStatus(id: string, status: string) {
     setWorkingId(id);
-    await updateAppointmentStatusAction(id, status);
+    const res = await updateAppointmentStatusAction(id, status);
+    if (res?.success) {
+      const msg = status === 'COMPLETED' ? 'Sessão Concluída' : status === 'CANCELED' ? 'Sessão Cancelada' : 'Status Atualizado';
+      toast.success(msg);
+    } else if (res?.error) {
+      toast.error(res.error);
+    }
     setWorkingId("");
     router.refresh();
   }
