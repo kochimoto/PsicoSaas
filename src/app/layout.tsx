@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 import Providers from "@/components/Providers";
+import NextTopLoader from "nextjs-toploader";
 
 export default function RootLayout({
   children,
@@ -27,6 +28,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <NextTopLoader color="#2563eb" showSpinner={false} shadow="0 0 10px #2563eb,0 0 5px #2563eb" />
         <Providers>
           {children}
         </Providers>

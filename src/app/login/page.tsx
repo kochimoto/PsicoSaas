@@ -21,6 +21,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [isGooglePending, setIsGooglePending] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useReactHookForm<LoginData>({
     resolver: zodResolver(loginSchema),
@@ -32,10 +33,9 @@ export default function LoginPage() {
     
     const result = await loginAction(data);
     
-    setIsPending(false);
-    
     if (result.error) {
       setErrorMsg(result.error);
+      setIsPending(false);
     } else if (result.success) {
       if (result.role === 'SUPER_ADMIN') {
         router.push("/admin");
@@ -132,11 +132,22 @@ export default function LoginPage() {
 
             <div className="mt-6 grid grid-cols-1 gap-3">
               <button
-                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-                className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition-all active:scale-95"
+                type="button"
+                disabled={isGooglePending || isPending}
+                onClick={() => {
+                  setIsGooglePending(true);
+                  signIn("google", { callbackUrl: "/dashboard" });
+                }}
+                className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition-all active:scale-95 disabled:opacity-70"
               >
-                <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-5 h-5 mr-3" alt="Google" />
-                Entrar com Google
+                {isGooglePending ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+                ) : (
+                  <>
+                    <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-5 h-5 mr-3" alt="Google" />
+                    Entrar com Google
+                  </>
+                )}
               </button>
             </div>
           </div>
