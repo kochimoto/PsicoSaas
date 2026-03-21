@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, User } from "lucide-react";
+import StatusToggle from "./StatusToggle";
 
 export default async function PacientesPage({ searchParams }: { searchParams: { status?: string } }) {
   const session = await getSession();
@@ -94,13 +95,7 @@ export default async function PacientesPage({ searchParams }: { searchParams: { 
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1.5">
-                        <span className={`inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                          patient.active 
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                            : 'bg-slate-100 text-slate-500 border-slate-200'
-                        }`}>
-                          {patient.active ? 'Ativo' : 'Inativo'}
-                        </span>
+                        <StatusToggle id={patient.id} active={patient.active} />
                         {patient.userId && (
                           <span className="inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100">
                             Tem Portal

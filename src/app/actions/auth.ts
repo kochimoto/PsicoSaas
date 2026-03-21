@@ -23,6 +23,7 @@ export async function registerAction(data: RegisterData) {
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
+    console.log("DEBUG - Dados recebidos no registro:", { ...data, password: "[REDACTED]" });
     const user = await prisma.user.create({
       data: {
         name: data.name,
@@ -40,11 +41,16 @@ export async function registerAction(data: RegisterData) {
       }
     });
 
+    console.log("DEBUG - Usuário e Tenant criados com sucesso:", user.id);
     await setSession({ id: user.id, email: user.email, role: user.role, name: user.name });
     return { success: true };
   } catch (error) {
-    console.error("DEBUG - Erro detalhado no registro:", error);
-    return { error: "Erro interno ao criar a conta. Verifique sua conexão ou se o e-mail já existe." };
+    console.error("DEBUG - Erro crítico no registro:", error);
+    if (error instanceof Error) {
+      console.error("DEBUG - Mensagem do erro:", error.message);
+      console.error("DEBUG - Stack trace:", error.stack);
+    }
+    return { error: `Erro ao criar a conta: ${error instanceof Error ? error.message : "Erro desconhecido"}` };
   }
 }
 
@@ -58,6 +64,10 @@ export async function loginAction(data: LoginData) {
     const user = await prisma.user.findUnique({ where: { email: data.email } });
     if (!user) {
       return { error: "Credenciais inválidas." };
+    }
+
+    if (!user.password) {
+      return { error: "Esta conta foi criada com o Google. Por favor, entre usando o botão do Google." };
     }
 
     const isValid = await bcrypt.compare(data.password, user.password);

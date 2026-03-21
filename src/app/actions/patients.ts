@@ -15,6 +15,7 @@ interface PatientData {
   createPortalAccess?: boolean;
   portalLogin?: string | null;
   portalPassword?: string | null;
+  active?: boolean;
 }
 
 export async function createPatientAction(data: PatientData) {
@@ -136,5 +137,30 @@ export async function deletePatientAction(id: string) {
     return { success: true };
   } catch(err) {
     return { error: "Erro interno ao excluir paciente." };
+  }
+}
+
+export async function togglePatientStatusAction(id: string) {
+  const session = await getSession();
+  if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
+
+  try {
+    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    if (!tenant) return { error: "Clínica não encontrada" };
+
+    const patient = await prisma.patient.findFirst({ where: { id, tenantId: tenant.id } });
+    if (!patient) return { error: "Paciente não encontrado" };
+
+    await prisma.patient.update({
+      where: { id },
+      data: { active: !patient.active }
+    });
+
+    revalidatePath("/dashboard/pacientes");
+    revalidatePath(`/dashboard/pacientes/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Erro interno ao alterar status do paciente." };
   }
 }

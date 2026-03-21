@@ -13,26 +13,32 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       if (!user.email) return false;
 
-      const dbUser = await prisma.user.findUnique({
-        where: { email: user.email },
-      });
-
-      if (!dbUser) {
-        await prisma.user.create({
-          data: {
-            name: user.name || "Usuário Google",
-            email: user.email,
-            role: "PSICOLOGO",
-            tenantOwner: {
-              create: {
-                plan: "FREE",
-                clinicName: `Consultório de ${user.name?.split(" ")[0] || "Google"}`,
-              }
-            }
-          } as any
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
         });
+
+        if (!dbUser) {
+          console.log("DEBUG - Criando novo usuário via Google:", user.email);
+          await prisma.user.create({
+            data: {
+              name: user.name || "Usuário Google",
+              email: user.email,
+              role: "PSICOLOGO",
+              tenantOwner: {
+                create: {
+                  plan: "FREE",
+                  clinicName: `Consultório de ${user.name?.split(" ")[0] || "Google"}`,
+                }
+              }
+            } as any
+          });
+        }
+        return true;
+      } catch (error) {
+        console.error("DEBUG - Erro no signIn callback NextAuth:", error);
+        return false;
       }
-      return true;
     },
     async session({ session, token }) {
       if (session.user) {
