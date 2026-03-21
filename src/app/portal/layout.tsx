@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { LogOut, User } from "lucide-react";
+import LogoutButton from "@/components/LogoutButton";
 import { logoutAction } from "@/app/actions/auth";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
@@ -27,11 +28,7 @@ export default async function PortalLayout({ children }: { children: React.React
               <span className="text-sm font-bold text-slate-700">{session.user.name.split(" ")[0]}</span>
             </div>
             
-            <form action={logoutAction}>
-              <button type="submit" className="text-slate-400 hover:text-red-500 transition-colors p-2.5 rounded-full hover:bg-red-50" title="Sair da Conta">
-                <LogOut className="w-5 h-5" />
-              </button>
-            </form>
+            <LogoutButton variant="minimal" title="Sair da Conta" className="text-slate-400 hover:text-red-500 transition-colors p-2.5 rounded-full hover:bg-red-50" />
           </div>
         </div>
       </nav>

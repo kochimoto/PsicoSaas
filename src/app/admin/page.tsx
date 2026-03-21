@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
+import LogoutButton from "@/components/LogoutButton";
 import { logoutAction } from "@/app/actions/auth";
 import AdminClient from "./AdminClient";
 
@@ -34,11 +35,7 @@ export default async function AdminDashboardPage() {
           
           <div className="flex items-center gap-6">
             <span className="text-sm font-medium text-slate-300 hidden sm:block">Logado como: {session.user.name}</span>
-            <form action={logoutAction}>
-              <button type="submit" className="text-slate-400 hover:text-white transition-colors p-2.5 rounded-full hover:bg-white/10" title="Sair da Conta">
-                <LogOut className="w-5 h-5" />
-              </button>
-            </form>
+            <LogoutButton variant="minimal" title="Sair da Conta" className="text-slate-400 hover:text-white transition-colors p-2.5 rounded-full hover:bg-white/10" />
           </div>
         </div>
       </nav>

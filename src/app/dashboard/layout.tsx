@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import LogoutButton from "@/components/LogoutButton";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, LogOut, Menu, MessageCircle, Crown, Tag } from "lucide-react";
 import { useState } from "react";
@@ -64,16 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         <div className="p-4 border-t border-slate-100">
-          <button
-            onClick={async () => {
-              const { logoutAction } = await import("@/app/actions/auth");
-              await logoutAction();
-            }}
-            className="flex items-center w-full px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-all font-bold"
-          >
-            <LogOut className="mr-3 h-5 w-5 text-red-500" />
-            Sair da Conta
-          </button>
+          <LogoutButton />
         </div>
       </div>
 
