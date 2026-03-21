@@ -13,6 +13,7 @@ interface PatientData {
   address?: string | null;
   notes?: string | null;
   createPortalAccess?: boolean;
+  portalLogin?: string | null;
   portalPassword?: string | null;
 }
 
@@ -33,17 +34,17 @@ export async function createPatientAction(data: PatientData) {
     }
 
     let userId = null;
-
-    if (data.createPortalAccess && data.email && data.portalPassword) {
-      const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
-      if (existingUser) return { error: "Este email já possui um usuário cadastrado no sistema." };
-
-      const defaultPassword = await bcrypt.hash(data.portalPassword, 10);
+    
+    if (data.createPortalAccess && data.portalLogin && data.portalPassword) {
+      const existingUser = await prisma.user.findUnique({ where: { email: data.portalLogin } });
+      if (existingUser) return { error: "Este nome de usuário/e-mail já está em uso para acesso ao portal." };
+    
+      const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
       const newUser = await prisma.user.create({
         data: {
           name: data.name,
-          email: data.email,
-          password: defaultPassword,
+          email: data.portalLogin,
+          password: hashedPassword,
           role: "PACIENTE"
         }
       });
@@ -68,7 +69,7 @@ export async function createPatientAction(data: PatientData) {
     return { 
       success: true, 
       message: userId 
-        ? `Acesso ao Portal Criado!\n\nWebsite: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/portal\nE-mail: ${data.email}\nSenha: ${data.portalPassword}`
+        ? `Acesso ao Portal Criado!\n\nWebsite: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/portal\nUsuário: ${data.portalLogin}\nSenha: ${data.portalPassword}`
         : "Paciente cadastrado com sucesso (Sem acesso ao portal)."
     };
   } catch (err) {

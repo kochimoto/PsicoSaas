@@ -17,14 +17,15 @@ const patientSchema = z.object({
   address: z.string().optional(),
   notes: z.string().optional(),
   createPortalAccess: z.boolean(),
+  portalLogin: z.string().optional(),
   portalPassword: z.string().optional(),
 }).refine(data => {
-  if (data.createPortalAccess && (!data.email || !data.portalPassword)) {
+  if (data.createPortalAccess && (!data.portalLogin || !data.portalPassword)) {
     return false;
   }
   return true;
 }, {
-  message: "E-mail e Senha de Acesso são obrigatórios para gerar o Portal.",
+  message: "Usuário e Senha de Acesso são obrigatórios para gerar o Portal.",
   path: ["createPortalAccess"]
 });
 
@@ -159,14 +160,27 @@ export default function NovoPacientePage() {
               <div className="mt-6 pt-6 border-t border-slate-200">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">E-mail de Acesso (Login)</label>
-                    <input type="email" disabled value={watch("email")} className="w-full px-4 py-3 border border-slate-300 bg-slate-100/50 rounded-xl focus:outline-none" placeholder="Preencha o e-mail acima" />
+                    <label className="block text-sm font-bold text-slate-800 mb-1">Usuário de Acesso (Login) *</label>
+                    <input 
+                      type="text" 
+                      {...register("portalLogin")} 
+                      className="w-full px-4 py-3 border border-blue-200 bg-white rounded-xl focus:ring-2 focus:ring-blue-500 placeholder-slate-400" 
+                      placeholder="Ex: joaosilva ou e-mail" 
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-slate-800 mb-1">Definir Senha de Acesso *</label>
-                    <input type="text" {...register("portalPassword")} className="w-full px-4 py-3 border border-blue-200 bg-white rounded-xl focus:ring-2 focus:ring-blue-500 placeholder-slate-400" placeholder="Ex: paciente123" />
+                    <input 
+                      type="text" 
+                      {...register("portalPassword")} 
+                      className="w-full px-4 py-3 border border-blue-200 bg-white rounded-xl focus:ring-2 focus:ring-blue-500 placeholder-slate-400" 
+                      placeholder="Ex: paciente123" 
+                    />
                   </div>
                 </div>
+                <p className="mt-4 text-xs text-blue-600 bg-blue-50 p-3 rounded-lg border border-blue-100 italic">
+                  Dica: O usuário pode ser o próprio e-mail ou qualquer nome único que você escolher.
+                </p>
               </div>
             )}
           </div>
