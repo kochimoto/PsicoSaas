@@ -7,12 +7,12 @@ export default function LandingPage() {
       {/* Navbar with glassmorphism */}
       <nav className="fixed w-full z-50 top-0 transition-all border-b border-teal-100/50 bg-white/70 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-teal-500/20">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-teal-500/20 group-hover:scale-110 transition-transform">
               P
             </div>
-            <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoSaaS</span>
-          </div>
+            <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoGestão</span>
+          </Link>
           <div className="flex items-center gap-6">
             <Link href="#recursos" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">
               Recursos
@@ -93,15 +93,15 @@ export default function LandingPage() {
                        <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
                      </div>
                      <div className="flex-1 max-w-sm mx-auto h-5 bg-slate-700 rounded-md flex items-center justify-center border border-slate-600">
-                       <span className="text-[10px] text-slate-400 font-medium">psicosaais.com.br/dashboard</span>
+                       <span className="text-[10px] text-slate-400 font-medium">psicogestao.com.br/dashboard</span>
                      </div>
                    </div>
 
                    {/* Webp Recording */}
                    <div className="flex-1 w-full bg-white relative">
                      <img 
-                       src="/patient-demo.webp" 
-                       alt="Demonstração do Sistema PsicoSaaS" 
+                       src="/psicogestao_dashboard_mockup.png" 
+                       alt="Demonstração do Sistema PsicoGestão" 
                        className="absolute inset-0 w-full h-full object-cover object-left-top shadow-inner"
                      />
                    </div>
@@ -271,7 +271,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-teal-50/50 to-white/0"></div>
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Renove a sua rotina clínica hoje mesmo.</h2>
-          <p className="text-xl text-slate-600 mb-10 font-medium">Junte-se a milhares de psicólogos que modernizaram seus consultórios com o PsicoSaaS e ganharam tempo para viver.</p>
+          <p className="text-xl text-slate-600 mb-10 font-medium">Junte-se a milhares de psicólogos que modernizaram seus consultórios com o PsicoGestão e ganharam tempo para viver.</p>
           <Link
             href="/cadastro"
             className="inline-flex items-center gap-2 bg-slate-900 text-white px-10 py-5 rounded-full text-lg font-bold hover:bg-teal-700 hover:shadow-[0_0_40px_-5px_rgba(20,184,166,0.3)] transition-all active:scale-95"
@@ -287,12 +287,12 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-10 mb-16">
             <div className="md:col-span-1 border-r border-slate-800 pr-4">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+              <Link href="/" className="flex items-center gap-2 mb-6 group">
+                <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:scale-110 transition-transform">
                   P
                 </div>
-                <span className="font-extrabold text-2xl tracking-tight">PsicoSaaS</span>
-              </div>
+                <span className="font-extrabold text-2xl tracking-tight">PsicoGestão</span>
+              </Link>
               <p className="text-slate-400 text-sm leading-relaxed font-medium">
                 A plataforma mais completa e humanizada para gestão de clínicas psicológicas e psiquiátricas do Brasil.
               </p>
@@ -324,12 +324,10 @@ export default function LandingPage() {
           </div>
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-slate-500 text-sm font-medium text-center md:text-left">
-              © {new Date().getFullYear()} PsicoSaaS. Todos os direitos reservados.
+              © {new Date().getFullYear()} PsicoGestão. Todos os direitos reservados.
             </p>
-            <div className="flex items-center gap-2 text-slate-500">
-              <span className="text-xs font-bold uppercase tracking-wider">Feito com</span>
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-              <span className="text-xs font-bold uppercase tracking-wider">no Brasil</span>
+            <div className="flex items-center gap-2 text-slate-500 italic">
+              <span className="text-xs font-bold uppercase tracking-wider">Feito por Lucas Benevides</span>
             </div>
           </div>
         </div>

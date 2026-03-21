@@ -76,7 +76,7 @@ export default async function DashboardPage() {
           <h2 className="text-xl font-bold text-slate-800 mb-6">Avisos Recentes</h2>
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 text-blue-800 text-sm">
-              <span className="font-bold block mb-1">Dica do PsicoSaaS</span>
+              <span className="font-bold block mb-1">Dica do PsicoGestão</span>
               Ative as mensagens automatizadas de WhatsApp no menu Configurações para reduzir faltas.
             </div>
           </div>

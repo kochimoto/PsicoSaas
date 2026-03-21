@@ -14,6 +14,7 @@ const registerSchema = z.object({
   email: z.string().email("E-mail inválido"),
   phone: z.string().min(10, "Telefone inválido"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  whereFound: z.string().min(1, "Por favor, nos diga onde nos encontrou"),
 });
 
 type RegisterData = z.infer<typeof registerSchema>;
@@ -47,8 +48,14 @@ function RegisterForm() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
+        <Link href="/" className="flex items-center gap-2 mb-6 group">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg group-hover:scale-110 transition-transform">
+            P
+          </div>
+          <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoGestão</span>
+        </Link>
+        <h2 className="text-center text-3xl font-extrabold text-slate-900">
           Crie a sua conta
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
@@ -113,6 +120,24 @@ function RegisterForm() {
                   placeholder="••••••••"
                 />
                 {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Onde nos achou?</label>
+              <div className="mt-1">
+                <select
+                  {...register("whereFound")}
+                  className="block w-full px-3 py-3 border border-slate-300 rounded-xl shadow-sm bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+                >
+                  <option value="">Selecione uma opção</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="google">Google</option>
+                  <option value="indicacao">Indicação de colega</option>
+                  <option value="outro">Outro</option>
+                </select>
+                {errors.whereFound && <p className="mt-1 text-xs text-red-500">{errors.whereFound.message}</p>}
               </div>
             </div>
 

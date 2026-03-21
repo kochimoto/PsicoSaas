@@ -48,12 +48,18 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
+        <Link href="/" className="flex items-center gap-2 mb-6 group">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg group-hover:scale-110 transition-transform">
+            P
+          </div>
+          <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoGestão</span>
+        </Link>
+        <h2 className="text-center text-3xl font-extrabold text-slate-900">
           Bem-vindo de volta
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
-          Acesse a sua conta PsicoSaaS
+          Acesse a sua conta PsicoGestão
         </p>
       </div>
 

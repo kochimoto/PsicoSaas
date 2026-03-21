@@ -32,7 +32,7 @@ export async function POST(req: Request) {
           price_data: {
             currency: "brl",
             product_data: {
-              name: "PsicoSaaS VIP (Teste)",
+              name: "PsicoGestão VIP (Teste)",
               description: "Acesso ilimitado à gestão completa.",
             },
             unit_amount: 100, // R$ 1,00 (em centavos)

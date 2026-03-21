@@ -11,6 +11,7 @@ interface RegisterData {
   password: string;
   plan?: string;
   phone?: string;
+  whereFound?: string;
 }
 
 export async function registerAction(data: RegisterData) {
@@ -27,6 +28,7 @@ export async function registerAction(data: RegisterData) {
         name: data.name,
         email: data.email,
         password: hashedPassword,
+        whereFound: data.whereFound,
         role: "PSICOLOGO",
         tenantOwner: {
           create: {
