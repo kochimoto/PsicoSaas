@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/whatsapp?key=sua_chave_secreta_aqui",
-      "schedule": "0 * * * *"
+      "schedule": "0 10 * * *"
     }
   ]
 }
