@@ -33,7 +33,7 @@ export async function registerAction(data: RegisterData) {
         role: "PSICOLOGO",
         tenantOwner: {
           create: {
-            plan: data.plan || "FREE",
+            plan: "FREE",
             clinicName: `Consultório de ${data.name.split(" ")[0]}`,
             whatsappNumber: data.phone,
           }
