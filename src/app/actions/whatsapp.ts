@@ -97,7 +97,12 @@ export async function sendManualReminderAction(appointmentId: string) {
       .replace(/{data}/g, dateStr)
       .replace(/{hora}/g, hourStr);
 
-    await sendTextMessage(instanceName, appointment.patient.phone, message);
+    let cleanPhone = appointment.patient.phone.replace(/\D/g, "");
+    if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+      cleanPhone = `55${cleanPhone}`;
+    }
+
+    await sendTextMessage(instanceName, cleanPhone, message);
     
     // Log do envio
     await (prisma as any).notificationLog.create({
@@ -132,7 +137,12 @@ export async function sendManualPaymentReminderAction(transactionId: string) {
 
     const message = `Olá ${transaction.patient.name}, passando para lembrar do pagamento de ${amountStr} referente a ${transaction.description}.`;
 
-    await sendTextMessage(instanceName, transaction.patient.phone, message);
+    let cleanPhone = transaction.patient.phone.replace(/\D/g, "");
+    if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+      cleanPhone = `55${cleanPhone}`;
+    }
+
+    await sendTextMessage(instanceName, cleanPhone, message);
 
     // Log do envio
     await (prisma as any).notificationLog.create({
