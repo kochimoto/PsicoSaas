@@ -63,3 +63,85 @@ export async function updateTransactionAction(id: string, data: { description: s
     return { error: "Erro ao atualizar lançamento" };
   }
 }
+
+export async function createChargeAction(data: { 
+  description: string, 
+  amount: number, 
+  date: Date, 
+  patientId: string, 
+  paymentLink?: string 
+}) {
+  const session = await getSession();
+  if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
+
+  try {
+    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    if (!tenant) return { error: "Clínica não encontrada" };
+
+    await prisma.transaction.create({
+      data: {
+        description: data.description,
+        amount: Math.abs(data.amount),
+        type: 'INCOME',
+        date: data.date,
+        status: "PENDING",
+        paymentLink: data.paymentLink || null,
+        tenantId: tenant.id,
+        patientId: data.patientId
+      }
+    });
+
+    revalidatePath("/dashboard/financeiro");
+    revalidatePath("/portal");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Erro ao criar cobrança" };
+  }
+}
+
+export async function approveTransactionAction(id: string) {
+  const session = await getSession();
+  if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
+
+  try {
+    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    if (!tenant) return { error: "Clínica não encontrada" };
+
+    await prisma.transaction.update({
+      where: { id, tenantId: tenant.id },
+      data: { status: "PAID" }
+    });
+
+    revalidatePath("/dashboard/financeiro");
+    revalidatePath("/dashboard");
+    revalidatePath("/portal");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Erro ao aprovar pagamento" };
+  }
+}
+
+export async function uploadReceiptAction(transactionId: string, receiptUrl: string) {
+  const session = await getSession();
+  if (!session) return { error: "Não autorizado" };
+
+  try {
+    // Verificar se a transação pertence ao paciente logado
+    const patient = await prisma.patient.findUnique({ where: { userId: session.user.id } });
+    if (!patient) return { error: "Paciente não encontrado" };
+
+    await prisma.transaction.update({
+      where: { id: transactionId, patientId: patient.id },
+      data: { receiptUrl }
+    });
+
+    revalidatePath("/portal");
+    revalidatePath("/dashboard/financeiro");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Erro ao enviar comprovante" };
+  }
+}

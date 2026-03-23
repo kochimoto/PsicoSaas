@@ -5,7 +5,7 @@ import { Calendar, FileText, Download, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Link from "next/link";
-import { ConfirmSessionButton, ConfirmDocumentButton } from "./ConfirmButtons";
+import { ConfirmSessionButton, ConfirmDocumentButton, UploadReceiptButton } from "./ConfirmButtons";
 
 export default async function PortalPage() {
   const session = await getSession();
@@ -108,6 +108,7 @@ export default async function PortalPage() {
                       ) : (
                         <span className="text-xs font-bold text-rose-400 bg-rose-50 px-2 py-1 rounded">Sem Link</span>
                       )}
+                      <UploadReceiptButton id={t.id} hasReceipt={!!t.receiptUrl} />
                     </div>
                   </div>
                 ))}

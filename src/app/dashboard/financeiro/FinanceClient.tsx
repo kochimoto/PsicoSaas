@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, ArrowUpRight, ArrowDownRight, FileText, Edit2, MessageCircle, RefreshCw } from "lucide-react";
+import { Plus, X, ArrowUpRight, ArrowDownRight, FileText, Edit2, MessageCircle, RefreshCw, CheckCircle, Link as LinkIcon, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { createTransactionAction, updateTransactionAction } from "@/app/actions/finance";
+import { createTransactionAction, updateTransactionAction, createChargeAction, approveTransactionAction } from "@/app/actions/finance";
 import { sendManualPaymentReminderAction } from "@/app/actions/whatsapp";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,8 @@ type Transaction = {
   type: string;
   date: Date | string | number;
   status: string;
+  paymentLink?: string | null;
+  receiptUrl?: string | null;
   patient: { name: string } | null;
   service?: { name: string } | null;
 };
@@ -25,9 +27,11 @@ type Service = { id: string; name: string; price: number };
 
 export default function FinanceClient({ initialTransactions, patients, services, whatsappEnabled }: { initialTransactions: Transaction[], patients: Patient[], services: Service[], whatsappEnabled: boolean }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
+  const [paymentLink, setPaymentLink] = useState("");
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [patientId, setPatientId] = useState("");
   const [serviceId, setServiceId] = useState("");
@@ -100,18 +104,54 @@ export default function FinanceClient({ initialTransactions, patients, services,
     setWorkingId("");
   }
 
+  async function handleChargeSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!description || !amount || !patientId) {
+      setError("Preencha descrição, valor e paciente.");
+      return;
+    }
+    setLoading(true);
+    const parsedAmount = parseFloat(amount.replace(',', '.'));
+    const res = await createChargeAction({
+      description,
+      amount: parsedAmount,
+      date: new Date(`${date}T12:00:00`),
+      patientId,
+      paymentLink: paymentLink || undefined
+    });
+
+    if (res?.error) {
+      setError(res.error);
+    } else {
+      setIsChargeModalOpen(false);
+      toast.success("Cobrança criada com sucesso!");
+      router.refresh();
+    }
+    setLoading(false);
+  }
+
   return (
     <div className="space-y-6 mt-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-slate-800">Histórico de Lançamentos</h2>
-        <button 
-          onClick={() => {
-            setEditTxId(""); setType("INCOME"); setDescription(""); setAmount(""); setDate(format(new Date(), 'yyyy-MM-dd')); setPatientId(""); setServiceId(""); setError(""); setIsModalOpen(true);
-          }}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)]"
-        >
-          <Plus className="w-5 h-5" /> Novo Lançamento
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => {
+              setPatientId(""); setDescription("Cobrança de Sessão"); setAmount(""); setPaymentLink(""); setError(""); setIsChargeModalOpen(true);
+            }}
+            className="bg-sky-600 hover:bg-sky-700 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-sm"
+          >
+            <LinkIcon className="w-5 h-5" /> Nova Cobrança
+          </button>
+          <button 
+            onClick={() => {
+              setEditTxId(""); setType("INCOME"); setDescription(""); setAmount(""); setDate(format(new Date(), 'yyyy-MM-dd')); setPatientId(""); setServiceId(""); setError(""); setIsModalOpen(true);
+            }}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)]"
+          >
+            <Plus className="w-5 h-5" /> Novo Lançamento
+          </button>
+        </div>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
@@ -148,6 +188,11 @@ export default function FinanceClient({ initialTransactions, patients, services,
                     {t.service && (
                       <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md inline-flex max-w-max">Serviço: {t.service.name}</span>
                     )}
+                    {t.status === 'PENDING' ? (
+                      <span className="text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-md inline-flex max-w-max">Pendente</span>
+                    ) : (
+                      <span className="text-emerald-600 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md inline-flex max-w-max">Pago</span>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -156,6 +201,31 @@ export default function FinanceClient({ initialTransactions, patients, services,
                   </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    {t.paymentLink && (
+                       <a href={t.paymentLink} target="_blank" className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors" title="Ver Link de Pagamento">
+                         <LinkIcon className="w-5 h-5" />
+                       </a>
+                    )}
+                    {t.receiptUrl && (
+                       <a href={t.receiptUrl} target="_blank" className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Ver Comprovante Anexado">
+                         <Paperclip className="w-5 h-5" />
+                       </a>
+                    )}
+                    {t.status === 'PENDING' && t.receiptUrl && (
+                       <button
+                         onClick={async () => {
+                           if (confirm("Confirmar que este pagamento foi recebido?")) {
+                             await approveTransactionAction(t.id);
+                             toast.success("Pagamento aprovado!");
+                             router.refresh();
+                           }
+                         }}
+                         className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                         title="Aprovar Pagamento"
+                       >
+                         <CheckCircle className="w-5 h-5" />
+                       </button>
+                    )}
                     {whatsappEnabled && t.type === 'INCOME' && t.status === 'PENDING' && t.patient && (
                        <button
                          onClick={() => handleSendWhatsapp(t.id)}
@@ -302,6 +372,93 @@ export default function FinanceClient({ initialTransactions, patients, services,
                   className={`w-full text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 mt-4 active:scale-95 ${type === 'INCOME' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)]' : 'bg-rose-600 hover:bg-rose-700 shadow-[0_4px_14px_0_rgba(225,29,72,0.39)] hover:shadow-[0_6px_20px_rgba(225,29,72,0.23)]'}`}
                 >
                   {loading ? "Salvando..." : (editTxId ? "Confirmar Edição" : "Confirmar Lançamento")}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Charge Modal */}
+      {isChargeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-sky-50/50">
+              <h2 className="text-xl font-bold text-sky-900">Nova Cobrança</h2>
+              <button onClick={() => setIsChargeModalOpen(false)} className="text-slate-400 hover:text-slate-600 bg-white hover:bg-slate-100 p-2 rounded-full border border-slate-200 transition-colors shadow-sm">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <form onSubmit={handleChargeSubmit} className="space-y-5">
+                {error && <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100">{error}</div>}
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Paciente</label>
+                  <select 
+                    value={patientId} 
+                    onChange={e => setPatientId(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                  >
+                    <option value="">Selecionar paciente...</option>
+                    {patients.map(p => (
+                       <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Descrição</label>
+                  <input 
+                    type="text" 
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Valor (R$)</label>
+                    <input 
+                      type="number"
+                      step="0.01" 
+                      value={amount}
+                      onChange={e => setAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Vencimento</label>
+                    <input 
+                      type="date" 
+                      value={date}
+                      onChange={e => setDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5 font-sans">Link de Pagamento (Opcional)</label>
+                  <input 
+                    type="url" 
+                    value={paymentLink}
+                    onChange={e => setPaymentLink(e.target.value)}
+                    placeholder="https://link.pagamento/..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">Ex: Link do Mercado Pago, Stripe, etc.</p>
+                </div>
+                
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 mt-4 active:scale-95 shadow-md"
+                >
+                  {loading ? "Gerando..." : "Gerar Cobrança"}
                 </button>
               </form>
             </div>
