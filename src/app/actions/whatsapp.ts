@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { createInstance, getConnectionState, sendTextMessage } from "@/lib/whatsapp";
+import { createInstance, getConnectionState, sendTextMessage, connectInstance } from "@/lib/whatsapp";
 import { revalidatePath } from "next/cache";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -18,8 +18,10 @@ export async function getWhatsappQrCodeAction() {
     const instanceName = `psico_${tenant.id.substring(0, 8)}`;
     
     // Tenta pegar o estado da conexão
+    let instanceExists = false;
     try {
       const state = await getConnectionState(instanceName);
+      instanceExists = true;
       if (state.instance?.state === "open") {
         return { connected: true };
       }
@@ -28,16 +30,27 @@ export async function getWhatsappQrCodeAction() {
       console.log("Instância não existe, criando...");
     }
 
-    // Cria/Busca QR Code
-    const result = await createInstance(instanceName);
+    let result;
+    if (instanceExists) {
+      // Se existe mas não está conectada, pede um novo QR Code
+      result = await connectInstance(instanceName);
+    } else {
+      // Se não existe, cria do zero
+      result = await createInstance(instanceName);
+    }
     
-    if (result.qrcode?.base64) {
-      return { qrcode: result.qrcode.base64, connected: false };
+    // O base64 pode vir na raiz do objeto ou dentro de qrcode.base64 dependendo da rota/versão
+    const qrCodeBase64 = result.base64 || result.qrcode?.base64 || result.qrcode;
+    
+    if (qrCodeBase64 && typeof qrCodeBase64 === "string" && qrCodeBase64.includes("base64")) {
+      // Limpar prefixo data:image se vier
+      const finalQr = qrCodeBase64.replace(/^data:image\/[a-z]+;base64,/, "");
+      return { qrcode: finalQr, connected: false };
     }
 
     return { error: "Não foi possível gerar o QR Code. Tente novamente." };
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    console.error("Erro na API WhatsApp:", error?.message || error);
     return { error: "Erro ao conectar com o servidor de WhatsApp." };
   }
 }

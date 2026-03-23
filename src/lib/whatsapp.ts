@@ -37,6 +37,10 @@ export async function createInstance(instanceName: string) {
   });
 }
 
+export async function connectInstance(instanceName: string) {
+  return whatsApiRequest(`/instance/connect/${instanceName}`);
+}
+
 /**
  * Pega o QR Code ou status da conexão
  */
