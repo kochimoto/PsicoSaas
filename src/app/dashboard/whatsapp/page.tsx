@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import WhatsappClient from "./WhatsappClient";
-import StripeCheckoutButton from "../StripeCheckoutButton";
+import VIPCheckoutButton from "../VIPCheckoutButton";
 import { Lock, MessageCircle } from "lucide-react";
 
 export default async function WhatsappPage() {
@@ -40,7 +40,7 @@ export default async function WhatsappPage() {
           Esta é uma funcionalidade exclusiva do <strong className="text-amber-600">Plano VIP</strong>. Envie mensagens automáticas e acabe com as faltas dos seus pacientes usando Lembretes Inteligentes.
         </p>
         <div className="w-full max-w-sm">
-           <StripeCheckoutButton />
+           <VIPCheckoutButton />
         </div>
       </div>
     );

@@ -40,6 +40,9 @@ model Tenant {
   stripeSubscriptionId     String?
   stripeSubscriptionStatus String?
 
+  mpSubscriptionId         String?
+  mpSubscriptionStatus     String?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -19,7 +19,7 @@ const patientSchema = z.object({
   portalPassword: z.string().min(6, "Senha deve ter 6 caracteres").optional().or(z.literal("")),
 });
 
-type PatientData = z.infer<typeof patientSchema>;
+type PatientData = z.input<typeof patientSchema>;
 
 export default function EditClientForm({ patient }: { patient: any }) {
   const router = useRouter();

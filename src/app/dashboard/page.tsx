@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Users, Calendar, Wallet, TrendingUp, Sparkles } from "lucide-react";
-import StripeCheckoutButton from "./StripeCheckoutButton";
+import VIPCheckoutButton from "./VIPCheckoutButton";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
               Você está usando a licença gratuita do sistema. Assine o <strong className="text-amber-900">Plano VIP</strong> para enviar cobranças, laudos e lembretes de WhatsApp automaticamente aos seus pacientes, sem limites.
             </p>
           </div>
-          <StripeCheckoutButton />
+          <VIPCheckoutButton />
         </div>
       )}
 

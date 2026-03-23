@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import StripeCheckoutButton from "../StripeCheckoutButton";
+import VIPCheckoutButton from "../VIPCheckoutButton";
 import { Crown, CheckCircle2, ShieldAlert } from "lucide-react";
 
 export default async function AssinaturaPage() {
@@ -43,10 +43,10 @@ export default async function AssinaturaPage() {
            </div>
            {!isVip && (
               <div className="shrink-0 pt-2 sm:pt-0">
-                 <StripeCheckoutButton />
+                 <VIPCheckoutButton />
               </div>
            )}
-           {isVip && tenant.stripeSubscriptionStatus === "active" && (
+           {isVip && ((tenant.stripeSubscriptionStatus === "active" || tenant.mpSubscriptionStatus === "authorized") || tenant.mpSubscriptionStatus === "authorized") && (
               <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-2 text-emerald-700 font-bold">
                  <CheckCircle2 className="w-5 h-5"/> Pagamento em dia
               </div>
