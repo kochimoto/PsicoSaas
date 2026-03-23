@@ -3,6 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { sendTextMessage } from "@/lib/whatsapp";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export async function createAppointmentAction(data: { patientId: string, date: Date, notes?: string, recurring?: "NONE" | "WEEKLY" | "BIWEEKLY", occurrences?: number, serviceId?: string | null }) {
   const session = await getSession();
@@ -34,6 +37,31 @@ export async function createAppointmentAction(data: { patientId: string, date: D
     }));
 
     await prisma.appointment.createMany({ data: creates });
+
+    // --- Lógica de WhatsApp ---
+    if (tenant.whatsappEnabled && tenant.whatsappNumber) {
+      const patient = await prisma.patient.findUnique({ where: { id: data.patientId } });
+      const instanceName = `psico_${tenant.id.substring(0, 8)}`;
+
+      if (patient && patient.phone) {
+        for (const appointment of datesToBook) {
+          const dateStr = format(appointment, "dd/MM/yyyy", { locale: ptBR });
+          const hourStr = format(appointment, "HH:mm", { locale: ptBR });
+          
+          let message = tenant.whatsappMessage || "Olá {nome}, passando para confirmar sua consulta em {data} às {hora}.";
+          message = message
+            .replace(/{nome}/g, patient.name)
+            .replace(/{data}/g, dateStr)
+            .replace(/{hora}/g, hourStr);
+
+          // Enviar sem travar a resposta principal (fogo e esqueça)
+          sendTextMessage(instanceName, patient.phone, message).catch(err => {
+             console.error("Erro ao enviar WhatsApp automático:", err);
+          });
+        }
+      }
+    }
+    // ---------------------------
 
     revalidatePath("/dashboard/agenda");
     return { success: true };

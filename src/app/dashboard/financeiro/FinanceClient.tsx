@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, ArrowUpRight, ArrowDownRight, FileText, Edit2 } from "lucide-react";
+import { Plus, X, ArrowUpRight, ArrowDownRight, FileText, Edit2, MessageCircle, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createTransactionAction, updateTransactionAction } from "@/app/actions/finance";
+import { sendManualPaymentReminderAction } from "@/app/actions/whatsapp";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 // Maps for client side
@@ -21,7 +23,7 @@ type Transaction = {
 };
 type Service = { id: string; name: string; price: number };
 
-export default function FinanceClient({ initialTransactions, patients, services }: { initialTransactions: Transaction[], patients: Patient[], services: Service[] }) {
+export default function FinanceClient({ initialTransactions, patients, services, whatsappEnabled }: { initialTransactions: Transaction[], patients: Patient[], services: Service[], whatsappEnabled: boolean }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
   const [description, setDescription] = useState("");
@@ -32,6 +34,7 @@ export default function FinanceClient({ initialTransactions, patients, services 
   const [editTxId, setEditTxId] = useState("");
   
   const [loading, setLoading] = useState(false);
+  const [workingId, setWorkingId] = useState("");
   const [error, setError] = useState("");
   
   const router = useRouter();
@@ -84,6 +87,17 @@ export default function FinanceClient({ initialTransactions, patients, services 
       router.refresh();
     }
     setLoading(false);
+  }
+
+  async function handleSendWhatsapp(transactionId: string) {
+    setWorkingId(transactionId);
+    const res = await sendManualPaymentReminderAction(transactionId);
+    if (res.success) {
+      toast.success("Lembrete de pagamento enviado!");
+    } else {
+      toast.error(res.error || "Erro ao enviar lembrete.");
+    }
+    setWorkingId("");
   }
 
   return (
@@ -140,7 +154,19 @@ export default function FinanceClient({ initialTransactions, patients, services 
                   <div className={`text-xl sm:text-2xl font-black tracking-tight ${t.type === 'INCOME' ? 'text-emerald-600' : 'text-rose-600'}`}>
                      {t.type === 'INCOME' ? '+' : '-'} R$ {Math.abs(t.amount).toFixed(2).replace('.', ',')}
                   </div>
-                  <button 
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {whatsappEnabled && t.type === 'INCOME' && t.status === 'PENDING' && t.patient && (
+                       <button
+                         onClick={() => handleSendWhatsapp(t.id)}
+                         disabled={workingId === t.id}
+                         title="Enviar cobrança via WhatsApp"
+                         className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-100 disabled:opacity-50"
+                       >
+                         {workingId === t.id ? <RefreshCw className="w-5 h-5 animate-spin" /> : <MessageCircle className="w-5 h-5" />}
+                       </button>
+                    )}
+                    <button 
                     onClick={() => {
                       setEditTxId(t.id);
                       setType(t.type as any);

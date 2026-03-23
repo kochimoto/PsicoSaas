@@ -48,6 +48,7 @@ model Tenant {
   employees    Employee[]
   clinicalRecords ClinicalRecord[]
   services     Service[]
+  notificationLogs NotificationLog[]
 }
 
 model Patient {
@@ -123,6 +124,8 @@ model Appointment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  notificationLogs NotificationLog[]
 }
 
 model Document {
@@ -163,6 +166,8 @@ model Transaction {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  notificationLogs NotificationLog[]
 }
 
 model ClinicalRecord {
@@ -178,4 +183,20 @@ model ClinicalRecord {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model NotificationLog {
+  id              String   @id @default(cuid())
+  type            String   // APPOINTMENT_24H, APPOINTMENT_3H, PAYMENT_REMINDER, etc.
+  appointmentId   String?
+  appointment     Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  transactionId   String?
+  transaction     Transaction? @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  sentAt          DateTime @default(now())
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId, type])
+  @@index([transactionId, type])
 }

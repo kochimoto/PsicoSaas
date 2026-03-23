@@ -1,14 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateSettingsAction } from "@/app/actions/settings";
-import { Save, MessageCircle, AlertCircle } from "lucide-react";
+import { getWhatsappQrCodeAction, checkWhatsappStatusAction } from "@/app/actions/whatsapp";
+import { Save, MessageCircle, AlertCircle, QrCode, CheckCircle2, RefreshCw } from "lucide-react";
 
 export default function WhatsappClient({ initialData }: { initialData: any }) {
   const [formData, setFormData] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  
+  // Estados do WhatsApp
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
+
+  // Poll de status quando o QR Code é gerado
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (qrCode && !isConnected) {
+      interval = setInterval(async () => {
+        const res = await checkWhatsappStatusAction();
+        if (res.connected) {
+          setIsConnected(true);
+          setQrCode(null);
+          clearInterval(interval);
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [qrCode, isConnected]);
+
+  // Verificar status inicial
+  useEffect(() => {
+    checkWhatsappStatusAction().then(res => {
+      if (res.connected) setIsConnected(true);
+    });
+  }, []);
+
+  async function handleConnect() {
+    setStatusLoading(true);
+    setError("");
+    const res = await getWhatsappQrCodeAction();
+    if (res.error) {
+      setError(res.error);
+    } else if (res.connected) {
+      setIsConnected(true);
+      setQrCode(null);
+    } else if (res.qrcode) {
+      setQrCode(res.qrcode);
+    }
+    setStatusLoading(false);
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +118,69 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
             <p className="text-sm text-slate-500 mt-3 font-semibold">
               Variáveis suportadas: <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold ml-1 mr-1 border border-emerald-100/50">{"{nome}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mr-1 border border-emerald-100/50">{"{data}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold border border-emerald-100/50">{"{hora}"}</code>
             </p>
+          </div>
+        </div>
+
+        {/* Seção de Conexão */}
+        <div className="border-t border-slate-100 pt-8 mt-4">
+          <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <QrCode className="w-5 h-5 text-emerald-600" />
+            Conexão com o Aparelho
+          </h3>
+
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div className="space-y-4">
+              {isConnected ? (
+                <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl flex items-center gap-4 text-emerald-800">
+                  <div className="bg-emerald-500 p-2 rounded-full">
+                    <CheckCircle2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg">WhatsApp Conectado!</p>
+                    <p className="text-sm opacity-80">Seu sistema já pode disparar mensagens automaticamente.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-4 text-center">
+                  <p className="text-slate-600 font-medium">Seu WhatsApp ainda não está pareado com a VPS.</p>
+                  <button
+                    type="button"
+                    onClick={handleConnect}
+                    disabled={statusLoading}
+                    className="w-full bg-slate-900 hover:bg-black text-white px-6 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                  >
+                    {statusLoading ? (
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>Gerar QR Code de Conexão</>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-[2rem] p-8 bg-slate-50/50 min-h-[300px]">
+              {qrCode ? (
+                <div className="space-y-4 text-center">
+                  <div className="bg-white p-4 rounded-2xl shadow-md inline-block">
+                    <img src={`data:image/png;base64,${qrCode}`} alt="WhatsApp QR Code" className="w-48 h-48" />
+                  </div>
+                  <p className="text-sm text-slate-500 font-medium px-4">
+                    Abra o WhatsApp no seu celular {'>'} Aparelhos Conectados {'>'} Conectar um Aparelho
+                  </p>
+                </div>
+              ) : isConnected ? (
+                <div className="text-center space-y-2">
+                  <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto" />
+                  <p className="text-slate-500 font-bold">Aparelho Pronto</p>
+                </div>
+              ) : (
+                <div className="text-center space-y-2 opacity-30">
+                  <QrCode className="w-16 h-16 mx-auto" />
+                  <p className="font-bold">QR Code aparecerá aqui</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

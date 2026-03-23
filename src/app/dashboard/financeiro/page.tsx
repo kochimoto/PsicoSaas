@@ -45,6 +45,7 @@ export default async function FinanceiroPage() {
         initialTransactions={transactions} 
         patients={patients} 
         services={services}
+        whatsappEnabled={tenant.whatsappEnabled}
       />
     </div>
   );

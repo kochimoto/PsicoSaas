@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar as CalendarIcon, Clock, Plus, X, MessageCircle, CheckCircle2, Ban, Edit2 } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus, X, MessageCircle, CheckCircle2, Ban, Edit2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createAppointmentAction, updateAppointmentStatusAction, updateAppointmentDateAction } from "@/app/actions/appointments";
+import { sendManualReminderAction } from "@/app/actions/whatsapp";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -93,6 +94,17 @@ export default function AgendaClient({ initialAppointments, patients, services, 
     router.refresh();
   }
 
+  async function handleSendReminder(id: string) {
+    setWorkingId(id);
+    const res = await sendManualReminderAction(id);
+    if (res.success) {
+      toast.success("Lembrete enviado via WhatsApp!");
+    } else {
+      toast.error(res.error || "Erro ao enviar lembrete.");
+    }
+    setWorkingId("");
+  }
+
   function getWhatsAppLink(app: Appointment) {
     if (!app.patient?.phone || !tenantSettings.whatsappMessage) return null;
     let msg = tenantSettings.whatsappMessage;
@@ -155,15 +167,16 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                   <div className="flex items-center gap-3 pl-20 xl:pl-0 opacity-100 xl:opacity-0 group-hover:opacity-100 transition-opacity">
                     {appointment.status === 'SCHEDULED' && (
                       <>
-                        {tenantSettings.whatsappEnabled && waLink && (
-                          <Link 
-                            href={waLink} 
-                            target="_blank" 
-                            className="flex items-center justify-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-bold text-sm transition-colors border border-emerald-200 shadow-sm"
+                        {tenantSettings.whatsappEnabled && (
+                          <button 
+                            onClick={() => handleSendReminder(appointment.id)}
+                            disabled={workingId === appointment.id}
+                            className="flex items-center justify-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-bold text-sm transition-colors border border-emerald-200 shadow-sm disabled:opacity-50"
                             title="Avisar cliente no WhatsApp"
                           >
-                            <MessageCircle className="w-4 h-4" /> Zap
-                          </Link>
+                            {workingId === appointment.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
+                            Zap
+                          </button>
                         )}
                         <button 
                           onClick={() => openEditModal(appointment)}
