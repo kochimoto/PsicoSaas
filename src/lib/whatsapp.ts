@@ -54,8 +54,14 @@ export async function getConnectionState(instanceName: string) {
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
   // O número precisa estar no formato: 5511999999999 (DDI + DDD + Número)
   return whatsApiRequest(`/message/sendText/${instanceName}`, "POST", {
-    number,
-    text,
-    linkPreview: true
+    number: number,
+    options: {
+      delay: 1200,
+      presence: "composing",
+      linkPreview: true
+    },
+    textMessage: {
+      text: text
+    }
   });
 }
