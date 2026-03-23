@@ -164,7 +164,7 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 pl-20 xl:pl-0 opacity-100 xl:opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-3 pl-20 xl:pl-0 opacity-100 transition-opacity">
                     {appointment.status === 'SCHEDULED' && (
                       <>
                         {tenantSettings.whatsappEnabled && (
