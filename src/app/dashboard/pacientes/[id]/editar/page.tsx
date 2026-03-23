@@ -5,15 +5,17 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import EditClientForm from "./EditClientForm";
 
-export default async function EditPatientPage({ params }: { params: { id: string } }) {
+export default async function EditPatientPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return redirect("/login");
+
+  const { id } = await params;
 
   const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
   if (!tenant) return redirect("/login");
 
   const patient = await prisma.patient.findFirst({
-    where: { id: params.id, tenantId: tenant.id },
+    where: { id, tenantId: tenant.id },
     include: { user: { select: { id: true, email: true } } }
   });
 

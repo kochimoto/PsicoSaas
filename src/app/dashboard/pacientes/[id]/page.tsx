@@ -6,15 +6,17 @@ import { ArrowLeft, User, Calendar, FileText, Phone, Mail, Activity, Edit } from
 import EvolutionForm from "./EvolutionForm";
 import DocumentClient from "../../documentos/DocumentClient";
 
-export default async function PatientDetailsPage({ params }: { params: { id: string } }) {
+export default async function PatientDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return redirect("/login");
+
+  const { id } = await params;
 
   const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
   if (!tenant) return redirect("/login");
 
   const patient = await prisma.patient.findFirst({
-    where: { id: params.id, tenantId: tenant.id },
+    where: { id, tenantId: tenant.id },
     include: {
       clinicalRecords: { orderBy: { date: 'desc' } },
       appointments: { 
