@@ -10,7 +10,8 @@ export default async function WhatsappPage() {
   if (!session) return redirect("/login");
 
   const tenant = await prisma.tenant.findUnique({
-    where: { ownerId: session.user.id }
+    where: { ownerId: session.user.id },
+    include: { services: { orderBy: { name: 'asc' } } }
   });
 
   if (!tenant) return redirect("/login");
@@ -18,7 +19,13 @@ export default async function WhatsappPage() {
   const initialData = {
     whatsappEnabled: tenant.whatsappEnabled,
     whatsappNumber: tenant.whatsappNumber || "",
-    whatsappMessage: tenant.whatsappMessage || ""
+    whatsappMessage: tenant.whatsappMessage || "",
+    whatsappPaymentMessage: tenant.whatsappPaymentMessage || "",
+    services: tenant.services.map(s => ({
+      id: s.id,
+      name: s.name,
+      whatsappMessage: s.whatsappMessage || ""
+    }))
   };
 
   if (tenant.plan === "FREE") {

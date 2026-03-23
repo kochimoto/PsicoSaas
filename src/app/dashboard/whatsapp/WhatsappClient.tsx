@@ -3,13 +3,18 @@
 import { useState, useEffect } from "react";
 import { updateSettingsAction } from "@/app/actions/settings";
 import { getWhatsappQrCodeAction, checkWhatsappStatusAction } from "@/app/actions/whatsapp";
-import { Save, MessageCircle, AlertCircle, QrCode, CheckCircle2, RefreshCw } from "lucide-react";
+import { Save, MessageCircle, AlertCircle, QrCode, CheckCircle2, RefreshCw, Trash2, Plus } from "lucide-react";
 
 export default function WhatsappClient({ initialData }: { initialData: any }) {
   const [formData, setFormData] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  // Serviços com mensagens customizadas (máx 5)
+  const [activeServices, setActiveServices] = useState<string[]>(
+    initialData.services?.filter((s: any) => s.whatsappMessage && s.whatsappMessage.trim() !== "").map((s: any) => s.id) || []
+  );
   
   // Estados do WhatsApp
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -118,6 +123,91 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
             <p className="text-sm text-slate-500 mt-3 font-semibold">
               Variáveis suportadas: <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold ml-1 mr-1 border border-emerald-100/50">{"{nome}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mr-1 border border-emerald-100/50">{"{data}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold border border-emerald-100/50">{"{hora}"}</code>
             </p>
+          </div>
+
+          <div className="max-w-4xl pt-6 border-t border-slate-100">
+            <label className="block text-sm font-bold text-slate-700 mb-2">Mensagem de Lembrete Financeiro (Cobrança)</label>
+            <textarea 
+              value={formData.whatsappPaymentMessage}
+              onChange={e => setFormData({...formData, whatsappPaymentMessage: e.target.value})}
+              className="w-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-2xl p-5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-slate-700 resize-y leading-relaxed"
+              placeholder="Digite a mensagem de cobrança..."
+            />
+            <p className="text-sm text-slate-500 mt-3 font-semibold pb-2">
+              Variáveis suportadas: <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{nome}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{valor}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold ml-1 border border-emerald-100/50">{"{descricao}"}</code>
+            </p>
+          </div>
+
+          <div className="max-w-4xl pt-6 border-t border-slate-100 space-y-4">
+            <h3 className="block text-sm font-bold text-slate-700 mb-4">Mensagens Personalizadas por Serviço (Limite: 5)</h3>
+            
+            {activeServices.length === 0 && (
+               <p className="text-sm text-slate-500 font-medium">Nenhum serviço possui mensagem personalizada ainda.</p>
+            )}
+
+            <div className="space-y-4">
+              {activeServices.map(id => {
+                const service = formData.services?.find((s: any) => s.id === id);
+                if (!service) return null;
+                return (
+                  <div key={id} className="p-5 border border-slate-200 rounded-2xl bg-white relative shadow-sm">
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setActiveServices(prev => prev.filter(x => x !== id));
+                        setFormData((prev: any) => ({
+                          ...prev,
+                          services: prev.services.map((s: any) => s.id === id ? { ...s, whatsappMessage: "" } : s)
+                        }));
+                      }} 
+                      className="absolute top-4 right-4 text-slate-400 hover:text-rose-500 transition-colors p-1"
+                      title="Remover mensagem desse serviço"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                    <label className="font-bold text-slate-800 text-sm block mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                      Serviço: {service.name}
+                    </label>
+                    <textarea 
+                      value={service.whatsappMessage}
+                      onChange={e => {
+                        setFormData((prev: any) => ({
+                          ...prev,
+                          services: prev.services.map((s: any) => s.id === id ? { ...s, whatsappMessage: e.target.value } : s)
+                        }));
+                      }}
+                      placeholder={`Mensagem personalizada para ${service.name} (usa as mesmas variáveis do lembrete padrão)`}
+                      className="w-full min-h-[100px] border border-slate-200 rounded-xl p-4 bg-slate-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-slate-700 resize-y"
+                    />
+                  </div>
+                )
+              })}
+            </div>
+
+            {formData.services && activeServices.length < 5 && activeServices.length < formData.services.length && (
+              <div className="pt-4 flex items-center gap-3">
+                <div className="flex-1 max-w-sm relative">
+                  <select 
+                    value="" 
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) return;
+                      if (activeServices.length < 5 && !activeServices.includes(val)) {
+                        setActiveServices([...activeServices, val]);
+                      }
+                    }}
+                    className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-600 font-semibold rounded-xl pl-4 pr-10 py-3 focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="" disabled>+ Adicionar serviço personalizado...</option>
+                    {formData.services.filter((s:any) => !activeServices.includes(s.id)).map((s:any) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                  <Plus className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

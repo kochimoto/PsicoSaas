@@ -5,22 +5,38 @@ import Link from "next/link";
 import { Plus, Search, User } from "lucide-react";
 import StatusToggle from "./StatusToggle";
 
-export default async function PacientesPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function PacientesPage({ searchParams }: { searchParams: Promise<{ status?: string, page?: string }> }) {
   const session = await getSession();
   if (!session) return redirect("/login");
 
-  const { status: statusParam } = await searchParams;
+  const { status: statusParam, page: pageParam } = await searchParams;
   const status = statusParam || "active";
+  const currentPage = Number(pageParam) || 1;
+  const ITEMS_PER_PAGE = 5;
 
-  const tenant = await prisma.tenant.findUnique({
-    where: { ownerId: session.user.id },
-    include: { 
-      patients: { 
-        where: status === "all" ? {} : { active: status === "active" },
-        orderBy: { name: 'asc' } 
-      } 
-    }
-  });
+  const whereClause = status === "all" ? {} : { active: status === "active" };
+
+  const [tenant, totalPatients] = await Promise.all([
+    prisma.tenant.findUnique({
+      where: { ownerId: session.user.id },
+      include: { 
+        patients: { 
+          where: whereClause,
+          orderBy: { name: 'asc' },
+          skip: (currentPage - 1) * ITEMS_PER_PAGE,
+          take: ITEMS_PER_PAGE
+        } 
+      }
+    }),
+    prisma.patient.count({
+      where: {
+        tenant: { ownerId: session.user.id },
+        ...whereClause
+      }
+    })
+  ]);
+
+  const totalPages = Math.ceil(totalPatients / ITEMS_PER_PAGE);
 
   if (!tenant) return redirect("/login");
 
@@ -113,6 +129,41 @@ export default async function PacientesPage({ searchParams }: { searchParams: Pr
                 ))}
               </tbody>
             </table>
+
+            {totalPages > 1 && (
+              <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/30">
+                <p className="text-sm text-slate-500">
+                  Mostrando página <span className="font-bold text-slate-700">{currentPage}</span> de <span className="font-bold text-slate-700">{totalPages}</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  {currentPage > 1 ? (
+                    <Link 
+                      href={`/dashboard/pacientes?status=${status}&page=${currentPage - 1}`}
+                      className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 transition-colors shadow-sm"
+                    >
+                      Anterior
+                    </Link>
+                  ) : (
+                    <button disabled className="px-4 py-2 border border-slate-100 bg-slate-50 text-slate-400 rounded-lg text-sm font-bold cursor-not-allowed">
+                      Anterior
+                    </button>
+                  )}
+                  
+                  {currentPage < totalPages ? (
+                    <Link 
+                      href={`/dashboard/pacientes?status=${status}&page=${currentPage + 1}`}
+                      className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 transition-colors shadow-sm"
+                    >
+                      Próxima
+                    </Link>
+                  ) : (
+                    <button disabled className="px-4 py-2 border border-slate-100 bg-slate-50 text-slate-400 rounded-lg text-sm font-bold cursor-not-allowed">
+                      Próxima
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

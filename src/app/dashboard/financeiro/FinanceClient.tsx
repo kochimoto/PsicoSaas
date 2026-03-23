@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X, ArrowUpRight, ArrowDownRight, FileText, Edit2, MessageCircle, RefreshCw, CheckCircle, Link as LinkIcon, Paperclip } from "lucide-react";
+import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createTransactionAction, updateTransactionAction, createChargeAction, approveTransactionAction } from "@/app/actions/finance";
@@ -25,7 +26,7 @@ type Transaction = {
 };
 type Service = { id: string; name: string; price: number };
 
-export default function FinanceClient({ initialTransactions, patients, services, whatsappEnabled }: { initialTransactions: Transaction[], patients: Patient[], services: Service[], whatsappEnabled: boolean }) {
+export default function FinanceClient({ initialTransactions, patients, services, whatsappEnabled, currentPage = 1, totalPages = 1 }: { initialTransactions: Transaction[], patients: Patient[], services: Service[], whatsappEnabled: boolean, currentPage?: number, totalPages?: number }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
@@ -254,6 +255,41 @@ export default function FinanceClient({ initialTransactions, patients, services,
                 </div>
               </div>
             ))}
+
+            {totalPages > 1 && (
+              <div className="pt-6 mt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-sm text-slate-500 font-medium whitespace-nowrap">
+                  Página <span className="font-bold text-slate-800">{currentPage}</span> de <span className="font-bold text-slate-800">{totalPages}</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  {currentPage > 1 ? (
+                    <Link 
+                      href={`/dashboard/financeiro?page=${currentPage - 1}`}
+                      className="px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 transition-colors shadow-sm"
+                    >
+                      Anterior
+                    </Link>
+                  ) : (
+                    <button disabled className="px-5 py-2.5 border border-slate-100 bg-slate-50 text-slate-400 rounded-xl text-sm font-bold cursor-not-allowed">
+                      Anterior
+                    </button>
+                  )}
+                  
+                  {currentPage < totalPages ? (
+                    <Link 
+                      href={`/dashboard/financeiro?page=${currentPage + 1}`}
+                      className="px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 transition-colors shadow-sm"
+                    >
+                      Próxima
+                    </Link>
+                  ) : (
+                    <button disabled className="px-5 py-2.5 border border-slate-100 bg-slate-50 text-slate-400 rounded-xl text-sm font-bold cursor-not-allowed">
+                      Próxima
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

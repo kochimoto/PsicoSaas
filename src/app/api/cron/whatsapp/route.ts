@@ -49,7 +49,8 @@ async function processAppointmentReminders(now: Date, hours: number, type: strin
     },
     include: { 
       patient: true, 
-      tenant: true 
+      tenant: true,
+      service: true
     }
   }) as any[];
 
@@ -60,14 +61,19 @@ async function processAppointmentReminders(now: Date, hours: number, type: strin
     const dateStr = format(app.date, "dd/MM/yyyy", { locale: ptBR });
     const hourStr = format(app.date, "HH:mm", { locale: ptBR });
 
-    let message = app.tenant.whatsappMessage || "Olá {nome}, lembrete da sua consulta em {data} às {hora}.";
-    message = message
+    let messageTemplate = app.service?.whatsappMessage || app.tenant.whatsappMessage || "Olá {nome}, lembrete da sua consulta em {data} às {hora}.";
+    let message = messageTemplate
       .replace(/{nome}/g, app.patient.name)
       .replace(/{data}/g, dateStr)
       .replace(/{hora}/g, hourStr);
 
+    let cleanPhone = (app.patient as any).phone.replace(/\D/g, "");
+    if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+      cleanPhone = `55${cleanPhone}`;
+    }
+
     try {
-      await sendTextMessage(instanceName, (app.patient as any).phone, message);
+      await sendTextMessage(instanceName, cleanPhone, message);
       await (prisma as any).notificationLog.create({
         data: { type, appointmentId: app.id, tenantId: app.tenantId }
       });
@@ -106,16 +112,39 @@ async function processPaymentReminders(now: Date, days: number, type: string, re
 
     const instanceName = `psico_${tx.tenantId.substring(0, 8)}`;
     const amountStr = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(tx.amount);
-    
+    const vencimentoStr = format(tx.date, "dd/MM/yyyy");
+
+    let messageTemplate = tx.tenant.whatsappPaymentMessage;
     let message = "";
-    if (days > 0) {
-      message = `Olá ${tx.patient.name}, passando para lembrar que seu pagamento de ${amountStr} vence em ${days} dia(s) (${format(tx.date, "dd/MM")}).`;
+
+    if (messageTemplate) {
+      message = messageTemplate
+        .replace(/{nome}/g, tx.patient.name)
+        .replace(/{valor}/g, amountStr)
+        .replace(/{descricao}/g, tx.description)
+        .replace(/{vencimento}/g, vencimentoStr);
+      
+      // Add dynamic context if needed
+      if (days < 0) {
+        message += `\n(Lembrete: Pagamento pendente desde ${vencimentoStr})`;
+      } else {
+        message += `\n(Vencimento em ${vencimentoStr})`;
+      }
     } else {
-      message = `Olá ${tx.patient.name}, notamos que o pagamento de ${amountStr} está atrasado há ${Math.abs(days)} dia(s). Caso já tenha pago, desconsidere.`;
+      if (days > 0) {
+        message = `Olá ${tx.patient.name}, passando para lembrar que seu pagamento de ${amountStr} vence em ${days} dia(s) (${format(tx.date, "dd/MM")}).`;
+      } else {
+        message = `Olá ${tx.patient.name}, notamos que o pagamento de ${amountStr} está atrasado há ${Math.abs(days)} dia(s). Caso já tenha pago, desconsidere.`;
+      }
+    }
+
+    let cleanPhone = (tx.patient as any).phone.replace(/\D/g, "");
+    if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+      cleanPhone = `55${cleanPhone}`;
     }
 
     try {
-      await sendTextMessage(instanceName, (tx.patient as any).phone, message);
+      await sendTextMessage(instanceName, cleanPhone, message);
       await (prisma as any).notificationLog.create({
         data: { type, transactionId: tx.id, tenantId: tx.tenantId }
       });

@@ -82,7 +82,7 @@ export async function sendManualReminderAction(appointmentId: string) {
   try {
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
-      include: { patient: true, tenant: true }
+      include: { patient: true, tenant: true, service: true }
     });
 
     if (!appointment || !appointment.patient.phone) return { error: "Agendamento ou paciente sem telefone." };
@@ -91,8 +91,8 @@ export async function sendManualReminderAction(appointmentId: string) {
     const dateStr = format(appointment.date, "dd/MM/yyyy", { locale: ptBR });
     const hourStr = format(appointment.date, "HH:mm", { locale: ptBR });
 
-    let message = appointment.tenant.whatsappMessage || "Olá {nome}, lembrete da sua consulta em {data} às {hora}.";
-    message = message
+    let messageTemplate = appointment.service?.whatsappMessage || appointment.tenant.whatsappMessage || "Olá {nome}, lembrete da sua consulta em {data} às {hora}.";
+    let message = messageTemplate
       .replace(/{nome}/g, appointment.patient.name)
       .replace(/{data}/g, dateStr)
       .replace(/{hora}/g, hourStr);
@@ -135,7 +135,11 @@ export async function sendManualPaymentReminderAction(transactionId: string) {
     const instanceName = `psico_${transaction.tenantId.substring(0, 8)}`;
     const amountStr = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(transaction.amount);
 
-    const message = `Olá ${transaction.patient.name}, passando para lembrar do pagamento de ${amountStr} referente a ${transaction.description}.`;
+    const messageTemplate = transaction.tenant.whatsappPaymentMessage || "Olá {nome}, passando para lembrar do pagamento de {valor} referente a {descricao}.";
+    const message = messageTemplate
+      .replace(/{nome}/g, transaction.patient.name)
+      .replace(/{valor}/g, amountStr)
+      .replace(/{descricao}/g, transaction.description);
 
     let cleanPhone = transaction.patient.phone.replace(/\D/g, "");
     if (cleanPhone.length === 10 || cleanPhone.length === 11) {
