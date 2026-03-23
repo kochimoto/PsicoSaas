@@ -38,7 +38,7 @@ export default async function DocumentosPage() {
         </div>
       </div>
 
-      <DocumentClient documents={documents} patients={patients} />
+      <DocumentClient documents={documents} patients={patients} whatsappEnabled={tenant.whatsappEnabled} />
     </div>
   );
 }

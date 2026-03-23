@@ -21,6 +21,7 @@ export default async function WhatsappPage() {
     whatsappNumber: tenant.whatsappNumber || "",
     whatsappMessage: tenant.whatsappMessage || "",
     whatsappPaymentMessage: tenant.whatsappPaymentMessage || "",
+    whatsappDocumentMessage: tenant.whatsappDocumentMessage || "",
     services: tenant.services.map(s => ({
       id: s.id,
       name: s.name,

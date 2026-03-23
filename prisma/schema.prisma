@@ -34,6 +34,7 @@ model Tenant {
   whatsappNumber  String?
   whatsappMessage String?  @default("Olá {nome}, sua sessão está marcada para amanhã às {hora}. Responda para confirmar!")
   whatsappPaymentMessage String? @default("Olá {nome}, passando para lembrar do pagamento de {valor} referente a {descricao}.")
+  whatsappDocumentMessage String? @default("Olá {nome}! Segue o link do seu documento ({documento}): {link}")
 
   stripeCustomerId         String?
   stripeSubscriptionId     String?
@@ -143,8 +144,18 @@ model Document {
   patientId String?
   patient   Patient?  @relation(fields: [patientId], references: [id], onDelete: SetNull)
 
+  fileData  FileData?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model FileData {
+  id         String   @id @default(cuid())
+  documentId String   @unique
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  data       String   // Base64 string
+  mimeType   String
 }
 
 model Transaction {

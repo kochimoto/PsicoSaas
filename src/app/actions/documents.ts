@@ -33,27 +33,33 @@ export async function uploadDocumentAction(formData: FormData) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-
-    // Save locally
-    const uploadDir = path.join(process.cwd(), "public/uploads", tenant.id);
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    const ext = file.name.split('.').pop() || "pdf";
-    const uniqueFilename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-    const filePath = path.join(uploadDir, uniqueFilename);
+    const base64Data = buffer.toString('base64');
     
-    await fs.writeFile(filePath, buffer);
-
-    const fileUrl = `/uploads/${tenant.id}/${uniqueFilename}`;
-
-    await prisma.document.create({
+    // We create the document and fileData together to maintain transaction integrity.
+    // The initial fileUrl will be updated right after we get the document id,
+    // or we can generate the id beforehand using cuid(). Let's let Prisma generate it and update it, 
+    // or just use `/api/documents/[id]` dynamically based on the returned document ID.
+    
+    const doc = await prisma.document.create({
       data: {
         name,
         type,
-        fileUrl,
+        fileUrl: "", // Temporary, will update immediately
         tenantId: tenant.id,
-        patientId: patientId || null
+        patientId: patientId || null,
+        fileData: {
+          create: {
+            data: base64Data,
+            mimeType: file.type || "application/pdf"
+          }
+        }
       }
+    });
+
+    // Atualizando o fileUrl com o ID definitivo gerado pelo banco para a rota da API funcionar
+    await prisma.document.update({
+      where: { id: doc.id },
+      data: { fileUrl: `/api/documents/${doc.id}` }
     });
 
     revalidatePath("/dashboard/documentos");
@@ -74,12 +80,11 @@ export async function deleteDocumentAction(id: string) {
     const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    const doc = await prisma.document.findFirst({ where: { id, tenantId: tenant.id } });
+    const doc = await prisma.document.findFirst({ where: { id, tenantId: tenant.id }, include: { fileData: true } });
     if (!doc) return { error: "Arquivo não encontrado" };
 
-    // Fs unlink ignores errors to prevent db mismatch
-    const filePath = path.join(process.cwd(), "public", doc.fileUrl);
-    await fs.unlink(filePath).catch(() => {});
+    // File is now deleted automatically via cascade when document deletes (or fileData first)
+    // No more fs unlinks needed since it's stored in the DB.
 
     await prisma.document.delete({ where: { id } });
     

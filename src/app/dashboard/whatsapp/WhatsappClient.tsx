@@ -134,7 +134,20 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
               placeholder="Digite a mensagem de cobrança..."
             />
             <p className="text-sm text-slate-500 mt-3 font-semibold pb-2">
-              Variáveis suportadas: <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{nome}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{valor}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold ml-1 border border-emerald-100/50">{"{descricao}"}</code>
+              Variáveis suportadas: <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{nome}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{valor}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold ml-1 border border-emerald-100/50">{"{descricao}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold ml-1 border border-emerald-100/50">{"{link_pagamento}"}</code>
+            </p>
+          </div>
+
+          <div className="max-w-4xl pt-6 border-t border-slate-100">
+            <label className="block text-sm font-bold text-slate-700 mb-2">Mensagem de Envio de Documentos (Laudos, Receitas)</label>
+            <textarea 
+              value={formData.whatsappDocumentMessage}
+              onChange={e => setFormData({...formData, whatsappDocumentMessage: e.target.value})}
+              className="w-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-2xl p-5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-medium text-slate-700 resize-y leading-relaxed"
+              placeholder="Digite a mensagem para envio de documentos..."
+            />
+            <p className="text-sm text-slate-500 mt-3 font-semibold pb-2">
+              Variáveis suportadas: <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{nome}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold mx-1 border border-emerald-100/50">{"{documento}"}</code> <code className="bg-emerald-50 px-2 py-1 rounded text-emerald-700 font-bold ml-1 border border-emerald-100/50">{"{link}"}</code>
             </p>
           </div>
 

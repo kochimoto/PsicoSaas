@@ -10,6 +10,7 @@ export async function updateSettingsAction(data: {
   whatsappNumber?: string;
   whatsappMessage?: string;
   whatsappPaymentMessage?: string;
+  whatsappDocumentMessage?: string;
   services?: { id: string, whatsappMessage: string }[];
 }) {
   const session = await getSession();
@@ -25,6 +26,7 @@ export async function updateSettingsAction(data: {
     if (data.whatsappNumber !== undefined) updateData.whatsappNumber = data.whatsappNumber || null;
     if (data.whatsappMessage !== undefined) updateData.whatsappMessage = data.whatsappMessage || null;
     if (data.whatsappPaymentMessage !== undefined) updateData.whatsappPaymentMessage = data.whatsappPaymentMessage || null;
+    if (data.whatsappDocumentMessage !== undefined) updateData.whatsappDocumentMessage = data.whatsappDocumentMessage || null;
 
     if (Object.keys(updateData).length > 0) {
       await prisma.tenant.update({

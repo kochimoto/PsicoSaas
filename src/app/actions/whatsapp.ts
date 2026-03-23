@@ -135,11 +135,12 @@ export async function sendManualPaymentReminderAction(transactionId: string) {
     const instanceName = `psico_${transaction.tenantId.substring(0, 8)}`;
     const amountStr = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(transaction.amount);
 
-    const messageTemplate = transaction.tenant.whatsappPaymentMessage || "Olá {nome}, passando para lembrar do pagamento de {valor} referente a {descricao}.";
+    const messageTemplate = transaction.tenant.whatsappPaymentMessage || "Olá {nome}, passando para lembrar do pagamento de {valor} referente a {descricao}. Link: {link_pagamento}";
     const message = messageTemplate
       .replace(/{nome}/g, transaction.patient.name)
       .replace(/{valor}/g, amountStr)
-      .replace(/{descricao}/g, transaction.description);
+      .replace(/{descricao}/g, transaction.description)
+      .replace(/{link_pagamento}/g, transaction.paymentLink || "");
 
     let cleanPhone = transaction.patient.phone.replace(/\D/g, "");
     if (cleanPhone.length === 10 || cleanPhone.length === 11) {
@@ -161,5 +162,41 @@ export async function sendManualPaymentReminderAction(transactionId: string) {
   } catch (error) {
     console.error(error);
     return { error: "Erro ao enviar lembrete de pagamento." };
+  }
+}
+
+export async function sendDocumentWhatsAppAction(documentId: string) {
+  const session = await getSession();
+  if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
+
+  try {
+    const doc = await prisma.document.findUnique({
+      where: { id: documentId },
+      include: { patient: true, tenant: true }
+    });
+
+    if (!doc || !doc.patient?.phone) return { error: "Documento não encontrado ou paciente sem telefone." };
+
+    const instanceName = `psico_${doc.tenantId.substring(0, 8)}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const documentLink = `${appUrl}/api/documents/${doc.id}`;
+
+    const messageTemplate = doc.tenant.whatsappDocumentMessage || "Olá {nome}! Segue o link do seu documento ({documento}): {link}";
+    const message = messageTemplate
+      .replace(/{nome}/g, doc.patient.name)
+      .replace(/{documento}/g, doc.name)
+      .replace(/{link}/g, documentLink);
+
+    let cleanPhone = doc.patient.phone.replace(/\D/g, "");
+    if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+      cleanPhone = `55${cleanPhone}`;
+    }
+
+    await sendTextMessage(instanceName, cleanPhone, message);
+
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Erro ao enviar documento via WhatsApp." };
   }
 }

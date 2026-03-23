@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, File, Trash2, Download, Search, FileText } from "lucide-react";
+import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle } from "lucide-react";
 import { uploadDocumentAction, deleteDocumentAction } from "@/app/actions/documents";
+import { sendDocumentWhatsAppAction } from "@/app/actions/whatsapp";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -15,7 +16,7 @@ type DocInfo = {
   patient: { name: string } | null;
 };
 
-export default function DocumentClient({ documents, patients }: { documents: DocInfo[], patients: {id: string, name: string}[] }) {
+export default function DocumentClient({ documents, patients, whatsappEnabled = false }: { documents: DocInfo[], patients: {id: string, name: string}[], whatsappEnabled?: boolean }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -65,6 +66,18 @@ export default function DocumentClient({ documents, patients }: { documents: Doc
     router.refresh();
   }
 
+  async function handleSendZap(id: string) {
+    if(!confirm("Enviar link deste documento por WhatsApp ao paciente?")) return;
+    setWorkingId(id);
+    const res = await sendDocumentWhatsAppAction(id);
+    if(res?.error) {
+      setErrorMsg(res.error);
+    } else {
+      alert("Enviado com sucesso!");
+    }
+    setWorkingId("");
+  }
+
   return (
     <div className="space-y-6">
       
@@ -106,6 +119,16 @@ export default function DocumentClient({ documents, patients }: { documents: Doc
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {whatsappEnabled && doc.patient && (
+                    <button 
+                      onClick={() => handleSendZap(doc.id)}
+                      disabled={workingId === doc.id}
+                      className="p-3 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl hover:bg-emerald-100 transition-colors font-bold disabled:opacity-50 flex items-center gap-2"
+                      title="Enviar via WhatsApp"
+                    >
+                      <MessageCircle className="w-4 h-4" /> 
+                    </button>
+                  )}
                   <Link 
                     href={doc.fileUrl} 
                     target="_blank" 

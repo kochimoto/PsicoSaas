@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, ArrowUpRight, ArrowDownRight, FileText, Edit2, MessageCircle, RefreshCw, CheckCircle, Link as LinkIcon, Paperclip } from "lucide-react";
+import { Plus, X, ArrowUpRight, ArrowDownRight, FileText, Edit2, MessageCircle, RefreshCw, CheckCircle, Link as LinkIcon, Paperclip, Download } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -29,6 +29,13 @@ type Service = { id: string; name: string; price: number };
 export default function FinanceClient({ initialTransactions, patients, services, whatsappEnabled, currentPage = 1, totalPages = 1 }: { initialTransactions: Transaction[], patients: Patient[], services: Service[], whatsappEnabled: boolean, currentPage?: number, totalPages?: number }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChargeModalOpen, setIsChargeModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  
+  const [reportStart, setReportStart] = useState("");
+  const [reportEnd, setReportEnd] = useState("");
+  const [reportPatientId, setReportPatientId] = useState("");
+  const [reportServiceId, setReportServiceId] = useState("");
+
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -136,6 +143,12 @@ export default function FinanceClient({ initialTransactions, patients, services,
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-slate-800">Histórico de Lançamentos</h2>
         <div className="flex gap-3">
+          <button 
+            onClick={() => setIsReportModalOpen(true)}
+            className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-sm"
+          >
+            <Download className="w-5 h-5" /> Exportar Relatório
+          </button>
           <button 
             onClick={() => {
               setPatientId(""); setDescription("Cobrança de Sessão"); setAmount(""); setPaymentLink(""); setError(""); setIsChargeModalOpen(true);
@@ -497,6 +510,88 @@ export default function FinanceClient({ initialTransactions, patients, services,
                   {loading ? "Gerando..." : "Gerar Cobrança"}
                 </button>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Modal */}
+      {isReportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h2 className="text-xl font-bold text-slate-900">Gerar Relatório (CSV)</h2>
+              <button onClick={() => setIsReportModalOpen(false)} className="text-slate-400 hover:text-slate-600 bg-white hover:bg-slate-100 p-2 rounded-full border border-slate-200 transition-colors shadow-sm">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Data Inicial</label>
+                    <input 
+                      type="date" 
+                      value={reportStart}
+                      onChange={e => setReportStart(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-slate-500 focus:outline-none transition-all font-medium text-slate-700"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Data Final</label>
+                    <input 
+                      type="date" 
+                      value={reportEnd}
+                      onChange={e => setReportEnd(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-slate-500 focus:outline-none transition-all font-medium text-slate-700"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Filtrar por Paciente</label>
+                  <select 
+                    value={reportPatientId} 
+                    onChange={e => setReportPatientId(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-slate-500 focus:outline-none transition-all font-medium text-slate-700"
+                  >
+                    <option value="">Todos os pacientes</option>
+                    {patients.map(p => (
+                       <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Filtrar por Serviço</label>
+                  <select 
+                    value={reportServiceId} 
+                    onChange={e => setReportServiceId(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-slate-500 focus:outline-none transition-all font-medium text-slate-700"
+                  >
+                    <option value="">Todos os serviços</option>
+                    {services.map(s => (
+                       <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <button 
+                  onClick={() => {
+                    const params = new URLSearchParams();
+                    if (reportStart) params.append("startDate", reportStart);
+                    if (reportEnd) params.append("endDate", reportEnd);
+                    if (reportPatientId) params.append("patientId", reportPatientId);
+                    if (reportServiceId) params.append("serviceId", reportServiceId);
+                    window.open(`/api/finance/export?${params.toString()}`, "_blank");
+                    setIsReportModalOpen(false);
+                  }}
+                  className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl transition-all mt-4 shadow-md"
+                >
+                  Fazer Download .CSV
+                </button>
+              </div>
             </div>
           </div>
         </div>

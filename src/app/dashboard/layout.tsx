@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, LogOut, Menu, MessageCircle, Crown, Tag } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, LogOut, Menu, MessageCircle, Crown, Tag, Globe } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import Providers from "@/components/Providers";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -65,7 +66,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             })}
           </div>
 
-          <div className="p-4 border-t border-slate-100">
+          <div className="p-4 border-t border-slate-100 flex flex-col gap-2">
+            <button 
+              onClick={() => {
+                const url = `${window.location.origin}/portal`;
+                navigator.clipboard.writeText(url);
+                toast.success("Link do Portal copiado!");
+              }}
+              className="flex items-center justify-center w-full px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold transition-colors text-sm"
+            >
+              <Globe className="w-4 h-4 mr-2" /> Link do Portal
+            </button>
             <LogoutButton />
           </div>
         </div>
