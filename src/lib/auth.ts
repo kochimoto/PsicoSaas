@@ -44,7 +44,7 @@ export async function setSession(user: { id: string; email: string; role: string
   const cookieStore = await cookies();
   cookieStore.set("session", session, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true, // Always true in prod, usually ignored in localhost unless proxy
     expires: expires,
     sameSite: "lax",
     path: "/",
