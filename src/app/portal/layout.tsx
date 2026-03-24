@@ -7,7 +7,19 @@ import { logoutAction } from "@/app/actions/auth";
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
   
-  if (!session || session.user.role !== "PACIENTE") {
+  if (!session) {
+    return redirect("/login");
+  }
+
+  if (session.user.role === "PSICOLOGO") {
+    return redirect("/dashboard");
+  }
+
+  if (session.user.role === "SUPER_ADMIN") {
+    return redirect("/admin");
+  }
+
+  if (session.user.role !== "PACIENTE") {
     return redirect("/login");
   }
 
