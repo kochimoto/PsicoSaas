@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 const loginSchema = z.object({
-  email: z.string().email("E-mail inválido"),
+  email: z.string().min(1, "E-mail ou usuário é obrigatório"),
   password: z.string().min(1, "Senha é obrigatória"),
 });
 
