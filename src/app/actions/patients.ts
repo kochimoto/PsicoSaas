@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { differenceInDays } from "date-fns";
 
 interface PatientData {
   name: string;
@@ -26,12 +27,17 @@ export async function createPatientAction(data: PatientData) {
     const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    if (tenant.plan === "FREE") {
+    const trialDaysLimit = 7;
+    const daysSinceCreated = differenceInDays(new Date(), tenant.createdAt);
+    const isTrialActive = daysSinceCreated < trialDaysLimit;
+    const isVip = tenant.plan !== "FREE" || isTrialActive;
+
+    if (!isVip) {
       const currentMonthStart = new Date();
       currentMonthStart.setDate(1);
       currentMonthStart.setHours(0, 0, 0, 0);
       const count = await prisma.patient.count({ where: { tenantId: tenant.id, createdAt: { gte: currentMonthStart } } });
-      if (count >= 10) return { error: "LIMITE EXCEDIDO: Você atingiu o limite de 10 pacientes novos neste mês (Plano Gratuito). Assine o VIP para cadastros ilimitados." };
+      if (count >= 10) return { error: "LIMITE EXCEDIDO: Você atingiu o limite de 10 pacientes novos neste mês (Plano Gratuito). Assine o VIP para cadastros ilimitados ou aguarde o próximo mês." };
     }
 
     let userId = null;

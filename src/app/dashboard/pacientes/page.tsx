@@ -92,37 +92,44 @@ export default async function PacientesPage({ searchParams }: { searchParams: Pr
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/50 text-slate-500 text-sm border-b border-slate-100">
-                  <th className="px-6 py-4 font-medium">Nome Completo</th>
-                  <th className="px-6 py-4 font-medium">Contato</th>
-                  <th className="px-6 py-4 font-medium">Status</th>
-                  <th className="px-6 py-4 font-medium text-right">Ações</th>
+                <tr className="bg-slate-50/50 text-slate-500 text-[11px] font-black uppercase tracking-widest border-b border-slate-100">
+                  <th className="px-6 py-4 font-bold">Paciente</th>
+                  <th className="px-6 py-4 font-bold hidden sm:table-cell">Contato</th>
+                  <th className="px-6 py-4 font-bold">Status</th>
+                  <th className="px-6 py-4 font-bold text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {tenant.patients.map((patient: any) => (
-                  <tr key={patient.id} className={`hover:bg-slate-50 transition-colors group ${!patient.active ? 'bg-slate-50/50 grayscale-[0.5] opacity-80' : ''}`}>
-                    <td className="px-6 py-4">
-                      <div className="font-semibold text-slate-900">{patient.name}</div>
-                      <div className="text-sm text-slate-500">{patient.cpf || "Sem CPF"}</div>
+                  <tr key={patient.id} className={`hover:bg-blue-50/30 transition-colors group ${!patient.active ? 'bg-slate-50/50 grayscale-[0.5] opacity-80' : ''}`}>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold shrink-0 border border-slate-200">
+                          {patient.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-bold text-slate-900 truncate">{patient.name}</div>
+                          <div className="text-xs text-slate-500 font-medium sm:hidden">{patient.phone || "Sem telefone"}</div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-slate-700">{patient.phone || "-"}</div>
-                      <div className="text-sm text-slate-500">{patient.email || "-"}</div>
+                    <td className="px-6 py-5 hidden sm:table-cell">
+                      <div className="text-sm text-slate-700 font-medium">{patient.phone || "-"}</div>
+                      <div className="text-xs text-slate-400">{patient.email || "-"}</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-5">
                       <div className="flex flex-col gap-1.5">
                         <StatusToggle id={patient.id} active={patient.active} />
                         {patient.userId && (
-                          <span className="inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100">
-                            Tem Portal
+                          <span className="inline-flex items-center w-fit px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
+                            ATIVO NO PORTAL
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link href={`/dashboard/pacientes/${patient.id}`} className="text-sm font-medium text-blue-600 hover:text-blue-800 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Ver Prontuário
+                    <td className="px-6 py-5 text-right">
+                      <Link href={`/dashboard/pacientes/${patient.id}`} className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm">
+                        Ver Perfil
                       </Link>
                     </td>
                   </tr>
