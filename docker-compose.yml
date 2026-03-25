@@ -18,6 +18,29 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - WHATS_API_URL=${WHATS_API_URL}
+      - WHATS_API_URL=http://evolution:8080
       - WHATS_API_KEY=${WHATS_API_KEY}
       - WHATS_MASTER_INSTANCE=${WHATS_MASTER_INSTANCE}
+    depends_on:
+      - evolution
+
+  evolution:
+    image: atendai/evolution-api:v2.1.1
+    container_name: evolution
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_TYPE=NODE
+      - AUTH_TOKEN=${WHATS_API_KEY}
+      - REDIS_ENABLED=true
+      - REDIS_URI=redis://redis:6379/1
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    command: redis-server --appendonly yes
+
