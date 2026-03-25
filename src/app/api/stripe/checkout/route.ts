@@ -32,10 +32,10 @@ export async function POST(req: Request) {
           price_data: {
             currency: "brl",
             product_data: {
-              name: "PsicoGestão VIP (Teste)",
+              name: "PsicoGestão VIP",
               description: "Acesso ilimitado à gestão completa.",
             },
-            unit_amount: 100, // R$ 1,00 (em centavos)
+            unit_amount: 3999, // R$ 39,99 (em centavos)
             recurring: {
               interval: "month",
             },

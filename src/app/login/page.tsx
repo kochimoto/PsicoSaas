@@ -120,37 +120,7 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-slate-500 font-medium whitespace-nowrap">Ou continue com</span>
-              </div>
-            </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3">
-              <button
-                type="button"
-                disabled={isGooglePending || isPending}
-                onClick={() => {
-                  setIsGooglePending(true);
-                  signIn("google", { callbackUrl: "/dashboard" });
-                }}
-                className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition-all active:scale-95 disabled:opacity-70"
-              >
-                {isGooglePending ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-                ) : (
-                  <>
-                    <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-5 h-5 mr-3" alt="Google" />
-                    Entrar com Google
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
 
           <div className="mt-6 border-t border-slate-200 pt-6 text-center text-sm">
             <span className="text-slate-500">Não tem uma conta? </span>

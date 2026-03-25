@@ -2,14 +2,36 @@
 
 import { useState } from "react";
 import { Users, Server, DollarSign, Key, Trash2, Shield } from "lucide-react";
-import { updateTenantPlanAction, deleteAccountAction, resetPasswordAction } from "@/app/actions/admin";
+import { updateTenantPlanAction, deleteAccountAction, resetPasswordAction, getSystemWhatsappStatusAction, getSystemWhatsappQrCodeAction } from "@/app/actions/admin";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AdminClient({ tenants, usersCount, mrr }: { tenants: any[], usersCount: number, mrr: number }) {
   const router = useRouter();
   const [workingId, setWorkingId] = useState("");
   const [resetModalData, setResetModalData] = useState<{userId: string, name: string} | null>(null);
   const [newPassword, setNewPassword] = useState("");
+  const [systemWhats, setSystemWhats] = useState<{connected: boolean, state: string, qrcode?: string}>({ connected: false, state: "loading" });
+
+  useEffect(() => {
+    checkStatus();
+  }, []);
+
+  async function checkStatus() {
+    const res = await getSystemWhatsappStatusAction();
+    setSystemWhats(res as any);
+  }
+
+  async function handleConnectSystem() {
+    setSystemWhats(prev => ({ ...prev, state: "connecting" }));
+    const res = await getSystemWhatsappQrCodeAction();
+    if (res.qrcode) {
+      setSystemWhats({ connected: false, state: "qrcode", qrcode: res.qrcode });
+    } else {
+      alert(res.error || "Erro ao gerar QR Code");
+      checkStatus();
+    }
+  }
 
   async function handlePlanChange(tenantId: string, plan: string) {
     if(!confirm(`Deseja alterar o plano desta clínica para ${plan}?`)) return;
@@ -47,7 +69,7 @@ export default function AdminClient({ tenants, usersCount, mrr }: { tenants: any
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm flex items-center gap-5 hover:-translate-y-1 transition-transform">
           <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
             <DollarSign className="w-8 h-8 text-emerald-600" />
@@ -64,7 +86,7 @@ export default function AdminClient({ tenants, usersCount, mrr }: { tenants: any
           </div>
           <div>
             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Clínicas Ativas</p>
-            <p className="text-3xl font-black text-slate-900 tracking-tight">{tenants.length}</p>
+            <p className="text-2xl font-black text-slate-900 tracking-tight">{tenants.length}</p>
           </div>
         </div>
 
@@ -74,10 +96,44 @@ export default function AdminClient({ tenants, usersCount, mrr }: { tenants: any
           </div>
           <div>
             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Usuários (SaaS)</p>
-            <p className="text-3xl font-black text-slate-900 tracking-tight">{usersCount}</p>
+            <p className="text-2xl font-black text-slate-900 tracking-tight">{usersCount}</p>
           </div>
         </div>
+
+        <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col gap-4 hover:-translate-y-1 transition-transform relative overflow-hidden group">
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-xl ${systemWhats.connected ? 'bg-emerald-50' : 'bg-amber-50'} flex items-center justify-center shrink-0`}>
+              <Server className={`w-6 h-6 ${systemWhats.connected ? 'text-emerald-600' : 'text-amber-600'}`} />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">WhatsApp Sistema</p>
+              <p className="text-lg font-black text-slate-900">
+                {systemWhats.connected ? "Conectado" : "Offline"}
+              </p>
+            </div>
+          </div>
+          
+          {!systemWhats.connected && (
+            <div className="">
+              {systemWhats.state === "qrcode" && systemWhats.qrcode ? (
+                <div className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-4">
+                   <img src={`data:image/png;base64,${systemWhats.qrcode}`} alt="QR Code" className="w-32 h-32 mb-2" />
+                   <button onClick={checkStatus} className="text-[10px] font-bold text-indigo-600 underline">Já escaneei</button>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleConnectSystem}
+                  disabled={systemWhats.state === "connecting"}
+                  className="w-full bg-slate-900 text-white py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all"
+                >
+                  {systemWhats.state === "connecting" ? "Gerando..." : "Conectar Mestre"}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
+
 
       <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">

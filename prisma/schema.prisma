@@ -17,6 +17,9 @@ model User {
   whereFound String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  emailVerified     DateTime?
+  verificationToken String? @unique
 
   tenantOwner Tenant?    @relation("TenantOwner")
   patient     Patient?
@@ -170,6 +173,8 @@ model Transaction {
   status          String   @default("PENDING") // PENDING, PAID, CANCELLED
   paymentLink     String?
   receiptUrl      String?
+  paymentProofUrl String?
+  paymentProofData String? // Base64 or URL
 
   tenantId        String
   tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)

@@ -52,3 +52,35 @@ export async function confirmDocumentAction(documentId: string) {
     return { error: "Erro ao confirmar recebimento." };
   }
 }
+
+export async function uploadPaymentProofAction(transactionId: string, base64Data: string) {
+  const session = await getSession();
+  if (!session || session.user.role !== "PACIENTE") return { error: "Não autorizado" };
+
+  try {
+    const patientRow = await prisma.patient.findUnique({ where: { userId: session.user.id } });
+    if (!patientRow) return { error: "Paciente não encontrado" };
+
+    const transaction = await prisma.transaction.findFirst({
+      where: { id: transactionId, patientId: patientRow.id }
+    });
+    if (!transaction) return { error: "Transação não encontrada" };
+
+    await prisma.transaction.update({
+      where: { id: transactionId },
+      data: {
+        paymentProofData: base64Data,
+        status: "PAID", // Optionally mark as paid or keep pending for admin approval
+      }
+    });
+
+    revalidatePath("/portal");
+    revalidatePath(`/dashboard/pacientes/${patientRow.id}`);
+    revalidatePath("/dashboard/financeiro");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Erro ao enviar comprovante." };
+  }
+}
+

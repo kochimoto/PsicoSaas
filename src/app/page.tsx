@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useState } from "react";
 // Trigger deploy
 import { ArrowRight, Calendar, Users, FileText, Wallet, CheckCircle2, Brain, Heart, ShieldCheck, MessageCircle, Activity, Star } from "lucide-react";
 
@@ -235,38 +236,69 @@ export default function LandingPage() {
             
             <PricingCard 
               name="Consultório VIP"
-              price="R$ 97"
+              price="R$ 39,99"
               period="/mês"
-              description="A solução favorita para automatizar e otimizar todo o consultório."
+              description="A solução completa para automatizar e otimizar todo o seu consultório."
               features={[
                 "Pacientes e Agendas ilimitados",
-                "Prontuário especializado",
+                "Prontuário especializado e seguro",
                 "Portal exclusivo para pacientes",
-                "Controle financeiro potente",
-                "Automações de WhatsApp",
+                "Controle financeiro e Fluxo de Caixa",
+                "Automações de WhatsApp inclusas",
                 "Geração automática de Recibos"
               ]}
-              buttonText="Começar VIP"
+              buttonText="Começar Agora"
               buttonLink="/cadastro?plano=VIP_MENSAL"
               isPopular
             />
+          </div>
+        </div>
+      </section>
 
-            <PricingCard 
-              name="Anual Pro"
-              price="R$ 79"
-              period="/mês"
-              description="O melhor custo-benefício. Pagamento único equivalente de R$ 948."
-              features={[
-                "Tudo do Consultório VIP",
-                "Economia equivalente a 2 meses",
-                "Suporte prioritário (WhatsApp)",
-                "Mentoria express de Setup",
-                "Importação dados antigos"
-              ]}
-              buttonText="Conhecer o Anual"
-              buttonLink="/cadastro?plano=VIP_ANUAL"
+      {/* FAQ Section */}
+      <section id="faq" className="py-24 bg-white">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-teal-600 font-bold tracking-wide uppercase text-sm mb-3">Dúvidas Frequentes</h2>
+            <h3 className="text-3xl lg:text-4xl font-extrabold text-slate-900">Perguntas comuns</h3>
+          </div>
+          <div className="space-y-6">
+            <FAQItem 
+              question="O sistema é seguro e adequado à LGPD?" 
+              answer="Sim, utilizamos criptografia de ponta a ponta e seguimos rigorosamente as diretrizes da LGPD e as resoluções do CFP para garantir o sigilo absoluto dos dados dos seus pacientes." 
+            />
+            <FAQItem 
+              question="Como funciona o teste grátis?" 
+              answer="Você pode criar sua conta agora e testar todos os recursos por 7 dias sem compromisso. Não pedimos cartão de crédito para começar o teste." 
+            />
+            <FAQItem 
+              question="Posso cancelar a qualquer momento?" 
+              answer="Sim! Não temos contrato de fidelidade. Você pode cancelar sua assinatura VIP a qualquer momento diretamente pelo painel de controle." 
+            />
+            <FAQItem 
+              question="A integração com WhatsApp tem custo extra?" 
+              answer="Não, as automações básicas de lembretes e confirmações já estão inclusas no plano VIP sem custos adicionais." 
             />
           </div>
+        </div>
+      </section>
+
+      {/* Support Section */}
+      <section className="py-20 bg-teal-600 text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 p-10 opacity-10">
+          <MessageCircle className="w-64 h-64" />
+        </div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+          <h3 className="text-3xl lg:text-4xl font-black mb-6">Ainda tem dúvidas? Fale com nosso suporte</h3>
+          <p className="text-teal-100 text-lg mb-10 max-w-2xl mx-auto">Nossa equipe está pronta para te ajudar a escolher o melhor plano ou tirar qualquer dúvida técnica sobre o PsicoGestão.</p>
+          <Link 
+            href="https://wa.me/5500000000000" 
+            target="_blank"
+            className="inline-flex items-center gap-3 bg-white text-teal-700 px-10 py-5 rounded-full text-xl font-bold hover:bg-teal-50 transition-all shadow-xl"
+          >
+            <MessageCircle className="w-6 h-6" />
+            Chamar no WhatsApp
+          </Link>
         </div>
       </section>
 
@@ -320,9 +352,8 @@ export default function LandingPage() {
             <div>
               <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">Políticas</h4>
               <ul className="space-y-4 text-sm font-medium text-slate-400">
-                <li><Link href="#" className="hover:text-teal-400 transition-colors">Termos de Uso</Link></li>
-                <li><Link href="#" className="hover:text-teal-400 transition-colors">Privacidade (LGPD)</Link></li>
-                <li><Link href="#" className="hover:text-teal-400 transition-colors">Conformidade CFP</Link></li>
+                <li><Link href="/termos" className="hover:text-teal-400 transition-colors">Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="hover:text-teal-400 transition-colors">Privacidade (LGPD)</Link></li>
               </ul>
             </div>
           </div>
@@ -421,3 +452,24 @@ function PricingCard({
     </div>
   );
 }
+
+function FAQItem({ question, answer }: { question: string, answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm transition-all hover:border-teal-200">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full p-6 text-left flex justify-between items-center bg-white hover:bg-slate-50 transition-colors"
+      >
+        <span className="font-bold text-slate-800">{question}</span>
+        <span className={`text-teal-600 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+      {isOpen && (
+        <div className="p-6 pt-0 text-slate-600 font-medium leading-relaxed border-t border-slate-50">
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+}
+

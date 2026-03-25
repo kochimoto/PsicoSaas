@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { getConnectionState, createInstance, connectInstance } from "@/lib/whatsapp";
 
 async function verifySuperAdmin() {
   const session = await getSession();
@@ -64,3 +65,41 @@ export async function resetPasswordAction(userId: string, newPass: string) {
     return { error: error.message || "Erro ao redefinir senha" };
   }
 }
+
+export async function getSystemWhatsappStatusAction() {
+  try {
+    await verifySuperAdmin();
+    const instanceName = process.env.WHATS_MASTER_INSTANCE || "psico_system_master";
+    const state = await getConnectionState(instanceName).catch(() => null);
+    
+    return { 
+      connected: state?.instance?.state === "open",
+      state: state?.instance?.state || "offline"
+    };
+  } catch (error) {
+    return { connected: false, error: "Erro ao checar status" };
+  }
+}
+
+export async function getSystemWhatsappQrCodeAction() {
+  try {
+    await verifySuperAdmin();
+    const instanceName = process.env.WHATS_MASTER_INSTANCE || "psico_system_master";
+    
+    let result = await connectInstance(instanceName).catch(async () => {
+      return await createInstance(instanceName);
+    });
+
+    const qrCodeBase64 = result.base64 || result.qrcode?.base64 || result.qrcode;
+    
+    if (qrCodeBase64 && typeof qrCodeBase64 === "string") {
+      const finalQr = qrCodeBase64.replace(/^data:image\/[a-z]+;base64,/, "");
+      return { qrcode: finalQr };
+    }
+
+    return { error: "Não foi possível gerar o QR Code." };
+  } catch (error: any) {
+    return { error: "Erro ao conectar com o servidor." };
+  }
+}
+
