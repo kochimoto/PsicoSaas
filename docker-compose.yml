@@ -1,0 +1,23 @@
+services:
+  psicosaas:
+    build:
+      context: .
+      args:
+        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+        - NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${NEXT_PUBLIC_STRIPE_PUBLIC_KEY}
+    container_name: psicosaas
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DIRECT_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - WHATS_API_URL=${WHATS_API_URL}
+      - WHATS_API_KEY=${WHATS_API_KEY}
+      - WHATS_MASTER_INSTANCE=${WHATS_MASTER_INSTANCE}
