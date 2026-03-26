@@ -12,8 +12,8 @@ import {
   createTransactionAction, 
   updateTransactionAction, 
   approveTransactionAction 
-} from "@/actions/finance";
-import { sendManualPaymentReminderAction } from "@/actions/whatsapp";
+} from "@/app/actions/finance";
+import { sendManualPaymentReminderAction } from "@/app/actions/whatsapp";
 import { toast } from "sonner";
 
 export default function FinanceClient({ initialTransactions, patients }: { initialTransactions: any[], patients: any[] }) {

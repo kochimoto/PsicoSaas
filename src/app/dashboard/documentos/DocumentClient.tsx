@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle, X, Plus } from "lucide-react";
-import { uploadDocumentAction, deleteDocumentAction } from "@/actions/documents";
-import { sendDocumentWhatsAppAction } from "@/actions/whatsapp";
+import { uploadDocumentAction, deleteDocumentAction } from "@/app/actions/documents";
+import { sendDocumentWhatsAppAction } from "@/app/actions/whatsapp";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { updateSettingsAction } from "@/actions/settings";
+import { updateSettingsAction } from "@/app/actions/settings";
 import {
   getWhatsappQrCodeAction,
   checkWhatsappStatusAction,
   disconnectWhatsappAction,
-} from "@/actions/whatsapp";
+} from "@/app/actions/whatsapp";
 import {
   Save, MessageCircle, AlertCircle, QrCode, CheckCircle2,
   RefreshCw, LogOut, Clock,

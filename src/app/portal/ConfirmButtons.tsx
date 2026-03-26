@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateAppointmentStatusAction } from "@/actions/appointments";
+import { updateAppointmentStatusAction } from "@/app/actions/appointments";
 import { toast } from "sonner";
 import { Check, X, RefreshCw } from "lucide-react";
 

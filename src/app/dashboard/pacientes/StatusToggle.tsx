@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { togglePatientStatusAction } from "@/actions/patients";
+import { togglePatientStatusAction } from "@/app/actions/patients";
 import { toast } from "sonner";
 
 export default function StatusToggle({ id, active }: { id: string, active: boolean }) {

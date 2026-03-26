@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm as useReactHookForm } from "react-hook-form";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { registerAction } from "../actions/auth";
+import { registerAction } from "@/app/actions/auth";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 

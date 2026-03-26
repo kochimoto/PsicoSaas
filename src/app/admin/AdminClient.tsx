@@ -9,7 +9,7 @@ import {
   updateTenantPlanAction, 
   deleteAccountAction, 
   resetPasswordAction 
-} from "@/actions/admin";
+} from "@/app/actions/admin";
 import { toast } from "sonner";
 
 export default function AdminClient({ initialTenants }: { initialTenants: any[] }) {

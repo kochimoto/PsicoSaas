@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updatePatientAction } from "@/actions/patients";
+import { updatePatientAction } from "@/app/actions/patients";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Save, User, Shield } from "lucide-react";
