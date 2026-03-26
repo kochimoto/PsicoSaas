@@ -50,11 +50,17 @@ export async function createInstance(instanceName: string) {
       "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
-      webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook`
+      webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook`,
+      waitQrCode: true
     }),
     cache: "no-store"
   });
-  if (!res.ok) throw new Error("Erro ao criar a sessão no WhatsApp Engine.");
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    console.error("Erro WPP Start Session:", res.status, errData);
+    throw new Error(`Erro ao iniciar sessão (${res.status}): ${errData.message || "Verifique os logs do servidor"}`);
+  }
   const data = await res.json();
   return data;
 }
