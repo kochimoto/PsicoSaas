@@ -59,6 +59,7 @@ export async function createInstance(instanceName: string) {
     throw new Error(`Erro ao iniciar sessão (${res.status}): ${errData.message || "Verifique os logs do servidor"}`);
   }
   const data = await res.json();
+  console.log("WPP Session Result:", JSON.stringify(data).substring(0, 500)); // Log for debugging
   return data;
 }
 
