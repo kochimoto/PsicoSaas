@@ -22,13 +22,23 @@ async function getBaseUrl() {
 export async function getWppToken() {
   if (cachedWppToken) return cachedWppToken;
   const baseUrl = await getBaseUrl();
-  const res = await fetch(`${baseUrl}/api/${WHATS_API_KEY}/generate-token`, {
+  console.log(`Tentando gerar token no WPPConnect: ${baseUrl}`);
+  
+  // O WPPConnect exige /api/{session}/{secret}/generate-token
+  const res = await fetch(`${baseUrl}/api/psicosaas/${WHATS_API_KEY}/generate-token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" }
   });
-  if (!res.ok) throw new Error("Falha ao gerar o token de segurança no WPPConnect.");
+  
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("Erro ao gerar token WPP:", res.status, errText);
+    throw new Error(`Falha ao gerar o token: ${res.status}`);
+  }
+  
   const data = await res.json();
   cachedWppToken = data.token;
+  console.log("Token WPP gerado com sucesso");
   return cachedWppToken;
 }
 
