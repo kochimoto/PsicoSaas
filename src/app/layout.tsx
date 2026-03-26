@@ -13,8 +13,9 @@ export const metadata: Metadata = {
   description: "Plataforma completa para gestão de clínicas de psicologia",
 };
 
-import Providers from "@/components/Providers";
 import NextTopLoader from "nextjs-toploader";
+import { Toaster } from "sonner";
+import Providers from "@/components/Providers";
 
 export default function RootLayout({
   children,
@@ -28,7 +29,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-slate-50 text-slate-900">
-        <NextTopLoader color="#2563eb" showSpinner={false} shadow="0 0 10px #2563eb,0 0 5px #2563eb" />
+        <NextTopLoader color="#0d9488" showSpinner={false} shadow="0 0 10px #0d9488, 0 0 5px #0d9488" />
+        <Toaster position="top-right" richColors closeButton />
         <Providers>
           {children}
         </Providers>

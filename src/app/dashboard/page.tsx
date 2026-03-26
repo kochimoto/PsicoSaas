@@ -80,15 +80,15 @@ export default async function DashboardPage() {
   const isVip = tenant.plan !== "FREE" || isTrialActive;
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Olá, {session.user.name.split(" ")[0]}</h1>
-          <p className="text-slate-400 mt-1">Bem-vindo(a) ao seu resumo da {tenant.clinicName}</p>
+          <h1 className="text-2xl font-bold text-slate-900">Olá, {session.user.name.split(" ")[0]}</h1>
+          <p className="text-slate-500">Bem-vindo(a) ao seu resumo da {tenant.clinicName}</p>
         </div>
         
         {isTrialActive && (
-          <div className="bg-blue-600 text-white px-4 py-2 rounded-2xl flex items-center gap-2 shadow-lg shadow-blue-500/20 animate-pulse">
+          <div className="bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20">
             <Clock className="w-4 h-4" />
             <span className="text-sm font-bold">{remainingTrialDays} {remainingTrialDays === 1 ? 'dia' : 'dias'} de VIP restante</span>
           </div>
@@ -96,54 +96,52 @@ export default async function DashboardPage() {
       </div>
 
       {!isVip && (
-        <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col xl:flex-row items-center justify-between gap-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-            <Sparkles className="w-32 h-32 text-amber-500" />
-          </div>
-          <div className="relative z-10">
-            <h3 className="text-2xl font-black text-amber-100 tracking-tight flex items-center gap-2">
-              <span className="bg-amber-500/20 p-2 rounded-xl text-amber-500"><Sparkles className="w-5 h-5"/></span>
-              Desbloqueie o Potencial Máximo
-            </h3>
-            <p className="font-semibold text-amber-200/60 mt-2 max-w-xl text-[15px]">
-              Você está usando a licença gratuita do sistema. Assine o <strong className="text-amber-400">Plano VIP</strong> para enviar cobranças, laudos e lembretes de WhatsApp automaticamente aos seus pacientes, sem limites.
-            </p>
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-xl border border-white/30 backdrop-blur-sm">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold">Desbloqueie o Potencial Máximo</h3>
+              <p className="text-amber-50 opacity-90 text-sm max-w-lg">
+                Você está usando a licença gratuita do sistema. Assine o Plano VIP para enviar cobranças, laudos e lembretes de WhatsApp automaticamente aos seus pacientes.
+              </p>
+            </div>
           </div>
           <VIPCheckoutButton />
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard title="Pacientes Ativos" value={tenant.patients.length.toString()} icon={<Users className="w-6 h-6 text-blue-500" />} />
-        <MetricCard title="Sessões Hoje" value={sessionsToday.toString()} icon={<Calendar className="w-6 h-6 text-indigo-500" />} />
-        <MetricCard title="Receita Mensal" value={`R$ ${(monthlyRevenue._sum.amount || 0).toFixed(2).replace('.', ',')}`} icon={<Wallet className="w-6 h-6 text-emerald-500" />} />
-        <MetricCard title="Novos Pacientes" value={newPatientsMonth.toString()} icon={<TrendingUp className="w-6 h-6 text-amber-500" />} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard title="Pacientes Ativos" value={tenant.patients.length.toString()} icon={<Users className="w-6 h-6 text-blue-600" />} />
+        <MetricCard title="Sessões Hoje" value={sessionsToday.toString()} icon={<Calendar className="w-6 h-6 text-indigo-600" />} />
+        <MetricCard title="Receita Mensal" value={`R$ ${(monthlyRevenue._sum.amount || 0).toFixed(2).replace('.', ',')}`} icon={<Wallet className="w-6 h-6 text-emerald-600" />} />
+        <MetricCard title="Novos Pacientes" value={newPatientsMonth.toString()} icon={<TrendingUp className="w-6 h-6 text-amber-600" />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-3xl shadow-xl p-6 sm:p-8 backdrop-blur-sm">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-indigo-400" /> Próximas Sessões
+        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+          <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-indigo-600" /> Próximas Sessões
           </h2>
           {tenant.appointments.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 bg-slate-900/30 rounded-2xl border border-dashed border-slate-800">
-              <Calendar className="w-12 h-12 text-slate-700 mx-auto mb-3" />
+            <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
               Nenhuma sessão agendada para os próximos dias.
             </div>
           ) : (
             <div className="space-y-4">
               {tenant.appointments.map((app) => (
-                <div key={app.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-slate-800 transition-all hover:bg-slate-800/50 group">
+                <div key={app.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 text-sm">
+                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600">
                       {app.patient.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-bold text-slate-200">{app.patient.name}</p>
-                      <p className="text-xs text-slate-500 font-medium">{new Date(app.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • {new Date(app.date).toLocaleDateString('pt-BR')}</p>
+                      <p className="font-bold text-slate-900">{app.patient.name}</p>
+                      <p className="text-xs text-slate-500">{new Date(app.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • {new Date(app.date).toLocaleDateString('pt-BR')}</p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${app.status === 'SCHEDULED' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'}`}>
+                  <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${app.status === 'SCHEDULED' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-emerald-700'}`}>
                     {app.status}
                   </span>
                 </div>
@@ -152,18 +150,18 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-slate-900/50 border border-slate-800 rounded-3xl shadow-xl p-6 sm:p-8 backdrop-blur-sm">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-400" /> Avisos e Novidades
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+          <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-600" /> Avisos e Novidades
           </h2>
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 text-sm">
-              <span className="font-bold block mb-1 text-indigo-300">Dica do PsicoGestão</span>
+            <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm">
+              <span className="font-bold block mb-1">Dica do PsicoGestão</span>
               Ative as mensagens automatizadas de WhatsApp no menu Configurações para reduzir faltas em até 40%.
             </div>
             {isTrialActive && (
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm">
-                <span className="font-bold block mb-1 text-amber-300">Período de Experiência</span>
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 text-sm">
+                <span className="font-bold block mb-1">Período de Experiência</span>
                 Aproveite todos os recursos VIP gratuitamente pelos primeiros 7 dias.
               </div>
             )}
@@ -176,15 +174,14 @@ export default async function DashboardPage() {
 
 function MetricCard({ title, value, icon }: { title: string, value: string, icon: React.ReactNode }) {
   return (
-    <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl flex items-center gap-4 hover:bg-slate-800/50 transition-all group">
-      <div className="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+    <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
         {icon}
       </div>
-      <div className="min-w-0">
-        <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">{title}</p>
-        <p className="text-2xl font-black text-white truncate">{value}</p>
+      <div>
+        <p className="text-sm font-medium text-slate-500 uppercase tracking-tight">{title}</p>
+        <p className="text-xl font-bold text-slate-900">{value}</p>
       </div>
     </div>
   );
 }
-

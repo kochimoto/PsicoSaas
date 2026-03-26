@@ -64,15 +64,16 @@ services:
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=123456
       # Banco de dados (BUG: v2.2.3 falha QR se true)
-      - DATABASE_ENABLED=false
-      #- DATABASE_PROVIDER=postgresql
-      #- DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/evolution_db?sslmode=disable
-      #- DATABASE_CONNECTION_CLIENT_NAME=evolution_api
-      - DATABASE_SAVE_DATA_INSTANCE=false
-      - DATABASE_SAVE_DATA_NEW_MESSAGE=false
-      - DATABASE_SAVE_MESSAGE_UPDATE=false
-      - DATABASE_SAVE_DATA_CONTACTS=false
-      - DATABASE_SAVE_DATA_CHATS=false
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/evolution_db?sslmode=disable
+      - DATABASE_CONNECTION_CLIENT_NAME=evolution_api
+      - DATABASE_SAVE_DATA_INSTANCE=true
+      - DATABASE_SAVE_DATA_NEW_MESSAGE=true
+      - DATABASE_SAVE_MESSAGE_UPDATE=true
+      - DATABASE_SAVE_DATA_CONTACTS=true
+      - DATABASE_SAVE_DATA_CHATS=true
+
 
       # QR Code
       - QRCODE_LIMIT=30
