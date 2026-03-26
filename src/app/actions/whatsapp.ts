@@ -40,7 +40,12 @@ export async function getWhatsappQrCodeAction() {
     }
     
     // O base64 pode vir na raiz do objeto ou dentro de qrcode.base64 dependendo da rota/versão
-    const qrCodeBase64 = result.base64 || result.qrcode?.base64 || result.qrcode;
+    const qrCodeBase64 = result.base64 || result.qrcode?.base64 || result.qrcode || result.qrCode;
+    
+    // Se não veio QR agora, mas não deu erro, retornamos que está criando (pooling vai cuidar)
+    if (!qrCodeBase64) {
+      return { initializing: true, connected: false };
+    }
     
     if (qrCodeBase64 && typeof qrCodeBase64 === "string" && qrCodeBase64.includes("base64")) {
       // Limpar prefixo data:image se vier
@@ -68,7 +73,8 @@ export async function checkWhatsappStatusAction() {
 
     return { 
       connected: state.instance?.state === "open",
-      state: state.instance?.state 
+      state: state.instance?.state,
+      qrcode: state.qrcode
     };
   } catch (error) {
     return { connected: false, error: "Servidor offline" };

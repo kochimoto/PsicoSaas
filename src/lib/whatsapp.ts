@@ -48,7 +48,7 @@ export async function createInstance(instanceName: string) {
     },
     body: JSON.stringify({
       webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook`,
-      waitQrCode: true
+      waitQrCode: false // Mudando para false para evitar timeout no Next.js
     }),
     cache: "no-store"
   });
@@ -80,8 +80,9 @@ export async function getConnectionState(instanceName: string) {
     const data = await res.json();
     return {
       instance: {
-        state: data.status === "CONNECTED" ? "open" : "close"
-      }
+        state: data.status === "CONNECTED" ? "open" : (data.status === "QRCODE" || data.qrcode ? "qrcode" : "initializing")
+      },
+      qrcode: data.qrcode || null
     };
   } catch (e) {
     return { instance: { state: "close" } };

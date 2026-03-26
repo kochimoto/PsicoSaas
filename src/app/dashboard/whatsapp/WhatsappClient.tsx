@@ -20,22 +20,28 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false); // Novo estado para saber se está "nascendo" na VPS
 
-  // Poll de status quando o QR Code é gerado
+  // Poll de status constante enquanto não estiver conectado
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (qrCode && !isConnected) {
+    if (!isConnected && (qrCode || isInitializing)) {
       interval = setInterval(async () => {
         const res = await checkWhatsappStatusAction();
         if (res.connected) {
           setIsConnected(true);
+          setIsInitializing(false);
           setQrCode(null);
           clearInterval(interval);
+        } else if (res.qrcode) {
+          // Se o polling achar o QR Code, injeta ele aqui
+          setQrCode(res.qrcode);
+          setIsInitializing(false);
         }
-      }, 5000);
+      }, 3000);
     }
     return () => clearInterval(interval);
-  }, [qrCode, isConnected]);
+  }, [qrCode, isConnected, isInitializing]);
 
   // Verificar status inicial
   useEffect(() => {
@@ -47,7 +53,7 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
   async function handleConnect() {
     setStatusLoading(true);
     setError("");
-    const res = await getWhatsappQrCodeAction();
+    const res = (await getWhatsappQrCodeAction()) as any;
     if (res.error) {
       setError(res.error);
     } else if (res.connected) {
@@ -55,6 +61,9 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
       setQrCode(null);
     } else if (res.qrcode) {
       setQrCode(res.qrcode);
+    } else if (res.initializing) {
+      setIsInitializing(true);
+      // O useEffect de poling vai assumir daqui
     }
     setStatusLoading(false);
   }
@@ -266,7 +275,7 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
               {qrCode ? (
                 <div className="space-y-4 text-center">
                   <div className="bg-white p-4 rounded-2xl shadow-md inline-block">
-                    <img src={`data:image/png;base64,${qrCode}`} alt="WhatsApp QR Code" className="w-48 h-48" />
+                    <img src={qrCode.includes('base64') ? qrCode : `data:image/png;base64,${qrCode}`} alt="WhatsApp QR Code" className="w-48 h-48" />
                   </div>
                   <p className="text-sm text-slate-500 font-medium px-4">
                     Abra o WhatsApp no seu celular {'>'} Aparelhos Conectados {'>'} Conectar um Aparelho
@@ -276,6 +285,14 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
                 <div className="text-center space-y-2">
                   <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto" />
                   <p className="text-slate-500 font-bold">Aparelho Pronto</p>
+                </div>
+              ) : isInitializing ? (
+                <div className="text-center space-y-4">
+                  <RefreshCw className="w-12 h-12 text-emerald-500 mx-auto animate-spin" />
+                  <div className="space-y-1">
+                    <p className="text-slate-700 font-bold">Ligando o motor...</p>
+                    <p className="text-xs text-slate-500 max-w-[200px]">Isso pode levar até 1 minuto na primeira vez. Aguarde sem fechar a página.</p>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center space-y-2 opacity-30">
