@@ -37,28 +37,53 @@ export async function createInstance(instanceName: string) {
   return data;
 }
 
-/** Busca o QR Code base64 para conexão */
+/** Busca o QR Code base64 para conexão (com retry interno para timing do Baileys) */
 export async function getQrCode(instanceName: string): Promise<string | null> {
-  const res = await fetch(`${BASE_URL}/instance/connect/${instanceName}`, {
-    method: "GET",
-    headers,
-    cache: "no-store",
-  });
+  const MAX_RETRIES = 4;
+  const RETRY_DELAY_MS = 3000;
 
-  if (!res.ok) {
-    console.warn("[WA] getQrCode non-ok:", res.status);
-    return null;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(`${BASE_URL}/instance/connect/${instanceName}`, {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        console.warn(`[WA] getQrCode attempt ${attempt}/${MAX_RETRIES} non-ok:`, res.status);
+        if (attempt < MAX_RETRIES) {
+          await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+          continue;
+        }
+        return null;
+      }
+
+      const data = await res.json();
+      console.log(`[WA] getQrCode attempt ${attempt}/${MAX_RETRIES} raw:`, JSON.stringify(data).substring(0, 300));
+
+      // O QR pode vir em campos diferentes dependendo da versão
+      const raw = data?.base64 || data?.qrcode?.base64 || data?.code || data?.qrCode;
+
+      if (raw) {
+        // Remove prefixo data:image se vier junto
+        return String(raw).replace(/^data:image\/[a-z]+;base64,/, "");
+      }
+
+      // QR still not ready (e.g. {"count":0}) — retry
+      console.log(`[WA] QR not ready yet, retrying in ${RETRY_DELAY_MS}ms...`);
+      if (attempt < MAX_RETRIES) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+      }
+    } catch (err) {
+      console.error(`[WA] getQrCode attempt ${attempt} error:`, err);
+      if (attempt < MAX_RETRIES) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+      }
+    }
   }
 
-  const data = await res.json();
-  console.log("[WA] getQrCode raw:", JSON.stringify(data).substring(0, 300));
-
-  // O QR pode vir em campos diferentes dependendo da versão
-  const raw = data?.base64 || data?.qrcode?.base64 || data?.code || data?.qrCode;
-  if (!raw) return null;
-
-  // Remove prefixo data:image se vier junto
-  return String(raw).replace(/^data:image\/[a-z]+;base64,/, "");
+  return null;
 }
 
 /** Retorna o estado da instância */

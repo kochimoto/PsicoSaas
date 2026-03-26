@@ -8,12 +8,12 @@ services:
     container_name: psicosaas
     restart: always
     ports:
-      - "3000:3000"
+      - "80:3000"
     env_file:
       - .env
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - DIRECT_URL=${DIRECT_URL}
+      - DATABASE_URL=postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db
+      - DIRECT_URL=postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db
       - JWT_SECRET=${JWT_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
@@ -24,8 +24,6 @@ services:
     depends_on:
       - psicosaas_db
       - evolution
-    networks:
-      - default
 
   psicosaas_db:
     image: postgres:15-alpine
@@ -39,19 +37,18 @@ services:
       - "5432:5432"
     volumes:
       - psicosaas_db_data:/var/lib/postgresql/data
-    networks:
-      - default
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
 
   evolution:
-    image: atendai/evolution-api:v2.2.3-chrome
+    image: atendai/evolution-api:v2.2.3
     container_name: evolution
     restart: always
     environment:
       - SERVER_PORT=8080
-      # Autenticação
+      # Auth
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=123456
-      # Banco de dados (obrigatório para v2)
+      # Database (required for v2)
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
       - DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/evolution_db?sslmode=disable
@@ -64,33 +61,25 @@ services:
       # QR Code
       - QRCODE_LIMIT=30
       - QRCODE_COLOR=#198754
+      # Session
+      - CONFIG_SESSION_PHONE_CLIENT=PsicoSaas
+      - CONFIG_SESSION_PHONE_NAME=Chrome
       # Logs
-      - LOG_LEVEL=ERROR
+      - LOG_LEVEL=WARN
       - LOG_COLOR=true
-      # Cache (sem Redis)
+      # Cache
       - CACHE_REDIS_ENABLED=false
       - CACHE_LOCAL_ENABLED=true
-      # Instâncias
+      # Instances
       - DEL_INSTANCE=false
-      # Browser Config (Essential for Chrome image)
-      - BROWSER_CLIENT=chrome
-      - BROWSER_HEADLESS=true
-      - BROWSER_ARGS=["--no-sandbox","--disable-setuid-sandbox","--disable-dev-shm-usage","--no-first-run"]
     ports:
       - "8080:8080"
     volumes:
       - evolution_instances:/evolution/instances
-    shm_size: '2gb'
-    networks:
-      - default
+    shm_size: '1gb'
     depends_on:
       - psicosaas_db
 
 volumes:
   psicosaas_db_data:
   evolution_instances:
-
-networks:
-  default:
-    name: public_network
-    external: true
