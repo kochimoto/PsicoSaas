@@ -99,7 +99,7 @@ export async function getSystemWhatsappQrCodeAction() {
 
     return { error: "Não foi possível gerar o QR Code." };
   } catch (error: any) {
-    return { error: "Erro ao conectar com o servidor." };
+    return { error: error?.message || "Erro ao conectar com o servidor." };
   }
 }
 

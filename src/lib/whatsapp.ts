@@ -15,22 +15,33 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 
   const url = `${apiUrl.replace(/\/$/, "")}${endpoint}`;
   
-  const response = await fetch(url, {
+  const options: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
-      "apikey": WHATS_API_KEY
+      "apikey": WHATS_API_KEY as string
     },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+    cache: "no-store"
+  };
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error("WhatsApp API Error:", errorData);
-    throw new Error(`WhatsApp API request failed: ${response.statusText}`);
+  if (body) {
+    options.body = JSON.stringify(body);
   }
 
-  return response.json();
+  try {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("WhatsApp API Error Response:", response.status, errorData);
+      throw new Error(`[Status: ${response.status}] ${errorData?.message?.message || errorData?.message || response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error: any) {
+    console.error("WhatsApp API Network/Fetch Error:", error.message);
+    throw new Error(`Falha de conexão com a Evolution API: ${error.message} (URL: ${url})`);
+  }
 }
 
 /**

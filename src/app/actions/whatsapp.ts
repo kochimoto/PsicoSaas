@@ -51,7 +51,7 @@ export async function getWhatsappQrCodeAction() {
     return { error: "Não foi possível gerar o QR Code. Tente novamente." };
   } catch (error: any) {
     console.error("Erro na API WhatsApp:", error?.message || error);
-    return { error: "Erro ao conectar com o servidor de WhatsApp." };
+    return { error: error?.message || "Erro ao conectar com o servidor de WhatsApp." };
   }
 }
 
