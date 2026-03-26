@@ -69,11 +69,13 @@ export async function getConnectionState(instanceName: string) {
     });
     if (!res.ok) return { instance: { state: "close" } };
     const data = await res.json();
+    console.log(`Raw WPP Status for ${instanceName}:`, JSON.stringify(data));
     return {
       instance: {
-        state: data.status === "CONNECTED" ? "open" : (data.status === "QRCODE" || data.qrcode ? "qrcode" : "initializing")
+        state: data.status === "CONNECTED" ? "open" : (data.status === "QRCODE" || data.qrcode ? "qrcode" : (data.status || "initializing"))
       },
-      qrcode: data.qrcode || null
+      qrcode: data.qrcode || data.qrCode || null,
+      rawStatus: data.status
     };
   } catch (e) {
     return { instance: { state: "close" } };

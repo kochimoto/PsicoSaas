@@ -29,7 +29,7 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
       console.log("Iniciando polling de status do WhatsApp...");
       interval = setInterval(async () => {
         try {
-          const res = await checkWhatsappStatusAction();
+          const res = (await checkWhatsappStatusAction()) as any;
           console.log("Resposta do Polling:", res);
           if (res.connected) {
             setIsConnected(true);
