@@ -13,44 +13,21 @@ export default async function AgendaPage() {
 
   if (!tenant) return redirect("/login");
 
-  const patients = await prisma.patient.findMany({
-    where: { tenantId: tenant.id },
-    select: { id: true, name: true, phone: true },
-    orderBy: { name: 'asc' }
-  });
-
-  const services = await prisma.service.findMany({
-    where: { tenantId: tenant.id },
-    orderBy: { name: 'asc' }
-  });
-
   const appointments = await prisma.appointment.findMany({
-    where: { tenantId: tenant.id, date: { gte: new Date(new Date().setHours(0,0,0,0)) } },
-    include: { 
-      patient: { select: { name: true, phone: true } },
-      service: { select: { name: true } }
-    },
+    where: { tenantId: tenant.id },
+    include: { patient: { select: { name: true } } },
     orderBy: { date: 'asc' }
   });
 
-  return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-4xl font-black text-white tracking-tight">Agenda</h1>
-          <p className="text-slate-400 mt-2 font-medium">Gerencie suas próximas sessões e alertas via WhatsApp.</p>
-        </div>
-      </div>
+  const patients = await prisma.patient.findMany({
+    where: { tenantId: tenant.id },
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' }
+  });
 
-      <AgendaClient 
-        initialAppointments={appointments} 
-        patients={patients} 
-        services={services}
-        tenantSettings={{
-          whatsappEnabled: tenant.whatsappEnabled,
-          whatsappMessage: tenant.whatsappMessage || ""
-        }}
-      />
+  return (
+    <div className="space-y-6">
+      <AgendaClient initialAppointments={appointments} patients={patients} />
     </div>
   );
 }

@@ -13,21 +13,10 @@ export default async function SettingsPage() {
 
   if (!tenant) return redirect("/login");
 
-  const initialData = {
-    clinicName: tenant.clinicName || "",
-    whatsappEnabled: tenant.whatsappEnabled,
-    whatsappNumber: tenant.whatsappNumber || "",
-    whatsappMessage: tenant.whatsappMessage || ""
-  };
-
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8 text-slate-200">
-      <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">Configurações e Automação</h1>
-        <p className="text-slate-400 mt-2 text-lg font-medium">Personalize sua clínica e configure alertas automáticos via WhatsApp.</p>
-      </div>
-
-      <SettingsClient initialData={initialData} />
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8">
+      <h1 className="text-2xl font-bold text-slate-900">Configurações da Clínica</h1>
+      <SettingsClient initialData={tenant} />
     </div>
   );
 }
