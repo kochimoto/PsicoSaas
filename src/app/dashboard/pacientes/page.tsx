@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Plus, Search, Filter, User, MoreVertical, CheckCircle2, AlertCircle, Phone, Calendar as CalendarIcon, ClipboardList } from "lucide-react";
+import { Plus, Search, User, ClipboardList, Calendar as CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import StatusToggle from "./StatusToggle";
 
@@ -9,12 +9,19 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
   const session = await getSession();
   if (!session) return redirect("/login");
 
-  const query = searchParams.q || "";
-  const showInactive = searchParams.inactive === "true";
+  // Fetch tenant manually as it's not in session
+  const tenant = await prisma.tenant.findUnique({
+    where: { ownerId: session.user.id }
+  });
+
+  if (!tenant) return redirect("/login");
+
+  const query = (await searchParams).q || "";
+  const showInactive = (await searchParams).inactive === "true";
 
   const patients = await prisma.patient.findMany({
     where: {
-      tenantId: session.user.tenantId,
+      tenantId: tenant.id,
       active: showInactive ? undefined : true,
       OR: [
         { name: { contains: query, mode: 'insensitive' } },
@@ -77,7 +84,7 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-             <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
+             <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-widest">
                 <tr>
                    <th className="px-6 py-3">Paciente</th>
                    <th className="px-6 py-3">Contato</th>
@@ -91,12 +98,11 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
                   <tr key={patient.id} className="hover:bg-slate-50 transition-colors group">
                     <td className="px-6 py-4">
                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600">
+                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 uppercase">
                              {patient.name.charAt(0)}
                           </div>
                           <div>
                             <p className="font-bold text-slate-900">{patient.name}</p>
-                            <p className="text-xs text-slate-500">{patient.occupation || 'Não informado'}</p>
                           </div>
                        </div>
                     </td>
@@ -114,18 +120,16 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
                        <StatusToggle id={patient.id} active={patient.active} />
                     </td>
                     <td className="px-6 py-4 text-right">
-                       <div className="flex items-center justify-end gap-2">
+                       <div className="flex items-center justify-end gap-2 text-slate-400">
                          <Link 
                            href={`/dashboard/pacientes/${patient.id}`}
-                           className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-all"
-                           title="Ver Prontuário"
+                           className="p-2 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-all"
                          >
                             <ClipboardList className="w-5 h-5" />
                          </Link>
                          <Link 
                            href={`/dashboard/pacientes/${patient.id}/editar`}
-                           className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                           title="Editar Cadastro"
+                           className="p-2 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                          >
                             <User className="w-5 h-5" />
                          </Link>
@@ -135,7 +139,7 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
                 ))}
                 {patients.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400 italic font-medium">Nenhum paciente encontrado.</td>
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400 italic">Nenhum paciente encontrado.</td>
                   </tr>
                 )}
              </tbody>
