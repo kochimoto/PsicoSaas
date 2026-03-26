@@ -18,11 +18,12 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - WHATS_API_KEY=${WHATS_API_KEY}
-      - WHATS_MASTER_INSTANCE=${WHATS_MASTER_INSTANCE}
+      - WHATS_API_URL=http://evolution:8080
+      - WHATS_API_KEY=123456
       - NODE_OPTIONS=--dns-result-order=ipv4first
     depends_on:
       - psicosaas_db
+      - evolution
     networks:
       - default
 
@@ -47,14 +48,30 @@ services:
     restart: always
     environment:
       - SERVER_PORT=8080
+      # Autenticação
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=123456
+      # Banco de dados (obrigatório para v2)
       - DATABASE_ENABLED=true
-      - DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db?sslmode=disable
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/evolution_db?sslmode=disable
       - DATABASE_CONNECTION_CLIENT_NAME=evolution_api
       - DATABASE_SAVE_DATA_INSTANCE=true
+      - DATABASE_SAVE_DATA_NEW_MESSAGE=true
+      - DATABASE_SAVE_MESSAGE_UPDATE=true
+      - DATABASE_SAVE_DATA_CONTACTS=true
+      - DATABASE_SAVE_DATA_CHATS=true
+      # QR Code
+      - QRCODE_LIMIT=30
+      - QRCODE_COLOR=#198754
+      # Logs
+      - LOG_LEVEL=ERROR
+      - LOG_COLOR=true
+      # Cache (sem Redis)
       - CACHE_REDIS_ENABLED=false
       - CACHE_LOCAL_ENABLED=true
+      # Instâncias
+      - DEL_INSTANCE=false
     ports:
       - "8080:8080"
     volumes:
@@ -62,6 +79,8 @@ services:
     shm_size: '1gb'
     networks:
       - default
+    depends_on:
+      - psicosaas_db
 
 volumes:
   psicosaas_db_data:
@@ -71,4 +90,3 @@ networks:
   default:
     name: public_network
     external: true
-
