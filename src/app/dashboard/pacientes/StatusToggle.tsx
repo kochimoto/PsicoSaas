@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { updatePatientAction } from "@/app/actions/patients";
+import { togglePatientStatusAction } from "@/app/actions/patients";
 import { toast } from "sonner";
 
 export default function StatusToggle({ id, active }: { id: string, active: boolean }) {
@@ -9,7 +9,7 @@ export default function StatusToggle({ id, active }: { id: string, active: boole
 
   const handleToggle = () => {
     startTransition(async () => {
-      const res = await updatePatientAction(id, { active: !active });
+      const res = await togglePatientStatusAction(id);
       if (res.success) {
         toast.success(`Paciente ${!active ? 'ativado' : 'inativado'} com sucesso!`);
       } else {

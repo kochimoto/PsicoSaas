@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import { 
-  Users, UserPlus, Shield, Activity, Search, 
-  Trash2, Mail, Link as LinkIcon, MoreVertical, 
-  CheckCircle2, AlertCircle, RefreshCw, Building
+  Users, Shield, Activity, Search, 
+  Trash2, Mail, CheckCircle2, RefreshCw, Building, Key, Lock
 } from "lucide-react";
-import { createTenantAction, deleteTenantAction, updateTenantAction } from "@/app/actions/admin";
+import { 
+  updateTenantPlanAction, 
+  deleteAccountAction, 
+  resetPasswordAction 
+} from "@/app/actions/admin";
 import { toast } from "sonner";
 
 export default function AdminClient({ initialTenants }: { initialTenants: any[] }) {
   const [tenants, setTenants] = useState(initialTenants);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const filteredTenants = tenants.filter(t => 
     t.clinicName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -20,12 +23,27 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
     t.owner.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  async function handleDelete(id: string) {
-    if (!confirm("Suspender clínica permanentemente? Isso apagará todos os dados associados.")) return;
-    const res = await deleteTenantAction(id);
+  async function handleDelete(ownerId: string) {
+    if (!confirm("Tem certeza que deseja excluir esta conta? Esta ação é irreversível e apagará todos os dados da clínica.")) return;
+    setLoading(true);
+    const res = await deleteAccountAction(ownerId);
     if (res.success) {
-      setTenants(prev => prev.filter(t => t.id !== id));
-      toast.success("Clínica removida com sucesso");
+      setTenants(prev => prev.filter(t => t.ownerId !== ownerId));
+      toast.success("Conta excluída com sucesso");
+    } else {
+      toast.error(res.error || "Erro ao excluir conta");
+    }
+    setLoading(false);
+  }
+
+  async function handleUpdatePlan(id: string, currentPlan: string) {
+    const newPlan = currentPlan === 'VIP' ? 'FREE' : 'VIP';
+    const res = await updateTenantPlanAction(id, newPlan);
+    if (res.success) {
+      setTenants(prev => prev.map(t => t.id === id ? { ...t, plan: newPlan } : t));
+      toast.success(`Plano atualizado para ${newPlan}`);
+    } else {
+      toast.error(res.error || "Erro ao atualizar plano");
     }
   }
 
@@ -36,12 +54,6 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
           <h1 className="text-3xl font-bold text-slate-900">Gestão do SaaS</h1>
           <p className="text-slate-500">Administre clínicas e profissionais da plataforma</p>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95"
-        >
-          <UserPlus className="w-5 h-5" /> Nova Clínica
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -71,8 +83,6 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
               <tr>
                 <th className="px-6 py-4">Clínica / Profissional</th>
                 <th className="px-6 py-4">Plano</th>
-                <th className="px-6 py-4">Pacientes</th>
-                <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
@@ -84,25 +94,34 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
                     <div className="text-xs text-slate-500">{t.owner.name} • {t.owner.email}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold ${t.plan === 'VIP' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600'}`}>
+                    <button 
+                      onClick={() => handleUpdatePlan(t.id, t.plan)}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-colors ${t.plan === 'VIP' ? 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                    >
                       {t.plan}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-slate-600">
-                    {t._count?.patients || 0}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg inline-flex">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> ATIVO
-                    </span>
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-right">
-                     <button 
-                      onClick={() => handleDelete(t.id)}
-                      className="p-2 text-slate-300 hover:text-red-500 transition-colors"
-                     >
-                        <Trash2 className="w-4 h-4" />
-                     </button>
+                     <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => {
+                            const newPass = prompt("Nova senha:");
+                            if (newPass) resetPasswordAction(t.ownerId, newPass).then(r => r.success ? toast.success("Senha alterada") : toast.error(r.error));
+                          }}
+                          className="p-2 text-slate-400 hover:text-blue-600 rounded-lg transition-colors"
+                          title="Resetar Senha"
+                        >
+                          <Lock className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(t.ownerId)}
+                          disabled={loading}
+                          className="p-2 text-slate-300 hover:text-red-500 transition-colors"
+                          title="Excluir Conta"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                     </div>
                   </td>
                 </tr>
               ))}
@@ -110,16 +129,6 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
           </table>
         </div>
       </div>
-
-      {isModalOpen && (
-        <CreateTenantModal 
-          onClose={() => setIsModalOpen(false)} 
-          onSuccess={(newTenant) => {
-            setTenants([newTenant, ...tenants]);
-            setIsModalOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -133,75 +142,6 @@ function StatCard({ title, value, icon }: any) {
        <div>
          <p className="text-sm font-medium text-slate-500">{title}</p>
          <p className="text-2xl font-bold text-slate-900">{value}</p>
-       </div>
-    </div>
-  );
-}
-
-function CreateTenantModal({ onClose, onSuccess }: any) {
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    clinicName: "",
-    plan: "FREE"
-  });
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const res = await createTenantAction(formData);
-    if (res.success) {
-      toast.success("Clínica criada!");
-      onSuccess(res.tenant);
-    } else {
-      toast.error(res.error || "Erro ao criar");
-    }
-    setLoading(false);
-  }
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-       <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
-          <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-            <h2 className="text-lg font-bold text-slate-900">Novo Tenant (Clínica)</h2>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><AlertCircle className="w-6 h-6 rotate-45" /></button>
-          </div>
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nome Profissional</label>
-                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="Ex: Dr. João" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase ml-1">E-mail de Login</label>
-                <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="clinica@psico.com" />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Senha Inicial</label>
-              <input type="password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nome da Clínica</label>
-              <input required value={formData.clinicName} onChange={e => setFormData({...formData, clinicName: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="Clínica Psico Gestão" />
-            </div>
-            <div className="space-y-1">
-               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Plano Inicial</label>
-               <select value={formData.plan} onChange={e => setFormData({...formData, plan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm">
-                 <option value="FREE">FREE (Limitado)</option>
-                 <option value="VIP">VIP (Completo)</option>
-               </select>
-            </div>
-            <div className="pt-4 flex gap-4">
-               <button type="button" onClick={onClose} className="flex-1 py-3 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50">Cancelar</button>
-               <button disabled={loading} className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold flex items-center justify-center gap-2">
-                 {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
-                 Gerar Acesso
-               </button>
-            </div>
-          </form>
        </div>
     </div>
   );

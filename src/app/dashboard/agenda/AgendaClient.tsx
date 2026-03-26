@@ -5,18 +5,33 @@ import { format, startOfWeek, addDays, startOfMonth, endOfMonth, eachDayOfInterv
 import { ptBR } from "date-fns/locale";
 import { 
   Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
-  Clock, User, MessageCircle, MoreVertical, X, Check, Phone
+  Clock, User, MessageCircle, MoreVertical, X, Check, Phone, RefreshCw
 } from "lucide-react";
+import { updateAppointmentStatusAction } from "@/app/actions/appointments";
+import { toast } from "sonner";
 
 export default function AgendaClient({ initialAppointments, patients }: { initialAppointments: any[], patients: any[] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState(initialAppointments);
-  const [view, setView] = useState("month"); // mouth, week, day
+  const [view, setView] = useState("month");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
 
   // Navegação
   const next = () => setCurrentDate(addDays(currentDate, view === "month" ? 30 : 7));
   const prev = () => setCurrentDate(addDays(currentDate, view === "month" ? -30 : -7));
+
+  async function handleStatusChange(id: string, status: string) {
+    setLoading(id);
+    const res = await updateAppointmentStatusAction(id, status);
+    if (res.success) {
+      setAppointments(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+      toast.success("Status atualizado!");
+    } else {
+      toast.error("Erro ao atualizar status");
+    }
+    setLoading(null);
+  }
 
   // Lógica de Renderização do Mês
   const monthStart = startOfMonth(currentDate);
@@ -42,12 +57,6 @@ export default function AgendaClient({ initialAppointments, patients }: { initia
             <button onClick={() => setView("month")} className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${view === "month" ? "bg-white text-teal-700 shadow-sm" : "text-slate-500"}`}>Mês</button>
             <button onClick={() => setView("week")} className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${view === "week" ? "bg-white text-teal-700 shadow-sm" : "text-slate-500"}`}>Semana</button>
           </div>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Novo Agendamento
-          </button>
         </div>
       </div>
 
@@ -70,8 +79,9 @@ export default function AgendaClient({ initialAppointments, patients }: { initia
                 </div>
                 <div className="space-y-1">
                   {dayAppointments.map(app => (
-                    <div key={app.id} className="p-1 px-2 text-[10px] bg-teal-50 border border-teal-100 text-teal-800 rounded-md font-bold truncate cursor-pointer hover:bg-teal-100 transition-colors" title={app.patient.name}>
-                      {format(new Date(app.date), "HH:mm")} {app.patient.name.split(" ")[0]}
+                    <div key={app.id} className="p-1 px-2 text-[10px] bg-teal-50 border border-teal-100 text-teal-800 rounded-md font-bold truncate cursor-pointer hover:bg-teal-100 transition-colors flex items-center justify-between" title={app.patient.name}>
+                       <span>{format(new Date(app.date), "HH:mm")} {app.patient.name.split(" ")[0]}</span>
+                       {loading === app.id ? <RefreshCw className="w-2 h-2 animate-spin" /> : null}
                     </div>
                   ))}
                 </div>
