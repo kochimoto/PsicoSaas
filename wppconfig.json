@@ -1,5 +1,5 @@
 {
-  "secretKey": "sua_chave_secreta_aqui",
+  "secretKey": "123456",
   "host": "0.0.0.0",
   "port": 21465,
   "deviceName": "PsicoSaas",

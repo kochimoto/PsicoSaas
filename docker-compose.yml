@@ -44,12 +44,13 @@ services:
     ports:
       - "21465:21465"
     volumes:
+      - ./wppconfig.json:/app/config.json
       - ./wppconfig.json:/home/node/app/config.json
     environment:
       - PORT=21465
-      - SECRET_KEY=${WHATS_API_KEY:-"123456"}
-      - AUTHENTICATION_SECRET_KEY=${WHATS_API_KEY:-"123456"}
-      - WPP_SECRET_KEY=${WHATS_API_KEY:-"123456"}
+      - SECRET_KEY=123456
+      - AUTHENTICATION_SECRET_KEY=123456
+      - WPP_SECRET_KEY=123456
       - WEBHOOK_URL=${NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook
 
 volumes:
