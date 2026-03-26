@@ -24,7 +24,6 @@ services:
       - NODE_OPTIONS=--dns-result-order=ipv4first
     depends_on:
       - psicosaas_db
-      - wppconnect
 
   psicosaas_db:
     image: postgres:15-alpine
