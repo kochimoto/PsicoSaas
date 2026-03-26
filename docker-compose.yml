@@ -40,7 +40,7 @@ services:
       - psicosaas_db_data:/var/lib/postgresql/data
 
   wppconnect:
-    image: wppconnect/server:latest
+    image: wppconnect/server-cli:latest
     container_name: wppconnect
     restart: always
     ports:
