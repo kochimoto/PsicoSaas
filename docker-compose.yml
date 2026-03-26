@@ -23,6 +23,8 @@ services:
       - NODE_OPTIONS=--dns-result-order=ipv4first
     depends_on:
       - psicosaas_db
+    networks:
+      - default
 
   psicosaas_db:
     image: postgres:15-alpine
@@ -36,6 +38,8 @@ services:
       - "5432:5432"
     volumes:
       - psicosaas_db_data:/var/lib/postgresql/data
+    networks:
+      - default
 
   evolution:
     image: atendai/evolution-api:latest

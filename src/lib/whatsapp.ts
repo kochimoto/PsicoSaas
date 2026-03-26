@@ -14,6 +14,7 @@ export async function createInstance(instanceName: string) {
       "Content-Type": "application/json",
       "apikey": EVOLUTION_API_KEY
     },
+    cache: "no-store",
     body: JSON.stringify({
       instanceName: instanceName,
       token: EVOLUTION_API_KEY,
@@ -36,7 +37,8 @@ export async function connectInstance(instanceName: string) {
   const baseUrl = await getBaseUrl();
   const res = await fetch(`${baseUrl}/instance/connect/${instanceName}`, {
     method: "GET",
-    headers: { "apikey": EVOLUTION_API_KEY }
+    headers: { "apikey": EVOLUTION_API_KEY },
+    cache: "no-store"
   });
 
   if (!res.ok) {
@@ -52,7 +54,8 @@ export async function getConnectionState(instanceName: string) {
     const baseUrl = await getBaseUrl();
     const res = await fetch(`${baseUrl}/instance/connectionState/${instanceName}`, {
       method: "GET",
-      headers: { "apikey": EVOLUTION_API_KEY }
+      headers: { "apikey": EVOLUTION_API_KEY },
+      cache: "no-store"
     });
     
     if (!res.ok) return { instance: { state: "close" } };
@@ -78,6 +81,7 @@ export async function sendTextMessage(instanceName: string, number: string, text
       "Content-Type": "application/json",
       "apikey": EVOLUTION_API_KEY
     },
+    cache: "no-store",
     body: JSON.stringify({
       number: number,
       text: text,
