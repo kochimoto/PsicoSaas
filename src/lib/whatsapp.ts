@@ -1,81 +1,69 @@
-import dns from 'dns/promises';
-
-const WHATS_API_KEY = "THISISMYSECURETOKEN"; // Padrão de fábrica do WPPConnect Server
-
-// Removido cache global para evitar conflito de 401 entre sessões
 async function getBaseUrl() {
-  // Simplificado para usar o hostname direto do Docker Network
-  return "http://wppconnect:21465";
+  return "http://evolution:8080";
 }
 
-export async function getWppToken(sessionName: string) {
-  const baseUrl = await getBaseUrl();
-  const url = `${baseUrl}/api/${sessionName}/${WHATS_API_KEY}/generate-token`;
-  console.log(`Gerando token WPP via URL: ${url}`);
-  
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" }
-  });
-  
-  if (!res.ok) {
-    const errText = await res.text();
-    console.error("Erro ao gerar token WPP:", res.status, errText);
-    throw new Error(`Falha ao gerar o token (${res.status}): ${errText}`);
-  }
-  
-  const data = await res.json();
-  return data.token;
-}
+const EVOLUTION_API_KEY = "123456"; // Definido no docker-compose.yml
 
 export async function createInstance(instanceName: string) {
   const baseUrl = await getBaseUrl();
-  const token = await getWppToken(instanceName);
-  const res = await fetch(`${baseUrl}/api/${instanceName}/start-session`, {
+  
+  // Primeiro, tentamos criar a instância
+  const res = await fetch(`${baseUrl}/instance/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
+      "apikey": EVOLUTION_API_KEY
     },
     body: JSON.stringify({
-      webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook`,
-      waitQrCode: false // Mudando para false para evitar timeout no Next.js
-    }),
-    cache: "no-store"
+      instanceName: instanceName,
+      token: EVOLUTION_API_KEY,
+      qrcode: true
+    })
   });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    console.error("Erro WPP Start Session:", res.status, errData);
-    throw new Error(`Erro ao iniciar sessão (${res.status}): ${errData.message || "Verifique os logs do servidor"}`);
-  }
   const data = await res.json();
-  console.log("WPP Session Result:", JSON.stringify(data).substring(0, 500)); // Log for debugging
+  
+  // Se já existe, apenas ignoramos o erro de conflito e seguimos
+  if (!res.ok && res.status !== 403 && res.status !== 409) {
+    console.error("Erro Evolution Create:", res.status, data);
+    throw new Error(`Erro ao criar instância (${res.status})`);
+  }
+
   return data;
 }
 
 export async function connectInstance(instanceName: string) {
-  return createInstance(instanceName);
+  const baseUrl = await getBaseUrl();
+  const res = await fetch(`${baseUrl}/instance/connect/${instanceName}`, {
+    method: "GET",
+    headers: { "apikey": EVOLUTION_API_KEY }
+  });
+
+  if (!res.ok) {
+     // Se falhar, tenta recriar/reiniciar
+     return createInstance(instanceName);
+  }
+
+  return res.json();
 }
 
 export async function getConnectionState(instanceName: string) {
   try {
     const baseUrl = await getBaseUrl();
-    const token = await getWppToken(instanceName);
-    const res = await fetch(`${baseUrl}/api/${instanceName}/status-session`, {
+    const res = await fetch(`${baseUrl}/instance/connectionState/${instanceName}`, {
       method: "GET",
-      headers: { "Authorization": `Bearer ${token}` },
-      cache: "no-store"
+      headers: { "apikey": EVOLUTION_API_KEY }
     });
+    
     if (!res.ok) return { instance: { state: "close" } };
+    
     const data = await res.json();
-    console.log(`Raw WPP Status for ${instanceName}:`, JSON.stringify(data));
     return {
       instance: {
-        state: data.status === "CONNECTED" ? "open" : (data.status === "QRCODE" || data.qrcode ? "qrcode" : (data.status || "initializing"))
+        state: data.instance?.state === "open" ? "open" : (data.instance?.state === "connecting" ? "initializing" : "close")
       },
-      qrcode: data.qrcode || data.qrCode || null,
-      rawStatus: data.status
+      qrcode: data.instance?.qrcode || null,
+      rawStatus: data.instance?.state
     };
   } catch (e) {
     return { instance: { state: "close" } };
@@ -84,22 +72,24 @@ export async function getConnectionState(instanceName: string) {
 
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
   const baseUrl = await getBaseUrl();
-  const token = await getWppToken(instanceName);
-  const res = await fetch(`${baseUrl}/api/${instanceName}/send-message`, {
+  const res = await fetch(`${baseUrl}/message/sendText/${instanceName}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
+      "apikey": EVOLUTION_API_KEY
     },
     body: JSON.stringify({
-      phone: number,
-      message: text,
-      isGroup: false
+      number: number,
+      text: text,
+      delay: 1200,
+      linkPreview: true
     })
   });
   
   if (!res.ok) {
-     throw new Error("Erro ao enviar mensagem via WPPConnect");
+     const err = await res.json().catch(() => ({}));
+     console.error("Erro Evolution Send:", res.status, err);
+     throw new Error("Erro ao enviar mensagem via Evolution API");
   }
   return res.json();
 }

@@ -37,24 +37,25 @@ services:
     volumes:
       - psicosaas_db_data:/var/lib/postgresql/data
 
-  wppconnect:
-    image: wppconnect/server-cli:latest
-    container_name: wppconnect
+  evolution:
+    image: atendimentodigital/evolution-api:latest
+    container_name: evolution
     restart: always
-    ports:
-      - "21465:21465"
-    volumes:
-      - ./wppconfig.json:/app/config.json
-      - ./wppconfig.json:/home/node/app/config.json
     environment:
-      - PORT=21465
-      - SECRET_KEY=123456
-      - AUTHENTICATION_SECRET_KEY=123456
-      - WPP_SECRET_KEY=123456
-      - WEBHOOK_URL=${NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook
+      - SERVER_PORT=8080
+      - AUTHENTICATION_TYPE=apikey
+      - AUTHENTICATION_API_KEY=123456
+    ports:
+      - "8080:8080"
+    volumes:
+      - evolution_instances:/evolution/instances
+    shm_size: '1gb'
+    networks:
+      - default
 
 volumes:
   psicosaas_db_data:
+  evolution_instances:
 
 networks:
   default:
