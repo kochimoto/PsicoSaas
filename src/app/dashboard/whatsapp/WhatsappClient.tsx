@@ -26,17 +26,23 @@ export default function WhatsappClient({ initialData }: { initialData: any }) {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (!isConnected && (qrCode || isInitializing)) {
+      console.log("Iniciando polling de status do WhatsApp...");
       interval = setInterval(async () => {
-        const res = await checkWhatsappStatusAction();
-        if (res.connected) {
-          setIsConnected(true);
-          setIsInitializing(false);
-          setQrCode(null);
-          clearInterval(interval);
-        } else if (res.qrcode) {
-          // Se o polling achar o QR Code, injeta ele aqui
-          setQrCode(res.qrcode);
-          setIsInitializing(false);
+        try {
+          const res = await checkWhatsappStatusAction();
+          console.log("Resposta do Polling:", res);
+          if (res.connected) {
+            setIsConnected(true);
+            setIsInitializing(false);
+            setQrCode(null);
+            clearInterval(interval);
+          } else if (res.qrcode) {
+            console.log("QR Code recebido via Polling!");
+            setQrCode(res.qrcode);
+            setIsInitializing(false);
+          }
+        } catch (err) {
+          console.error("Erro no polling:", err);
         }
       }, 3000);
     }

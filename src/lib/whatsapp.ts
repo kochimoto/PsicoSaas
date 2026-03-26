@@ -4,17 +4,8 @@ const WHATS_API_KEY = "THISISMYSECURETOKEN"; // Padrão de fábrica do WPPConnec
 
 // Removido cache global para evitar conflito de 401 entre sessões
 async function getBaseUrl() {
-  let apiUrl = "http://wppconnect:21465";
-  if (process.env.NODE_ENV === "production") {
-    try {
-      // Bypass IPv6 do Undici no Next.js (mesma segurança contra loops Docker)
-      const lookup = await dns.lookup("wppconnect", { family: 4 });
-      apiUrl = `http://${lookup.address}:21465`;
-    } catch(e) {
-      console.log("DNS lookup fallback para hostname nativo");
-    }
-  }
-  return apiUrl;
+  // Simplificado para usar o hostname direto do Docker Network
+  return "http://wppconnect:21465";
 }
 
 export async function getWppToken(sessionName: string) {
