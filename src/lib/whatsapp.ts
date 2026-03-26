@@ -4,9 +4,9 @@ const WHATS_API_KEY = process.env.WHATS_API_KEY;
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
   let apiUrl = WHATS_API_URL;
   
-  // Docker DNS fallback bypass (força o tráfego pela interface pública da VPS)
-  if (process.env.NODE_ENV === "production" && (apiUrl?.includes("laisbritoofc.com.br") || apiUrl?.includes("evolution"))) {
-    apiUrl = "http://163.245.202.150:8080"; // VPS Public IP
+  // Comunicação 100% interna e isolada pela public_network do Docker, sem passar por firewall
+  if (process.env.NODE_ENV === "production" && (apiUrl?.includes("laisbritoofc.com.br") || apiUrl?.includes("163.245") || apiUrl?.includes("evolution"))) {
+    apiUrl = "http://evolution:8080"; 
   }
 
   if (!apiUrl || !WHATS_API_KEY) {
