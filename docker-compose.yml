@@ -18,7 +18,7 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - WHATS_API_URL=http://evolution:8080
+      - WHATS_API_URL=${WHATS_API_URL:-http://evolution:8080}
       - WHATS_API_KEY=${WHATS_API_KEY}
       - WHATS_MASTER_INSTANCE=${WHATS_MASTER_INSTANCE}
       - NODE_OPTIONS=--dns-result-order=ipv4first
