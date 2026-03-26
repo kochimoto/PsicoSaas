@@ -40,6 +40,8 @@ export default function FinanceClient({ initialTransactions, patients, services,
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentLink, setPaymentLink] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("PIX");
+  const [pixKey, setPixKey] = useState("");
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [patientId, setPatientId] = useState("");
   const [serviceId, setServiceId] = useState("");
@@ -125,7 +127,9 @@ export default function FinanceClient({ initialTransactions, patients, services,
       amount: parsedAmount,
       date: new Date(`${date}T12:00:00`),
       patientId,
-      paymentLink: paymentLink || undefined
+      paymentLink: paymentLink || undefined,
+      paymentMethod,
+      pixKey: paymentMethod === 'PIX' ? pixKey : undefined
     });
 
     if (res?.error) {
@@ -490,16 +494,51 @@ export default function FinanceClient({ initialTransactions, patients, services,
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5 font-sans">Link de Pagamento (Opcional)</label>
-                  <input 
-                    type="url" 
-                    value={paymentLink}
-                    onChange={e => setPaymentLink(e.target.value)}
-                    placeholder="https://link.pagamento/..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
-                  />
-                  <p className="text-[10px] text-slate-500 mt-1">Ex: Link do Mercado Pago, Stripe, etc.</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Método de Pagamento</label>
+                    <select 
+                      value={paymentMethod} 
+                      onChange={e => setPaymentMethod(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                    >
+                      <option value="PIX">Pix</option>
+                      <option value="BOLETO">Boleto</option>
+                      <option value="CARD">Cartão de Crédito</option>
+                    </select>
+                  </div>
+                  {paymentMethod === 'PIX' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200">
+                      <label className="block text-sm font-bold text-slate-700 mb-1.5">Chave Pix</label>
+                      <input 
+                        type="text" 
+                        value={pixKey}
+                        onChange={e => setPixKey(e.target.value)}
+                        placeholder="CPF, E-mail, Celular..."
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                      />
+                    </div>
+                  )}
+                  {paymentMethod === 'CARD' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200">
+                      <label className="block text-sm font-bold text-slate-700 mb-1.5">Link de Pagamento</label>
+                      <input 
+                        type="url" 
+                        value={paymentLink}
+                        onChange={e => setPaymentLink(e.target.value)}
+                        placeholder="https://link.pagamento/..."
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all font-medium text-slate-700"
+                      />
+                    </div>
+                  )}
+                  {paymentMethod === 'BOLETO' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200">
+                      <label className="block text-sm font-bold text-slate-700 mb-1.5 opacity-50">Instrução Boleto</label>
+                      <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-500 font-medium">
+                        O paciente deverá anexar o comprovante do boleto no portal.
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <button 

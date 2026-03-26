@@ -99,16 +99,24 @@ export default async function PortalPage() {
                       <p className="font-bold text-slate-800 text-lg">{t.description}</p>
                       <p className="text-[13px] text-slate-500 font-semibold mt-1">Vencimento: {format(new Date(t.date), "dd/MM/yyyy")}</p>
                     </div>
-                    <div className="flex items-center gap-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-4">
-                      <span className="font-black text-rose-600 text-xl tracking-tight">R$ {Math.abs(t.amount).toFixed(2).replace('.', ',')}</span>
-                      {t.paymentLink ? (
-                        <Link href={t.paymentLink} target="_blank" className="bg-gradient-to-r from-rose-500 to-rose-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm shadow-rose-500/30 hover:opacity-90 transition active:scale-95">
-                          Pagar
-                        </Link>
-                      ) : (
-                        <span className="text-xs font-bold text-rose-400 bg-rose-50 px-2 py-1 rounded">Sem Link</span>
-                      )}
-                      <UploadReceiptButton id={t.id} hasReceipt={!!t.receiptUrl} />
+                    <div className="flex flex-col gap-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-4">
+                      <div className="flex items-center justify-between gap-6">
+                        <span className="font-black text-rose-600 text-xl tracking-tight">R$ {Math.abs(t.amount).toFixed(2).replace('.', ',')}</span>
+                        {t.paymentMethod === 'PIX' && t.pixKey && (
+                          <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
+                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Pagar via PIX</p>
+                            <p className="text-xs font-mono font-bold text-slate-700 select-all">{t.pixKey}</p>
+                          </div>
+                        )}
+                        {t.paymentLink && (
+                          <Link href={t.paymentLink} target="_blank" className="bg-gradient-to-r from-sky-500 to-sky-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm shadow-sky-500/30 hover:opacity-90 transition active:scale-95 whitespace-nowrap">
+                            {t.paymentMethod === 'BOLETO' ? 'Baixar Boleto' : 'Pagar Agora'}
+                          </Link>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <UploadReceiptButton id={t.id} hasReceipt={!!t.receiptUrl} />
+                      </div>
                     </div>
                   </div>
                 ))}

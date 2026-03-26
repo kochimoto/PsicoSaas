@@ -69,7 +69,9 @@ export async function createChargeAction(data: {
   amount: number, 
   date: Date, 
   patientId: string, 
-  paymentLink?: string 
+  paymentLink?: string,
+  paymentMethod?: string,
+  pixKey?: string
 }) {
   const session = await getSession();
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
@@ -86,6 +88,8 @@ export async function createChargeAction(data: {
         date: data.date,
         status: "PENDING",
         paymentLink: data.paymentLink || null,
+        paymentMethod: data.paymentMethod || null,
+        pixKey: data.pixKey || null,
         tenantId: tenant.id,
         patientId: data.patientId
       }

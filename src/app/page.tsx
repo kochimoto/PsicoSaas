@@ -220,7 +220,7 @@ export default function LandingPage() {
             <p className="text-slate-600 text-lg font-medium">Comece de graça e faça o upgrade apenas quando seu consultório estiver forte.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16 max-w-7xl mx-auto items-center justify-center">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16 max-w-7xl mx-auto items-stretch justify-center">
             <PricingCard 
               name="Iniciante"
               price="Grátis"
@@ -412,7 +412,7 @@ function PricingCard({
   name: string, price: string, period: string, description: string, features: string[], buttonText: string, buttonLink: string, isPopular?: boolean 
 }) {
   return (
-    <div className={`relative flex flex-col p-10 rounded-[2.5rem] transition-all duration-500 ${
+    <div className={`relative flex flex-col h-full p-10 rounded-[2.5rem] transition-all duration-500 ${
       isPopular 
         ? 'bg-slate-900 text-white shadow-2xl md:-translate-y-6 md:scale-110 z-10 border border-slate-800' 
         : 'bg-white text-slate-900 border border-slate-200 hover:shadow-xl hover:border-teal-200 z-0'

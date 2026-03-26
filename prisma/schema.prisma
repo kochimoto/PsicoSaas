@@ -171,6 +171,8 @@ model Transaction {
   description     String
   type            String   // INCOME, EXPENSE
   status          String   @default("PENDING") // PENDING, PAID, CANCELLED
+  paymentMethod   String?  // PIX, BOLETO, CARD
+  pixKey          String?
   paymentLink     String?
   receiptUrl      String?
   paymentProofUrl String?

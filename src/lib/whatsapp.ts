@@ -2,11 +2,18 @@ const WHATS_API_URL = process.env.WHATS_API_URL;
 const WHATS_API_KEY = process.env.WHATS_API_KEY;
 
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
-  if (!WHATS_API_URL || !WHATS_API_KEY) {
+  let apiUrl = WHATS_API_URL;
+  
+  // Se estivermos dentro do Docker (VPS) e a URL for a pública, tentamos usar o nome do serviço interno
+  if (process.env.NODE_ENV === "production" && apiUrl?.includes("laisbritoofc.com.br")) {
+    apiUrl = "http://evolution:8080";
+  }
+
+  if (!apiUrl || !WHATS_API_KEY) {
     throw new Error("WHATS_API_URL or WHATS_API_KEY not found in environment variables");
   }
 
-  const url = `${WHATS_API_URL}${endpoint}`;
+  const url = `${apiUrl.replace(/\/$/, "")}${endpoint}`;
   
   const response = await fetch(url, {
     method,
