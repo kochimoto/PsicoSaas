@@ -1,11 +1,12 @@
-async function getBaseUrl() {
-  return "http://evolution:8080";
+function getBaseUrl() {
+  // Usa WHATS_API_URL se definido; dentro do Docker usa o nome do serviço
+  return process.env.WHATS_API_URL || "http://evolution:8080";
 }
 
-const EVOLUTION_API_KEY = "123456"; // Definido no docker-compose.yml
+const EVOLUTION_API_KEY = process.env.WHATS_API_KEY || "123456";
 
 export async function createInstance(instanceName: string) {
-  const baseUrl = await getBaseUrl();
+  const baseUrl = getBaseUrl();
   
   // Primeiro, tentamos criar a instância
   const res = await fetch(`${baseUrl}/instance/create`, {
@@ -17,7 +18,7 @@ export async function createInstance(instanceName: string) {
     cache: "no-store",
     body: JSON.stringify({
       instanceName: instanceName,
-      token: EVOLUTION_API_KEY,
+      integration: "WHATSAPP-BAILEYS",
       qrcode: true
     })
   });
@@ -34,7 +35,7 @@ export async function createInstance(instanceName: string) {
 }
 
 export async function connectInstance(instanceName: string) {
-  const baseUrl = await getBaseUrl();
+  const baseUrl = getBaseUrl();
   const res = await fetch(`${baseUrl}/instance/connect/${instanceName}`, {
     method: "GET",
     headers: { "apikey": EVOLUTION_API_KEY },
@@ -51,7 +52,7 @@ export async function connectInstance(instanceName: string) {
 
 export async function getConnectionState(instanceName: string) {
   try {
-    const baseUrl = await getBaseUrl();
+    const baseUrl = getBaseUrl();
     const res = await fetch(`${baseUrl}/instance/connectionState/${instanceName}`, {
       method: "GET",
       headers: { "apikey": EVOLUTION_API_KEY },
@@ -74,7 +75,7 @@ export async function getConnectionState(instanceName: string) {
 }
 
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
-  const baseUrl = await getBaseUrl();
+  const baseUrl = getBaseUrl();
   const res = await fetch(`${baseUrl}/message/sendText/${instanceName}`, {
     method: "POST",
     headers: {
