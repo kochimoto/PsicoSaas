@@ -22,7 +22,21 @@ services:
       - WHATS_API_KEY=${WHATS_API_KEY}
       - WHATS_MASTER_INSTANCE=${WHATS_MASTER_INSTANCE}
     depends_on:
+      - psicosaas_db
       - evolution
+
+  psicosaas_db:
+    image: postgres:15-alpine
+    container_name: psicosaas_db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=intelbras3246
+      - POSTGRES_DB=psico_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - psicosaas_db_data:/var/lib/postgresql/data
 
   evolution:
     image: atendai/evolution-api:v2.1.1
@@ -61,6 +75,7 @@ services:
     command: redis-server --appendonly yes
 
 volumes:
+  psicosaas_db_data:
   evol_data:
 
 networks:
