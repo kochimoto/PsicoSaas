@@ -41,6 +41,10 @@
     "eslint-config-next": "16.2.0",
     "prisma": "^6.4.1",
     "tailwindcss": "^4",
+    "tsx": "^4.19.2",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "npx tsx scripts/seed-admin.ts"
   }
 }
