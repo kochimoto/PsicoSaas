@@ -46,7 +46,7 @@ services:
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=123456
       - DATABASE_ENABLED=true
-      - DATABASE_PROVIDER=postgresql
+      - DATABASE_PROVIDER=postgres
       - DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db?sslmode=disable
       - DATABASE_CONNECTION_CLIENT_NAME=evolution_api
       - CACHE_REDIS_ENABLED=false
