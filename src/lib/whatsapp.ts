@@ -2,9 +2,7 @@ import dns from 'dns/promises';
 
 const WHATS_API_KEY = process.env.WHATS_API_KEY || "123456";
 
-// Cache do token em memória RAM (se reiniciar o container, ele gera outro)
-let cachedWppToken: string | null = null;
-
+// Removido cache global para evitar conflito de 401 entre sessões
 async function getBaseUrl() {
   let apiUrl = "http://wppconnect:21465";
   if (process.env.NODE_ENV === "production") {
@@ -19,30 +17,32 @@ async function getBaseUrl() {
   return apiUrl;
 }
 
-export async function getWppToken() {
-  if (cachedWppToken) return cachedWppToken;
+export async function getWppToken(sessionName: string) {
   const baseUrl = await getBaseUrl();
-  // Revertendo para o padrão de URL do WPPConnect Server-CLI (mais estável para esta versão)
-  const res = await fetch(`${baseUrl}/api/psicosaas/${WHATS_API_KEY}/generate-token`, {
+  console.log(`Gerando token WPP para sessão: ${sessionName}`);
+  
+  const res = await fetch(`${baseUrl}/api/generate-token`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      secret: WHATS_API_KEY,
+      sessionName: sessionName
+    })
   });
   
   if (!res.ok) {
     const errText = await res.text();
     console.error("Erro ao gerar token WPP:", res.status, errText);
-    throw new Error(`Falha ao gerar o token: ${res.status}`);
+    throw new Error(`Falha ao gerar o token (${res.status})`);
   }
   
   const data = await res.json();
-  cachedWppToken = data.token;
-  console.log("Token WPP gerado com sucesso");
-  return cachedWppToken;
+  return data.token;
 }
 
 export async function createInstance(instanceName: string) {
   const baseUrl = await getBaseUrl();
-  const token = await getWppToken();
+  const token = await getWppToken(instanceName);
   const res = await fetch(`${baseUrl}/api/${instanceName}/start-session`, {
     method: "POST",
     headers: {
@@ -72,7 +72,7 @@ export async function connectInstance(instanceName: string) {
 export async function getConnectionState(instanceName: string) {
   try {
     const baseUrl = await getBaseUrl();
-    const token = await getWppToken();
+    const token = await getWppToken(instanceName);
     const res = await fetch(`${baseUrl}/api/${instanceName}/status-session`, {
       method: "GET",
       headers: { "Authorization": `Bearer ${token}` },
@@ -92,7 +92,7 @@ export async function getConnectionState(instanceName: string) {
 
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
   const baseUrl = await getBaseUrl();
-  const token = await getWppToken();
+  const token = await getWppToken(instanceName);
   const res = await fetch(`${baseUrl}/api/${instanceName}/send-message`, {
     method: "POST",
     headers: {
