@@ -1,5 +1,5 @@
 {
-  "secretKey": "123456",
+  "secretKey": "THISISMYSECURETOKEN",
   "host": "0.0.0.0",
   "port": 21465,
   "deviceName": "PsicoSaas",
