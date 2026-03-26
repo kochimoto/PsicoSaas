@@ -1,93 +1,99 @@
 import dns from 'dns/promises';
 
-const WHATS_API_URL = process.env.WHATS_API_URL;
-const WHATS_API_KEY = process.env.WHATS_API_KEY;
+const WHATS_API_KEY = process.env.WHATS_API_KEY || "123456";
 
-export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
-  let apiUrl = WHATS_API_URL;
-  
-  // Bypass DEFINITIVO para o bug do Next.js 14 (Undici) com IPv6 no Docker:
-  // Resolvemos manualmente o IPV4 do contêiner 'evolution' para evitar o 'fetch failed'
-  if (process.env.NODE_ENV === "production" && apiUrl?.includes("evolution")) {
+// Cache do token em memória RAM (se reiniciar o container, ele gera outro)
+let cachedWppToken: string | null = null;
+
+async function getBaseUrl() {
+  let apiUrl = "http://wppconnect:21465";
+  if (process.env.NODE_ENV === "production") {
     try {
-      const lookup = await dns.lookup("evolution", { family: 4 });
-      apiUrl = `http://${lookup.address}:8080`;
-    } catch (e) {
-      console.error("DNS lookup for evolution failed:", e);
+      // Bypass IPv6 do Undici no Next.js (mesma segurança contra loops Docker)
+      const lookup = await dns.lookup("wppconnect", { family: 4 });
+      apiUrl = `http://${lookup.address}:21465`;
+    } catch(e) {
+      console.log("DNS lookup fallback para hostname nativo");
     }
   }
-
-  if (!apiUrl || !WHATS_API_KEY) {
-    throw new Error("WHATS_API_URL or WHATS_API_KEY not found in environment variables");
-  }
-
-  const url = `${apiUrl.replace(/\/$/, "")}${endpoint}`;
-  
-  const options: RequestInit = {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": WHATS_API_KEY as string
-    },
-    cache: "no-store"
-  };
-
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-
-  try {
-    const response = await fetch(url, options);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("WhatsApp API Error Response:", response.status, errorData);
-      throw new Error(`[Status: ${response.status}] ${errorData?.message?.message || errorData?.message || response.statusText}`);
-    }
-
-    return response.json();
-  } catch (error: any) {
-    console.error("WhatsApp API Network/Fetch Error:", error.message);
-    throw new Error(`Falha de conexão com a Evolution API: ${error.message} (URL: ${url})`);
-  }
+  return apiUrl;
 }
 
-/**
- * Cria uma nova instância para o psicólogo (equivalente a "logar" o WhatsApp dele)
- */
-export async function createInstance(instanceName: string) {
-  return whatsApiRequest("/instance/create", "POST", {
-    instanceName,
-    token: WHATS_API_KEY, // Opcional, mas útil
-    qrcode: true
+export async function getWppToken() {
+  if (cachedWppToken) return cachedWppToken;
+  const baseUrl = await getBaseUrl();
+  const res = await fetch(`${baseUrl}/api/${WHATS_API_KEY}/generate-token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
   });
+  if (!res.ok) throw new Error("Falha ao gerar o token de segurança no WPPConnect.");
+  const data = await res.json();
+  cachedWppToken = data.token;
+  return cachedWppToken;
+}
+
+export async function createInstance(instanceName: string) {
+  const baseUrl = await getBaseUrl();
+  const token = await getWppToken();
+  const res = await fetch(`${baseUrl}/api/${instanceName}/start-session`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      webhook: `${process.env.NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook`
+    }),
+    cache: "no-store"
+  });
+  if (!res.ok) throw new Error("Erro ao criar a sessão no WhatsApp Engine.");
+  const data = await res.json();
+  return data;
 }
 
 export async function connectInstance(instanceName: string) {
-  return whatsApiRequest(`/instance/connect/${instanceName}`);
+  return createInstance(instanceName);
 }
 
-/**
- * Pega o QR Code ou status da conexão
- */
 export async function getConnectionState(instanceName: string) {
-  return whatsApiRequest(`/instance/connectionState/${instanceName}`);
+  try {
+    const baseUrl = await getBaseUrl();
+    const token = await getWppToken();
+    const res = await fetch(`${baseUrl}/api/${instanceName}/status-session`, {
+      method: "GET",
+      headers: { "Authorization": `Bearer ${token}` },
+      cache: "no-store"
+    });
+    if (!res.ok) return { instance: { state: "close" } };
+    const data = await res.json();
+    return {
+      instance: {
+        state: data.status === "CONNECTED" ? "open" : "close"
+      }
+    };
+  } catch (e) {
+    return { instance: { state: "close" } };
+  }
 }
 
-/**
- * Envia uma mensagem de texto simples
- */
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
-  // O número precisa estar no formato: 5511999999999 (DDI + DDD + Número)
-  return whatsApiRequest(`/message/sendText/${instanceName}`, "POST", {
-    number: number,
-    options: {
-      delay: 1200,
-      presence: "composing",
-      linkPreview: true
+  const baseUrl = await getBaseUrl();
+  const token = await getWppToken();
+  const res = await fetch(`${baseUrl}/api/${instanceName}/send-message`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
-    textMessage: {
-      text: text
-    }
+    body: JSON.stringify({
+      phone: number,
+      message: text,
+      isGroup: false
+    })
   });
+  
+  if (!res.ok) {
+     throw new Error("Erro ao enviar mensagem via WPPConnect");
+  }
+  return res.json();
 }

@@ -39,20 +39,16 @@ services:
     volumes:
       - psicosaas_db_data:/var/lib/postgresql/data
 
-  evolution:
-    image: atendai/evolution-api:v1.8.2
-    container_name: evolution
+  wppconnect:
+    image: wppconnectio/server:latest
+    container_name: wppconnect
     restart: always
     ports:
-      - "8080:8080"
+      - "21465:21465"
     environment:
-      - SERVER_TYPE=NODE
-      - DOCKER_ENV=true
-      - AUTH_TOKEN=${WHATS_API_KEY:-"123456"}
-      - AUTHENTICATION_TYPE=apikey
-      - AUTHENTICATION_API_KEY=${WHATS_API_KEY:-"123456"}
-      - REDIS_ENABLED=false
-      - SERVER_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:8080}
+      - PORT=21465
+      - SECRET_KEY=${WHATS_API_KEY:-"123456"}
+      - WEBHOOK_URL=${NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook
 
 volumes:
   psicosaas_db_data:

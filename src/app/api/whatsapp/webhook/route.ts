@@ -6,12 +6,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log("WhatsApp Webhook received:", body);
 
-    // O evento de mensagem recebida na Evolution API é 'messages.upsert'
-    if (body.event === "messages.upsert") {
-      const message = body.data.message;
-      const remoteJid = body.data.key.remoteJid; // Ex: 5511999999999@s.whatsapp.net
-      const text = message.conversation || message.extendedTextMessage?.text || "";
-      const phone = remoteJid.split("@")[0];
+    // O evento de mensagem recebida no WPPConnect Server é 'onmessage'
+    if (body.event === "onmessage" && !body.isGroupMsg) {
+      const text = body.body || "";
+      const phone = body.phone ? body.phone.replace(/\D/g, "") : "";
 
       // Lógica simples de confirmação
       if (text.toLowerCase().includes("confirm") || text.toLowerCase() === "sim") {
