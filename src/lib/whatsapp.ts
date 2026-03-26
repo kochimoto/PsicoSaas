@@ -19,21 +19,18 @@ async function getBaseUrl() {
 
 export async function getWppToken(sessionName: string) {
   const baseUrl = await getBaseUrl();
-  console.log(`Gerando token WPP para sessão: ${sessionName}`);
+  const url = `${baseUrl}/api/${sessionName}/${WHATS_API_KEY}/generate-token`;
+  console.log(`Gerando token WPP via URL: ${url}`);
   
-  const res = await fetch(`${baseUrl}/api/generate-token`, {
+  const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      secret: WHATS_API_KEY,
-      sessionName: sessionName
-    })
+    headers: { "Content-Type": "application/json" }
   });
   
   if (!res.ok) {
     const errText = await res.text();
     console.error("Erro ao gerar token WPP:", res.status, errText);
-    throw new Error(`Falha ao gerar o token (${res.status})`);
+    throw new Error(`Falha ao gerar o token (${res.status}): ${errText}`);
   }
   
   const data = await res.json();
