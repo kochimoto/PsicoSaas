@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
-import { getConnectionState, createInstance, connectInstance } from "@/lib/whatsapp";
+import { getConnectionState, createInstance, getQrCode } from "@/lib/whatsapp";
 
 async function verifySuperAdmin() {
   const session = await getSession();
@@ -73,8 +73,8 @@ export async function getSystemWhatsappStatusAction() {
     const state = await getConnectionState(instanceName).catch(() => null);
     
     return { 
-      connected: state?.instance?.state === "open",
-      state: state?.instance?.state || "offline"
+      connected: state?.state === "open",
+      state: state?.state || "offline"
     };
   } catch (error) {
     return { connected: false, error: "Erro ao checar status" };
@@ -84,20 +84,15 @@ export async function getSystemWhatsappStatusAction() {
 export async function getSystemWhatsappQrCodeAction() {
   try {
     await verifySuperAdmin();
-    const instanceName = process.env.WHATS_MASTER_INSTANCE || "psico_system_master";
+    const name = process.env.WHATS_MASTER_INSTANCE || "psico_system_master";
     
-    let result = await connectInstance(instanceName).catch(async () => {
-      return await createInstance(instanceName);
-    });
-
-    const qrCodeBase64 = result.base64 || result.qrcode?.base64 || result.qrcode;
+    // Cria se não existir, depois busca o QR
+    await createInstance(name).catch(() => null);
+    await new Promise(r => setTimeout(r, 2000));
+    const qr = await getQrCode(name);
     
-    if (qrCodeBase64 && typeof qrCodeBase64 === "string") {
-      const finalQr = qrCodeBase64.replace(/^data:image\/[a-z]+;base64,/, "");
-      return { qrcode: finalQr };
-    }
-
-    return { error: "Não foi possível gerar o QR Code." };
+    if (qr) return { qrcode: qr };
+    return { error: "QR Code ainda não disponível. Aguarde e tente novamente." };
   } catch (error: any) {
     return { error: error?.message || "Erro ao conectar com o servidor." };
   }
