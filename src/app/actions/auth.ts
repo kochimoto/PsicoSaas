@@ -34,6 +34,7 @@ export async function registerAction(data: RegisterData) {
         password: hashedPassword,
         whereFound: data.whereFound,
         verificationToken,
+        emailVerified: new Date(),
         role: "PSICOLOGO",
         tenantOwner: {
           create: {
@@ -102,10 +103,12 @@ export async function loginAction(data: LoginData) {
       return { error: "Credenciais inválidas." };
     }
 
-    // Verificar se o e-mail foi verificado (apenas para Psicólogos)
+    // Verificação de e-mail desabilitada a pedido do usuário
+    /*
     if (user.role === "PSICOLOGO" && !user.emailVerified) {
       return { error: "Por favor, verifique seu e-mail antes de acessar. Verifique sua caixa de entrada (ou spam)." };
     }
+    */
 
     await setSession({ id: user.id, email: user.email, role: user.role, name: user.name });
     return { success: true, role: user.role };
