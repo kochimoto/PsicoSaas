@@ -46,6 +46,7 @@ services:
     environment:
       - PORT=21465
       - SECRET_KEY=${WHATS_API_KEY:-"123456"}
+      - AUTHENTICATION_SECRET_KEY=${WHATS_API_KEY:-"123456"}
       - WEBHOOK_URL=${NEXT_PUBLIC_APP_URL}/api/whatsapp/webhook
 
 volumes:

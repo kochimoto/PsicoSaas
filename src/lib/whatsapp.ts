@@ -24,10 +24,14 @@ export async function getWppToken() {
   const baseUrl = await getBaseUrl();
   console.log(`Tentando gerar token no WPPConnect: ${baseUrl}`);
   
-  // O WPPConnect exige /api/{session}/{secret}/generate-token
-  const res = await fetch(`${baseUrl}/api/psicosaas/${WHATS_API_KEY}/generate-token`, {
+  // O WPPConnect moderno prefere o segredo no corpo (JSON) para evitar erros de URL
+  const res = await fetch(`${baseUrl}/api/generate-token`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      secret: WHATS_API_KEY,
+      sessionName: "psicosaas"
+    })
   });
   
   if (!res.ok) {
