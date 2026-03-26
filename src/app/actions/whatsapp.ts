@@ -24,28 +24,31 @@ export async function getWhatsappQrCodeAction() {
 
     const name = instanceName(tenant.id);
 
-    // 1. Verifica estado atual
+    // 1. Verifica se já está conectado
     const state = await getConnectionState(name);
-
     if (state.state === "open") {
       return { connected: true };
     }
 
-    // 2. Se não existe, cria (ignora se já existe — 409)
-    if (state.state === "close") {
-      await createInstance(name);
-      // Aguarda a instância inicializar
-      await new Promise((r) => setTimeout(r, 2000));
-    }
+    // 2. Deleta instância antiga para garantir estado limpo
+    //    Instâncias travadas em "connecting" nunca geram QR novo
+    await deleteInstance(name).catch(() => null);
+    await new Promise((r) => setTimeout(r, 1000));
 
-    // 3. Busca o QR Code
+    // 3. Cria instância nova
+    await createInstance(name);
+
+    // 4. Aguarda Evolution API inicializar a conexão Baileys (5s)
+    await new Promise((r) => setTimeout(r, 5000));
+
+    // 5. Busca o QR Code
     const qr = await getQrCode(name);
 
     if (qr) {
       return { qrcode: qr, connected: false };
     }
 
-    // QR ainda não gerado — cliente vai fazer polling
+    // QR ainda não gerado — polling vai buscar nos próximos segundos
     return { initializing: true, connected: false };
   } catch (error: any) {
     console.error("[WA] getWhatsappQrCodeAction:", error?.message);
