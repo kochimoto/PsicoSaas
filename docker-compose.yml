@@ -53,12 +53,9 @@ services:
       - AUTHENTICATION_API_KEY=${WHATS_API_KEY:-"123456"}
       - REDIS_ENABLED=false
       - SERVER_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:8080}
-    volumes:
-      - evolution_instances:/evolution/instances
 
 volumes:
   psicosaas_db_data:
-  evolution_instances:
 
 networks:
   default:
