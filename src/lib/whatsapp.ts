@@ -1,6 +1,6 @@
 import dns from 'dns/promises';
 
-const WHATS_API_KEY = process.env.WHATS_API_KEY || "123456";
+const WHATS_API_KEY = process.env.WHATS_API_KEY || "sua_chave_secreta_aqui";
 
 // Removido cache global para evitar conflito de 401 entre sessões
 async function getBaseUrl() {
