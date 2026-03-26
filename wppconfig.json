@@ -24,6 +24,7 @@
     "logger": ["console"]
   },
   "createOptions": {
+    "autoClose": 0,
     "browserArgs": [
       "--no-sandbox",
       "--disable-setuid-sandbox",
