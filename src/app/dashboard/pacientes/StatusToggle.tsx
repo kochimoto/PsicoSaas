@@ -24,10 +24,10 @@ export default function StatusToggle({ id, active }: { id: string; active: boole
       onClick={handleToggle}
       disabled={isPending}
       title={active ? "Clique para desativar" : "Clique para ativar"}
-      className={`inline-flex items-center w-fit px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all hover:scale-105 active:scale-95 disabled:opacity-50 ${
+      className={`inline-flex items-center w-fit px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border transition-all hover:scale-105 active:scale-95 disabled:opacity-50 ${
         active 
-          ? 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100' 
-          : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20' 
+          : 'bg-slate-500/10 text-slate-500 border-slate-500/20 hover:bg-slate-500/20'
       }`}
     >
       {isPending ? (

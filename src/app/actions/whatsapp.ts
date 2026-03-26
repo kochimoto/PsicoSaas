@@ -34,8 +34,6 @@ export async function getWhatsappQrCodeAction() {
     // 2. Se não existe, cria (ignora se já existe — 409)
     if (state.state === "close") {
       await createInstance(name);
-      // Aguarda a instância inicializar (Baileys precisa de ~5s)
-      await new Promise((r) => setTimeout(r, 5000));
     }
 
     // 3. Busca o QR Code

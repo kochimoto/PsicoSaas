@@ -34,11 +34,11 @@ export default async function AgendaPage() {
   });
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-2">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Agenda</h1>
-          <p className="text-slate-500 mt-1">Gerencie suas próximas sessões e alertas vis WhatsApp.</p>
+          <h1 className="text-4xl font-black text-white tracking-tight">Agenda</h1>
+          <p className="text-slate-400 mt-2 font-medium">Gerencie suas próximas sessões e alertas via WhatsApp.</p>
         </div>
       </div>
 

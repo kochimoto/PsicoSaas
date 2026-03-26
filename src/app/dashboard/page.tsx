@@ -83,8 +83,8 @@ export default async function DashboardPage() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Olá, {session.user.name.split(" ")[0]}</h1>
-          <p className="text-slate-500 mt-1">Bem-vindo(a) ao seu resumo da {tenant.clinicName}</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Olá, {session.user.name.split(" ")[0]}</h1>
+          <p className="text-slate-400 mt-1">Bem-vindo(a) ao seu resumo da {tenant.clinicName}</p>
         </div>
         
         {isTrialActive && (
@@ -96,14 +96,17 @@ export default async function DashboardPage() {
       </div>
 
       {!isVip && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50/50 border border-amber-200/60 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col xl:flex-row items-center justify-between gap-6">
-          <div>
-            <h3 className="text-2xl font-black text-amber-900 tracking-tight flex items-center gap-2">
-              <span className="bg-amber-100 p-2 rounded-xl text-amber-600"><Sparkles className="w-5 h-5"/></span>
+        <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col xl:flex-row items-center justify-between gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+            <Sparkles className="w-32 h-32 text-amber-500" />
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-amber-100 tracking-tight flex items-center gap-2">
+              <span className="bg-amber-500/20 p-2 rounded-xl text-amber-500"><Sparkles className="w-5 h-5"/></span>
               Desbloqueie o Potencial Máximo
             </h3>
-            <p className="font-semibold text-amber-700/80 mt-2 max-w-xl text-[15px]">
-              Você está usando a licença gratuita do sistema. Assine o <strong className="text-amber-900">Plano VIP</strong> para enviar cobranças, laudos e lembretes de WhatsApp automaticamente aos seus pacientes, sem limites.
+            <p className="font-semibold text-amber-200/60 mt-2 max-w-xl text-[15px]">
+              Você está usando a licença gratuita do sistema. Assine o <strong className="text-amber-400">Plano VIP</strong> para enviar cobranças, laudos e lembretes de WhatsApp automaticamente aos seus pacientes, sem limites.
             </p>
           </div>
           <VIPCheckoutButton />
@@ -118,29 +121,29 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-indigo-500" /> Próximas Sessões
+        <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-3xl shadow-xl p-6 sm:p-8 backdrop-blur-sm">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-indigo-400" /> Próximas Sessões
           </h2>
           {tenant.appointments.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-              <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <div className="text-center py-12 text-slate-500 bg-slate-900/30 rounded-2xl border border-dashed border-slate-800">
+              <Calendar className="w-12 h-12 text-slate-700 mx-auto mb-3" />
               Nenhuma sessão agendada para os próximos dias.
             </div>
           ) : (
             <div className="space-y-4">
               {tenant.appointments.map((app) => (
-                <div key={app.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 transition-hover hover:border-indigo-200 hover:bg-white">
+                <div key={app.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-slate-800 transition-all hover:bg-slate-800/50 group">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-sm">
+                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 text-sm">
                       {app.patient.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-bold text-slate-800">{app.patient.name}</p>
+                      <p className="font-bold text-slate-200">{app.patient.name}</p>
                       <p className="text-xs text-slate-500 font-medium">{new Date(app.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • {new Date(app.date).toLocaleDateString('pt-BR')}</p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${app.status === 'SCHEDULED' ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'}`}>
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${app.status === 'SCHEDULED' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'}`}>
                     {app.status}
                   </span>
                 </div>
@@ -149,18 +152,18 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" /> Avisos e Novidades
+        <div className="bg-slate-900/50 border border-slate-800 rounded-3xl shadow-xl p-6 sm:p-8 backdrop-blur-sm">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-400" /> Avisos e Novidades
           </h2>
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-900 text-sm">
-              <span className="font-bold block mb-1">Dica do PsicoGestão</span>
+            <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 text-sm">
+              <span className="font-bold block mb-1 text-indigo-300">Dica do PsicoGestão</span>
               Ative as mensagens automatizadas de WhatsApp no menu Configurações para reduzir faltas em até 40%.
             </div>
             {isTrialActive && (
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 text-amber-900 text-sm">
-                <span className="font-bold block mb-1 text-amber-700">Período de Experiência</span>
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm">
+                <span className="font-bold block mb-1 text-amber-300">Período de Experiência</span>
                 Aproveite todos os recursos VIP gratuitamente pelos primeiros 7 dias.
               </div>
             )}
@@ -173,13 +176,13 @@ export default async function DashboardPage() {
 
 function MetricCard({ title, value, icon }: { title: string, value: string, icon: React.ReactNode }) {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-      <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+    <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl flex items-center gap-4 hover:bg-slate-800/50 transition-all group">
+      <div className="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-medium text-slate-500 truncate">{title}</p>
-        <p className="text-2xl font-bold text-slate-900 truncate">{value}</p>
+        <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">{title}</p>
+        <p className="text-2xl font-black text-white truncate">{value}</p>
       </div>
     </div>
   );

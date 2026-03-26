@@ -29,50 +29,52 @@ export default function UpdatesPopup() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all animate-in fade-in duration-300">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-500/20 border border-slate-200 max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-300">
-        <div className="relative p-8 sm:p-10">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md transition-all animate-in fade-in duration-300">
+      <div className="bg-slate-900 rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-slate-800 max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-300 relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+        
+        <div className="relative p-10 sm:p-12">
           <button 
             onClick={closePopup}
-            className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
+            className="absolute top-8 right-8 p-3 text-slate-500 hover:text-white hover:bg-slate-800 rounded-2xl transition-all active:scale-90"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-indigo-200">
-              <Megaphone className="w-8 h-8" />
+          <div className="flex flex-col items-center text-center mb-10">
+            <div className="w-20 h-20 bg-brand/10 border border-brand/20 rounded-3xl flex items-center justify-center text-brand mb-8 shadow-2xl shadow-brand/5 animate-bounce-slow">
+              <Megaphone className="w-10 h-10" />
             </div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
-              Novidades no Sistema! <Sparkles className="inline-block w-6 h-6 text-amber-500" />
+            <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+              Novidades no Sistema! <Sparkles className="inline-block w-8 h-8 text-amber-500" />
             </h2>
-            <p className="text-slate-500 font-medium mt-2">
+            <p className="text-slate-400 font-medium mt-4 italic">
               Confira o que preparamos para você nesta última atualização.
             </p>
           </div>
 
-          <div className="space-y-4 mb-10">
+          <div className="space-y-4 mb-12">
             <UpdateItem 
-              title="Dashboard Inteligente" 
-              description="Veja suas sessões diárias e receita mensal em tempo real com o novo sistema de métricas." 
+              title="Novo Modo Dark Premium" 
+              description="Uma experiência visual totalmente renovada, focada no seu conforto e produtividade." 
             />
             <UpdateItem 
-              title="Programa VIP Trial" 
-              description="Novos usuários agora ganham 7 dias de acesso completo aos recursos VIP automaticamente." 
+              title="Dashboard Inteligente" 
+              description="Métricas de receita e atendimentos redesenhadas com gráficos de alta fidelidade." 
+            />
+            <UpdateItem 
+              title="Gestão de WhatsApp VIP" 
+              description="Nova interface de configuração para seus lembretes automáticos inteligentes." 
             />
             <UpdateItem 
               title="Layout Mobile Sênior" 
-              description="Tabelas e menus redesenhados para uma navegação muito mais fluida no celular." 
-            />
-            <UpdateItem 
-              title="Domínio Oficial" 
-              description="Sistema migrado para laisbritoofc.com.br com links de portal corrigidos." 
+              description="Navegação fluida e ultra-rápida em smartphones e tablets." 
             />
           </div>
 
           <button 
             onClick={closePopup}
-            className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all active:scale-[0.98] shadow-lg shadow-slate-200"
+            className="w-full py-5 bg-brand hover:bg-brand-hover text-white rounded-[2rem] font-black text-lg transition-all active:scale-95 shadow-[0_15px_30px_rgba(13,148,136,0.3)] uppercase tracking-widest text-xs"
           >
             Entendido, vamos lá!
           </button>
@@ -84,11 +86,13 @@ export default function UpdatesPopup() {
 
 function UpdateItem({ title, description }: { title: string, description: string }) {
   return (
-    <div className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-100 transition-colors">
-      <CheckCircle2 className="w-6 h-6 text-indigo-500 shrink-0 mt-0.5" />
+    <div className="flex gap-5 p-6 rounded-[2rem] bg-slate-950/50 border border-slate-800 hover:border-brand/30 transition-all group">
+      <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+        <CheckCircle2 className="w-6 h-6 text-brand" />
+      </div>
       <div className="text-left">
-        <h4 className="font-bold text-slate-900 text-[15px]">{title}</h4>
-        <p className="text-sm text-slate-500 font-medium leading-relaxed">{description}</p>
+        <h4 className="font-bold text-white text-[16px] tracking-tight">{title}</h4>
+        <p className="text-sm text-slate-500 font-medium leading-relaxed mt-1">{description}</p>
       </div>
     </div>
   );

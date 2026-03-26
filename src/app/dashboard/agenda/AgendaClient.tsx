@@ -120,58 +120,58 @@ export default function AgendaClient({ initialAppointments, patients, services, 
       <div className="flex justify-end">
         <button 
           onClick={openNewModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)]"
+          className="bg-brand hover:bg-brand-hover text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest flex items-center gap-3 transition-all shadow-[0_4px_20px_rgba(13,148,136,0.3)] active:scale-95"
         >
           <Plus className="w-5 h-5" /> Agendar Sessão
         </button>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+      <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden backdrop-blur-sm">
         {initialAppointments.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-20 h-20 bg-slate-50 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 border border-slate-100">
-              <CalendarIcon className="w-10 h-10 text-slate-300" />
+          <div className="text-center py-24">
+            <div className="w-24 h-24 bg-slate-950 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border border-slate-800 shadow-inner group hover:scale-110 transition-transform">
+              <CalendarIcon className="w-12 h-12 text-slate-700 group-hover:text-brand-accent transition-colors" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Agenda vazia</h3>
-            <p className="text-slate-500 mb-8 max-w-sm mx-auto font-medium">Nenhuma sessão programada para hoje ou dias futuros.</p>
+            <h3 className="text-3xl font-black text-white mb-3 tracking-tight">Agenda vazia</h3>
+            <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium italic">Nenhuma sessão programada para hoje ou dias futuros.</p>
             <button 
               onClick={openNewModal}
-              className="text-blue-600 font-bold hover:text-blue-700"
+              className="bg-slate-950 border border-slate-800 text-brand-accent font-black uppercase tracking-widest px-8 py-4 rounded-xl hover:bg-slate-900 transition-all active:scale-95"
             >
               Agendar agora
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 p-2 sm:p-6">
+          <div className="divide-y divide-slate-800/50 p-4 sm:p-8">
             {initialAppointments.map(appointment => {
               const waLink = getWhatsAppLink(appointment);
               return (
-                <div key={appointment.id} className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 py-6 hover:bg-slate-50/50 transition-all rounded-2xl px-2 sm:px-6 group">
-                  <div className="flex items-center gap-4 sm:gap-6">
-                    <div className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 border shadow-inner ${appointment.status === 'COMPLETED' ? 'bg-slate-50 border-slate-200 text-slate-500' : appointment.status === 'CANCELED' ? 'bg-rose-50 border-rose-200 text-rose-500' : 'bg-gradient-to-b from-blue-50 to-indigo-50/30 text-blue-700 border-blue-100/50'}`}>
-                      <span className="text-xs font-bold uppercase tracking-wider">{format(new Date(appointment.date), 'MMM', { locale: ptBR })}</span>
-                      <span className="text-2xl font-black leading-none mt-0.5">{format(new Date(appointment.date), 'dd')}</span>
+                <div key={appointment.id} className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 py-8 hover:bg-slate-950/30 transition-all rounded-[2rem] px-4 sm:px-8 group">
+                  <div className="flex items-center gap-6 sm:gap-8">
+                    <div className={`w-20 h-20 rounded-[1.5rem] flex flex-col items-center justify-center shrink-0 border shadow-2xl transition-transform group-hover:scale-105 ${appointment.status === 'COMPLETED' ? 'bg-slate-950 border-slate-800 text-slate-600' : appointment.status === 'CANCELED' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' : 'bg-brand/10 text-brand-accent border-brand/20 shadow-brand/5'}`}>
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-70">{format(new Date(appointment.date), 'MMM', { locale: ptBR })}</span>
+                      <span className="text-3xl font-black leading-none mt-1 uppercase tracking-tighter">{format(new Date(appointment.date), 'dd')}</span>
                     </div>
                     <div>
-                      <h4 className={`text-lg sm:text-xl font-bold ${appointment.status === 'CANCELED' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>{appointment.patient?.name || "Paciente Removido"}</h4>
-                      <div className="flex items-center gap-3 sm:gap-4 mt-2 text-sm font-semibold text-slate-500 flex-wrap">
-                        <span className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg text-slate-600"><Clock className="w-4 h-4 text-slate-400" /> {format(new Date(appointment.date), 'HH:mm')}</span>
-                        {appointment.service && <span className="flex items-center gap-1.5 text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 font-bold">{appointment.service.name}</span>}
-                        {appointment.status === 'COMPLETED' && <span className="flex items-center gap-1.5 text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200"><CheckCircle2 className="w-4 h-4" /> Concluído</span>}
-                        {appointment.status === 'CANCELED' && <span className="flex items-center gap-1.5 text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200"><Ban className="w-4 h-4" /> Cancelado</span>}
-                        {appointment.status === 'SCHEDULED' && <span className="flex items-center gap-1.5 text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">Agendado</span>}
+                      <h4 className={`text-xl sm:text-2xl font-black tracking-tight ${appointment.status === 'CANCELED' ? 'text-slate-600 line-through' : 'text-white'}`}>{appointment.patient?.name || "Paciente Removido"}</h4>
+                      <div className="flex items-center gap-3 sm:gap-4 mt-3 text-xs font-black uppercase tracking-widest flex-wrap">
+                        <span className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-lg text-slate-400 border border-slate-800"><Clock className="w-4 h-4 text-brand-accent" /> {format(new Date(appointment.date), 'HH:mm')}</span>
+                        {appointment.service && <span className="flex items-center gap-2 text-brand-accent bg-brand/10 px-3 py-1.5 rounded-lg border border-brand/20">{appointment.service.name}</span>}
+                        {appointment.status === 'COMPLETED' && <span className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20"><CheckCircle2 className="w-4 h-4" /> Concluído</span>}
+                        {appointment.status === 'CANCELED' && <span className="flex items-center gap-2 text-rose-500 bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/20"><Ban className="w-4 h-4" /> Cancelado</span>}
+                        {appointment.status === 'SCHEDULED' && <span className="flex items-center gap-2 text-sky-400 bg-sky-500/10 px-3 py-1.5 rounded-lg border border-sky-500/20">Agendado</span>}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 xl:mt-0 w-full xl:w-auto opacity-100 transition-opacity">
+                  <div className="flex flex-wrap items-center gap-3 mt-6 xl:mt-0 w-full xl:w-auto opacity-100 transition-opacity">
                     {appointment.status === 'SCHEDULED' && (
                       <>
                         {tenantSettings.whatsappEnabled && (
                           <button 
                             onClick={() => handleSendReminder(appointment.id)}
                             disabled={workingId === appointment.id}
-                            className="flex items-center justify-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-bold text-sm transition-colors border border-emerald-200 shadow-sm disabled:opacity-50"
+                            className="flex items-center justify-center gap-2 px-5 py-3 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-emerald-500/20 shadow-xl disabled:opacity-50 active:scale-95"
                             title="Avisar cliente no WhatsApp"
                           >
                             {workingId === appointment.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
@@ -181,21 +181,21 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                         <button 
                           onClick={() => openEditModal(appointment)}
                           disabled={workingId === appointment.id}
-                          className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl font-bold text-sm transition-colors border border-blue-200 disabled:opacity-50"
+                          className="flex items-center justify-center gap-2 px-5 py-3 bg-slate-950 text-slate-300 hover:bg-slate-900 hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-slate-800 disabled:opacity-50 active:scale-95"
                         >
-                          <Edit2 className="w-4 h-4" /> Remarcar
+                          <Edit2 className="w-4 h-4 text-brand-accent" /> Remarcar
                         </button>
                         <button 
                           onClick={() => handleStatus(appointment.id, 'COMPLETED')}
                           disabled={workingId === appointment.id}
-                          className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-xl font-bold text-sm transition-colors disabled:opacity-50"
+                          className="flex items-center justify-center gap-2 px-5 py-3 bg-brand/10 text-brand-accent hover:bg-brand/20 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-brand/20 disabled:opacity-50 active:scale-95 shadow-lg shadow-brand/5"
                         >
                           <CheckCircle2 className="w-4 h-4" /> Concluir
                         </button>
                         <button 
                           onClick={() => handleStatus(appointment.id, 'CANCELED')}
                           disabled={workingId === appointment.id}
-                          className="flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold text-sm transition-colors border border-rose-200 disabled:opacity-50"
+                          className="flex items-center justify-center gap-2 px-5 py-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-rose-500/20 disabled:opacity-50 active:scale-95"
                         >
                           <Ban className="w-4 h-4" /> Cancelar
                         </button>
@@ -211,25 +211,25 @@ export default function AgendaClient({ initialAppointments, patients, services, 
 
       {/* Modal is unchanged functionally */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h2 className="text-xl font-bold text-slate-900">{editAppId ? "Remarcar Sessão" : "Agendar Sessão"}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 bg-white hover:bg-slate-100 p-2 rounded-full border border-slate-200 transition-colors shadow-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+              <h2 className="text-2xl font-black text-white tracking-tight">{editAppId ? "Remarcar Sessão" : "Agendar Sessão"}</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white bg-slate-950 hover:bg-slate-800 p-3 rounded-2xl border border-slate-800 transition-all shadow-xl active:scale-95">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleAdd} className="p-6 space-y-5">
-              {error && <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100">{error}</div>}
+            <form onSubmit={handleAdd} className="p-8 space-y-6">
+              {error && <div className="p-4 bg-rose-500/10 text-rose-400 text-sm font-bold rounded-2xl border border-rose-500/20 animate-pulse">{error}</div>}
               
               {!editAppId && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Paciente</label>
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Paciente</label>
                     <select 
                       value={patientId} 
                       onChange={e => setPatientId(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 focus:ring-2 focus:ring-brand focus:outline-none transition-all font-bold text-white appearance-none"
                     >
                       <option value="">Selecione...</option>
                       {patients.map(p => (
@@ -237,12 +237,12 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Serviço</label>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Serviço</label>
                     <select 
                       value={serviceId} 
                       onChange={e => setServiceId(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 focus:ring-2 focus:ring-brand focus:outline-none transition-all font-bold text-white appearance-none"
                     >
                       <option value="">Nenhum (Manual)</option>
                       {services.map(s => (
@@ -253,35 +253,35 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                 </div>
               )}
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Data</label>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Data</label>
                   <input 
                     type="date" 
                     value={date}
                     onChange={e => setDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 focus:ring-2 focus:ring-brand focus:outline-none transition-all font-bold text-white shadow-inner inv-scheme-dark"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Horário</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Horário</label>
                   <input 
                     type="time" 
                     value={time}
                     onChange={e => setTime(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 focus:ring-2 focus:ring-brand focus:outline-none transition-all font-bold text-white shadow-inner inv-scheme-dark"
                   />
                 </div>
               </div>
 
               {!editAppId && (
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Repetição</label>
+                <div className="grid grid-cols-2 gap-6 pt-2 border-t border-slate-800">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Repetição</label>
                     <select 
                       value={recurring} 
                       onChange={e => setRecurring(e.target.value as any)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 focus:ring-2 focus:ring-brand focus:outline-none transition-all font-bold text-white appearance-none"
                     >
                       <option value="NONE">Sessão Única</option>
                       <option value="WEEKLY">Toda Semana</option>
@@ -289,14 +289,14 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                     </select>
                   </div>
                   {recurring !== "NONE" && (
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-1.5">Quantas vezes?</label>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Vezes</label>
                       <input 
                         type="number" 
                         min="2" max="24"
                         value={occurrences}
                         onChange={e => setOccurrences(parseInt(e.target.value))}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium text-slate-700"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 focus:ring-2 focus:ring-brand focus:outline-none transition-all font-bold text-white shadow-inner"
                       />
                     </div>
                   )}
@@ -306,9 +306,9 @@ export default function AgendaClient({ initialAppointments, patients, services, 
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] disabled:opacity-50 mt-4 active:scale-95"
+                className="w-full bg-brand hover:bg-brand-hover text-white font-black uppercase tracking-widest py-5 rounded-2xl transition-all shadow-xl shadow-brand/20 disabled:opacity-50 mt-6 active:scale-95"
               >
-                {loading ? "Salvando..." : (editAppId ? "Confirmar Remarcação" : "Confirmar Sessão")}
+                {loading ? <RefreshCw className="w-5 h-5 mx-auto animate-spin" /> : (editAppId ? "Confirmar Remarcação" : "Confirmar Sessão")}
               </button>
             </form>
           </div>

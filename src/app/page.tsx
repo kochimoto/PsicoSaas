@@ -2,476 +2,376 @@
 
 import Link from "next/link";
 import { useState } from "react";
-// Trigger deploy
-import { ArrowRight, Calendar, Users, FileText, Wallet, CheckCircle2, Brain, Heart, ShieldCheck, MessageCircle, Activity, Star } from "lucide-react";
+import { 
+  ArrowRight, Calendar, Users, FileText, Wallet, CheckCircle2, 
+  Brain, Heart, ShieldCheck, MessageCircle, Activity, Star, 
+  Lock, Zap, Check, ChevronDown, Plus
+} from "lucide-react";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-teal-200 overflow-x-hidden">
-      {/* Navbar with glassmorphism */}
-      <nav className="fixed w-full z-50 top-0 transition-all border-b border-teal-100/50 bg-white/70 backdrop-blur-lg">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-teal-500/30 overflow-x-hidden">
+      {/* Navbar - Sophisticated & Minimal */}
+      <nav className="fixed w-full z-50 top-0 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-teal-500/20 group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-xl shadow-[0_0_20px_rgba(13,148,136,0.3)] group-hover:scale-110 transition-transform">
               P
             </div>
-            <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoGestão</span>
+            <span className="font-bold text-xl tracking-tight text-white">PsicoGestão</span>
           </Link>
-          <div className="flex items-center gap-6">
-            <Link href="#recursos" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">
-              Recursos
-            </Link>
-            <Link href="#precos" className="hidden md:block text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">
-              Planos
-            </Link>
-            <Link href="/portal" className="hidden sm:block text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors border-l border-slate-200 pl-6 h-6 flex items-center">
-              Portal do Paciente
-            </Link>
-            <Link href="/login" className="text-sm font-bold text-teal-700 hover:text-teal-800 transition-colors">
+          
+          <div className="hidden lg:flex items-center gap-8">
+            <Link href="#recursos" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Recursos</Link>
+            <Link href="#precos" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Preços</Link>
+            <Link href="/portal" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Portal do Paciente</Link>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-sm font-bold text-slate-300 hover:text-white transition-colors px-4">
               Entrar
             </Link>
             <Link
               href="/cadastro"
-              className="text-sm font-bold bg-teal-600 text-white px-6 py-2.5 rounded-full hover:bg-teal-700 hover:shadow-lg hover:shadow-teal-600/20 transition-all active:scale-95"
+              className="px-6 py-2.5 rounded-full bg-brand text-white text-sm font-bold hover:bg-brand-hover shadow-lg shadow-brand/20 transition-all active:scale-95"
             >
-              Criar Conta
+              Começar Agora
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        {/* Decorative blur blobs */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-        <div className="absolute top-20 right-10 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-sky-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }}></div>
+      {/* Hero Section - 40/60 Split */}
+      <section className="relative pt-32 pb-24 lg:pt-52 lg:pb-40 overflow-hidden">
+        {/* Ambient background glows */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand/10 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="text-left text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 text-teal-700 font-semibold tracking-tight text-sm mb-8 border border-teal-100 shadow-sm">
-                <Heart className="w-4 h-4 text-teal-600" />
-                <span>Feito por e para profissionais da saúde</span>
+          <div className="lg:grid lg:grid-cols-[42%_58%] gap-12 items-center">
+            
+            {/* Left Content */}
+            <div className="mb-16 lg:mb-0">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 border border-brand/20 text-brand-accent text-xs font-bold tracking-wider uppercase mb-8">
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                <span>Gestão inteligente para psicólogos</span>
               </div>
-              <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.15]">
-                Concentre-se no <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-500">paciente.</span><br/>
-                Deixe a gestão com a gente.
+              
+              <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-white mb-8 leading-[1.05]">
+                Concentre-se no <span className="text-brand-accent">paciente.</span><br/>
+                O resto é conosco.
               </h1>
-              <p className="text-lg text-slate-600 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                Um software intuitivo e seguro para profissionais de psicologia gerenciarem prontuários eletrônicos, consultas, relatórios e comunicação pelo WhatsApp. 
+              
+              <p className="text-lg lg:text-xl text-slate-400 mb-10 leading-relaxed max-w-lg">
+                Simplifique sua clínica com agendamento automático, prontuários seguros e controle financeiro de alto nível. Tudo em um só lugar.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4">
                 <Link
                   href="/cadastro"
-                  className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-8 py-4 rounded-full text-lg font-bold hover:shadow-[0_0_40px_-10px_rgba(20,184,166,0.5)] transition-all"
+                  className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-brand text-white px-8 py-5 rounded-full text-lg font-bold hover:bg-brand-hover shadow-[0_0_30px_-5px_rgba(13,148,136,0.5)] transition-all active:scale-95"
                 >
-                  Teste Grátis por 7 dias
+                  Teste Grátis
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="#recursos"
-                  className="w-full sm:w-auto px-8 py-4 rounded-full text-lg font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+                  className="w-full sm:w-auto px-8 py-5 rounded-full text-lg font-bold text-white bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-all"
                 >
                   Ver recursos
                 </Link>
               </div>
-
-              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-sm font-medium text-slate-500">
+              
+              <div className="mt-12 flex items-center gap-4 text-sm text-slate-500 font-medium">
                 <div className="flex -space-x-2">
-                  {[1,2,3,4].map((i) => (
-                    <div key={i} className={`w-8 h-8 rounded-full border-2 border-white bg-teal-${i}00 shadow-sm`} />
+                  {[1,2,3].map((i) => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-950 bg-slate-800" />
                   ))}
                 </div>
-                Confiam em nós mais de +2.000 psicólogos(as)
+                <span>Mais de <strong className="text-slate-300">2.000 psicólogos</strong> já economizam tempo</span>
               </div>
             </div>
 
-            {/* Hero Mockup Graphic */}
-            <div className="relative mx-auto w-full max-w-lg lg:max-w-none transform perspective-1000 rotate-y-[-5deg] rotate-x-[5deg] hover:rotate-y-0 hover:rotate-x-0 transition-transform duration-700">
-              <div className="relative rounded-2xl bg-white/40 p-3 backdrop-blur-xl border border-white/40 shadow-2xl overflow-hidden">
-                <div className="w-full aspect-[4/3] rounded-xl bg-slate-900 overflow-hidden relative border border-slate-200/50 shadow-inner flex flex-col">
-                   
-                   {/* Fake Browser Header */}
-                   <div className="h-10 w-full bg-slate-800 border-b border-slate-700 flex items-center px-4 gap-3 shrink-0">
-                     <div className="flex gap-1.5">
-                       <div className="w-3 h-3 rounded-full bg-rose-500"></div>
-                       <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                       <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                     </div>
-                     <div className="flex-1 max-w-sm mx-auto h-5 bg-slate-700 rounded-md flex items-center justify-center border border-slate-600">
-                       <span className="text-[10px] text-slate-400 font-medium">psicogestao.com.br/dashboard</span>
-                     </div>
-                   </div>
-
-                   {/* Webp Recording */}
-                   <div className="flex-1 w-full bg-white relative">
-                     <img 
-                       src="/psicogestao_dashboard_mockup.png" 
-                       alt="Demonstração do Sistema PsicoGestão" 
-                       className="absolute inset-0 w-full h-full object-cover object-left-top shadow-inner"
-                     />
-                   </div>
-
+            {/* Right Dashboard Preview */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-brand to-blue-500 rounded-[2.5rem] opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
+              <div className="relative rounded-[2rem] bg-slate-900 p-2 border border-slate-800 shadow-2xl overflow-hidden">
+                <div className="rounded-[1.5rem] bg-slate-950 overflow-hidden border border-slate-800/50 aspect-[16/10] relative">
+                  <img 
+                    src="/psicogestao_dashboard_mockup_premium.png" 
+                    alt="PsicoGestão Dashboard Preview" 
+                    className="w-full h-full object-cover opacity-90 group-hover:scale-[1.02] transition-transform duration-1000"
+                  />
+                  {/* Glassmorphism Overlays */}
+                  <div className="absolute top-6 left-6 p-4 rounded-2xl bg-slate-900/40 backdrop-blur-md border border-white/10 shadow-xl hidden lg:block animate-bounce-slow">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                        <Check className="w-6 h-6 text-emerald-500" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Sessão agendada</p>
+                        <p className="text-xs font-bold text-white">Paciente: João Silva</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute bottom-6 right-6 p-4 rounded-2xl bg-slate-900/40 backdrop-blur-md border border-white/10 shadow-xl hidden lg:block">
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-full bg-brand/20 flex items-center justify-center">
+                        <Wallet className="w-6 h-6 text-brand" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-white">+ R$ 4.250,00</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">Faturamento Mensal</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Social Proof Logocloud */}
-      <section className="py-10 border-y border-teal-100/50 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 border-b border-transparent">Segurança e conformidade em primeiro lugar</p>
-          <div className="flex justify-center flex-wrap gap-10 md:gap-24 opacity-60">
-            <div className="flex items-center gap-2 font-black text-2xl text-slate-800"><ShieldCheck className="w-8 h-8 text-teal-600"/> Criptografia</div>
-            <div className="flex items-center gap-2 font-black text-2xl text-slate-800"><Heart className="w-8 h-8 text-rose-500"/> Ética Médica</div>
-            <div className="flex items-center gap-2 font-black text-2xl text-slate-800"><Users className="w-8 h-8 text-blue-600"/> Adequado LGPD</div>
-            <div className="flex items-center gap-2 font-black text-2xl text-slate-800"><FileText className="w-8 h-8 text-amber-500"/> Resoluções CFP</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="recursos" className="py-32 bg-[#F8FAFC] relative">
+      {/* Trust Badges */}
+      <section className="py-16 border-y border-slate-900 bg-slate-950">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20 max-w-3xl mx-auto">
-            <h2 className="text-teal-600 font-bold tracking-wide uppercase text-sm mb-3">Recursos Poderosos</h2>
-            <h3 className="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">A clínica inteira na <br/>ponta dos seus dedos</h3>
-            <p className="text-slate-600 text-lg leading-relaxed font-medium">Chega de dividir o seu tempo entre agendas de papel, planilhas financeiras e prontuários espalhados. Unificamos tudo em um ambiente bonito, fluido e seguro.</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 opacity-40 hover:opacity-100 transition-opacity">
+            <Badge icon={<ShieldCheck />} text="LGPD Compliance" />
+            <Badge icon={<Lock />} text="End-to-End Encryption" />
+            <Badge icon={<Star />} text="CFP Verified" />
+            <Badge icon={<Heart />} text="Health Professional First" />
           </div>
-          
+        </div>
+      </section>
+
+      {/* Features - Bento Grid Style */}
+      <section id="recursos" className="py-32 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
+            <div className="max-w-2xl">
+              <h2 className="text-brand-accent font-bold uppercase tracking-widest text-sm mb-4">Eficiência</h2>
+              <h3 className="text-4xl lg:text-5xl font-bold text-white leading-tight">Cada detalhe pensado para sua clínica voar.</h3>
+            </div>
+            <p className="text-slate-400 text-lg max-w-sm">
+              Mais automação, menos papelada. Recupere 10h semanais com nossas ferramentas exclusivas.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-6 auto-rows-[250px] lg:auto-rows-[300px]">
+            {/* Main Feature */}
+            <div className="md:col-span-6 lg:col-span-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 relative overflow-hidden group">
+              <div className="relative z-10 h-full flex flex-col justify-end">
+                <Brain className="w-12 h-12 text-brand-accent mb-6" />
+                <h4 className="text-3xl font-bold text-white mb-4">Prontuário Inteligente</h4>
+                <p className="text-slate-400 max-w-md font-medium">Histórico clínico digital com criptografia militar. Evolua seus pacientes com agilidade e total sigilo.</p>
+              </div>
+              <div className="absolute top-10 right-[-10%] w-[60%] h-[80%] bg-slate-950/80 rounded-3xl border border-slate-800 rotate-[-5deg] transform group-hover:rotate-0 transition-transform duration-500 shadow-2xl p-6 hidden md:block">
+                <div className="space-y-4 opacity-40">
+                  <div className="h-4 w-3/4 bg-slate-800 rounded-full"></div>
+                  <div className="h-4 w-full bg-slate-800 rounded-full"></div>
+                  <div className="h-20 w-full bg-slate-800 rounded-2xl"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="md:col-span-6 lg:col-span-4 bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 group">
+              <div className="flex flex-col h-full justify-between">
+                <Calendar className="w-10 h-10 text-brand-accent" />
+                <div>
+                  <h4 className="text-2xl font-bold text-white mb-3">Agenda Fluida</h4>
+                  <p className="text-slate-400">Sincronização em tempo real e lembretes via WhatsApp sem custo extra.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="md:col-span-3 lg:col-span-4 bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 group">
+              <div className="flex flex-col h-full items-center justify-center text-center">
+                <Wallet className="w-12 h-12 text-brand-accent mb-6" />
+                <h4 className="text-2xl font-bold text-white mb-3">Financeiro Ninja</h4>
+                <p className="text-slate-400">Fluxo de caixa claro e relatórios automáticos.</p>
+              </div>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="md:col-span-3 lg:col-span-8 bg-brand border border-brand/20 rounded-[2.5rem] p-10 relative overflow-hidden">
+               <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 h-full">
+                 <div className="flex-1">
+                   <h4 className="text-3xl font-bold text-white mb-4">Fidelidade dos Pacientes</h4>
+                   <p className="text-teal-50/70 font-medium">Portal do paciente exclusivo para consulta de documentos, recibos e agendamentos.</p>
+                 </div>
+                 <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                   <Users className="w-10 h-10 text-white" />
+                 </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof - Premium Testimonials */}
+      <section className="py-32 bg-slate-950 border-t border-slate-900">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-24">
+            <h3 className="text-4xl lg:text-6xl font-black text-white mb-6">Confiança que se sente.</h3>
+            <p className="text-slate-400 text-lg">Junte-se a quem já elevou o nível da clínica.</p>
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard 
-              icon={<Brain className="w-7 h-7 text-teal-600" />}
-              color="bg-teal-50"
-              title="Prontuário Eletrônico"
-              description="Anotações estruturadas, evolução clínica de pacientes e histórico completo armazenado com criptografia de ponta a ponta."
+            <Testimonial 
+              quote="A estética do sistema transmite profissionalismo para meus pacientes. O financeiro é simplesmente impecável."
+              name="Dra. Letícia Rossi"
+              role="Psicóloga Clínica"
             />
-            <FeatureCard 
-              icon={<Calendar className="w-7 h-7 text-sky-600" />}
-              color="bg-sky-50"
-              title="Agendamento Inteligente"
-              description="Sua agenda conectada com o WhatsApp. Lembretes automáticos reduzem em até 40% as abstenções dos pacientes."
+            <Testimonial 
+              quote="Migrei de um sistema antigo e a diferença de agilidade é absurda. Me sinto muito mais segura com meus prontuários."
+              name="Dr. Thiago Mendes"
+              role="Psicanalista"
+              featured
             />
-            <FeatureCard 
-              icon={<Wallet className="w-7 h-7 text-emerald-600" />}
-              color="bg-emerald-50"
-              title="Controle Financeiro"
-              description="Acompanhe pagamentos pendentes, gere recibos num clique e tenha total previsibilidade do seu faturamento."
-            />
-            <FeatureCard 
-              icon={<MessageCircle className="w-7 h-7 text-blue-600" />}
-              color="bg-blue-50"
-              title="Integração WhatsApp"
-              description="Confirmações de consultas, mensagens de parabéns e lembretes de sessão enviados de forma 100% automatizada."
-            />
-            <FeatureCard 
-              icon={<FileText className="w-7 h-7 text-indigo-600" />}
-              color="bg-indigo-50"
-              title="Laudos e Declarações"
-              description="Gere documentos, atestados e declarações baseados em modelos pré-aprovados e em total conformidade com o CFP."
-            />
-            <FeatureCard 
-              icon={<Activity className="w-7 h-7 text-rose-600" />}
-              color="bg-rose-50"
-              title="Métricas do Consultório"
-              description="Relatórios visuais e claros sobre captação de novos pacientes, taxas de retenção e a saúde geral da sua clínica."
+            <Testimonial 
+              quote="O suporte é humanizado e a ferramenta é muito intuitiva. Meus pacientes amam o portal exclusivo."
+              name="Dra. Ana Paula"
+              role="Psicóloga TCC"
             />
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-28 bg-white border-y border-teal-100/30">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-teal-600 font-bold tracking-wide uppercase text-sm mb-3">Comunidade</h2>
-          <h3 className="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-16">O que dizem as colegas de profissão</h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            <TestimonialCard 
-              quote="A organização financeira e a emissão de recibos mudaram a minha rotina. Agora termino as sessões e com dois cliques o prontuário e o recibo estão prontos!"
-              author="Dra. Mariana Costa"
-              role="Psicóloga Clínica (CRP-SP)"
-            />
-            <TestimonialCard 
-              quote="Eu perdia muito tempo confirmando agendas e cobrando faltas. A integração com o WhatsApp acabou com as surpresas e os atrasos da clínica."
-              author="Dr. Roberto Silva"
-              role="Psiquiatra"
-            />
-            <TestimonialCard 
-              quote="O design do sistema é incrivelmente limpo e relaxante de usar. Tudo fica na mesma tela. Não preciso abrir milhares de planilhas como no meu sistema antigo."
-              author="Dra. Beatriz Almeida"
-              role="Psicóloga Infantil"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="precos" className="py-32 bg-[#F8FAFC] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-100/50 rounded-full blur-[100px] -z-10 animate-pulse"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-sky-100/40 rounded-full blur-[100px] -z-10 animate-pulse" style={{ animationDelay: '3s' }}></div>
+      {/* Pricing - Visual Dominance */}
+      <section id="precos" className="py-32 bg-slate-950 relative">
+        <div className="absolute top-[20%] left-[-5%] w-[30%] h-[30%] bg-brand/5 blur-[120px] rounded-full pointer-events-none"></div>
         
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-teal-600 font-bold tracking-wide uppercase text-sm mb-3">Investimento</h2>
-            <h3 className="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Planos amigáveis para seu bolso</h3>
-            <p className="text-slate-600 text-lg font-medium">Comece de graça e faça o upgrade apenas quando seu consultório estiver forte.</p>
-          </div>
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <h2 className="text-brand-accent font-bold mb-6 text-sm">TRANSPARÊNCIA</h2>
+          <h3 className="text-4xl lg:text-7xl font-bold text-white mb-20 tracking-tight">O plano certo para sua <br/>evolvência profissional.</h3>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16 max-w-7xl mx-auto items-stretch justify-center">
-            <PricingCard 
-              name="Iniciante"
-              price="Grátis"
-              period=""
-              description="Ideal para quem está dando os primeiros passos na profissão."
-              features={[
-                "Até 5 pacientes ativos",
-                "Agenda com personalização",
-                "Prontuário eletrônico básico",
-                "Suporte por e-mail"
-              ]}
-              buttonText="Criar Conta Grátis"
-              buttonLink="/cadastro?plano=FREE"
-            />
+          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
             
-            <PricingCard 
-              name="Consultório VIP"
-              price="R$ 39,99"
-              period="/mês"
-              description="A solução completa para automatizar e otimizar todo o seu consultório."
-              features={[
-                "Pacientes e Agendas ilimitados",
-                "Prontuário especializado e seguro",
-                "Portal exclusivo para pacientes",
-                "Controle financeiro e Fluxo de Caixa",
-                "Automações de WhatsApp inclusas",
-                "Geração automática de Recibos"
-              ]}
-              buttonText="Começar Agora"
-              buttonLink="/cadastro?plano=VIP_MENSAL"
-              isPopular
-            />
-          </div>
-        </div>
-      </section>
+            {/* Free Plan */}
+            <div className="p-10 rounded-[3rem] bg-slate-900/50 border border-slate-800 flex flex-col">
+              <h4 className="text-2xl font-bold mb-2">Inicial</h4>
+              <p className="text-slate-500 mb-8 font-medium">Para novos profissionais</p>
+              <div className="text-5xl font-bold mb-10 text-white">Grátis</div>
+              <ul className="flex-1 space-y-4 mb-10 text-left">
+                <PricingFeature text="Até 5 pacientes ativos" />
+                <PricingFeature text="Agenda simplificada" />
+                <PricingFeature text="Prontuário básico" />
+              </ul>
+              <Link href="/cadastro" className="w-full py-5 rounded-2xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-all">
+                Criar Conta Grátis
+              </Link>
+            </div>
 
-      {/* FAQ Section */}
-      <section id="faq" className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-teal-600 font-bold tracking-wide uppercase text-sm mb-3">Dúvidas Frequentes</h2>
-            <h3 className="text-3xl lg:text-4xl font-extrabold text-slate-900">Perguntas comuns</h3>
-          </div>
-          <div className="space-y-6">
-            <FAQItem 
-              question="O sistema é seguro e adequado à LGPD?" 
-              answer="Sim, utilizamos criptografia de ponta a ponta e seguimos rigorosamente as diretrizes da LGPD e as resoluções do CFP para garantir o sigilo absoluto dos dados dos seus pacientes." 
-            />
-            <FAQItem 
-              question="Como funciona o teste grátis?" 
-              answer="Você pode criar sua conta agora e testar todos os recursos por 7 dias sem compromisso. Não pedimos cartão de crédito para começar o teste." 
-            />
-            <FAQItem 
-              question="Posso cancelar a qualquer momento?" 
-              answer="Sim! Não temos contrato de fidelidade. Você pode cancelar sua assinatura VIP a qualquer momento diretamente pelo painel de controle." 
-            />
-            <FAQItem 
-              question="A integração com WhatsApp tem custo extra?" 
-              answer="Não, as automações básicas de lembretes e confirmações já estão inclusas no plano VIP sem custos adicionais." 
-            />
-          </div>
-        </div>
-      </section>
+            {/* VIP Plan - The High Roller */}
+            <div className="p-10 rounded-[3rem] bg-slate-900 border-2 border-brand shadow-[0_0_50px_-10px_rgba(13,148,136,0.3)] relative group transform lg:scale-110 flex flex-col overflow-hidden">
+              <div className="absolute top-0 right-0 p-4">
+                <div className="bg-brand text-white px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase">Popular</div>
+              </div>
+              <h4 className="text-3xl font-bold mb-2 text-white">Profissional VIP</h4>
+              <p className="text-slate-400 mb-8 font-medium">Gestão Completa & Premium</p>
+              <div className="flex items-baseline justify-center gap-2 mb-10">
+                <span className="text-6xl font-black text-white">R$ 39,99</span>
+                <span className="text-slate-500 font-bold">/mês</span>
+              </div>
+              <ul className="flex-1 space-y-4 mb-10 text-left">
+                <PricingFeature text="Pacientes Ilimitados" bold />
+                <PricingFeature text="WhatsApp Lembretes incluídos" bold />
+                <PricingFeature text="Portal do Paciente Premium" />
+                <PricingFeature text="Controle Financeiro Avançado" />
+                <PricingFeature text="Recibos e Documentos ilimitados" />
+              </ul>
+              <Link href="/cadastro" className="w-full py-5 rounded-2xl bg-brand text-white font-bold hover:bg-brand-hover shadow-lg shadow-brand/20 transition-all scale-105">
+                Começar VIP Agora
+              </Link>
+            </div>
 
-      {/* Support Section */}
-      <section className="py-20 bg-teal-600 text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-10 opacity-10">
-          <MessageCircle className="w-64 h-64" />
-        </div>
-        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <h3 className="text-3xl lg:text-4xl font-black mb-6">Ainda tem dúvidas? Fale com nosso suporte</h3>
-          <p className="text-teal-100 text-lg mb-10 max-w-2xl mx-auto">Nossa equipe está pronta para te ajudar a escolher o melhor plano ou tirar qualquer dúvida técnica sobre o PsicoGestão.</p>
-          <Link 
-            href="https://wa.me/5571992307518?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20PsicoGestão" 
-            target="_blank"
-            className="inline-flex items-center gap-3 bg-white text-teal-700 px-10 py-5 rounded-full text-xl font-bold hover:bg-teal-50 transition-all shadow-xl"
-          >
-            <MessageCircle className="w-6 h-6" />
-            Chamar no WhatsApp
-          </Link>
+          </div>
         </div>
       </section>
 
       {/* CTA Bottom */}
-      <section className="py-24 bg-white border-t border-teal-100/50 relative overflow-hidden flex flex-col items-center">
-        <div className="absolute inset-0 bg-gradient-to-t from-teal-50/50 to-white/0"></div>
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Renove a sua rotina clínica hoje mesmo.</h2>
-          <p className="text-xl text-slate-600 mb-10 font-medium">Junte-se a milhares de psicólogos que modernizaram seus consultórios com o PsicoGestão e ganharam tempo para viver.</p>
-          <Link
-            href="/cadastro"
-            className="inline-flex items-center gap-2 bg-slate-900 text-white px-10 py-5 rounded-full text-lg font-bold hover:bg-teal-700 hover:shadow-[0_0_40px_-5px_rgba(20,184,166,0.3)] transition-all active:scale-95"
-          >
-            Começar Gratuitamente
-            <ArrowRight className="w-5 h-5" />
+      <section className="py-32 bg-slate-950 border-t border-slate-900 relative">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-5xl lg:text-7xl font-bold text-white mb-10">Modernize sua rotina hoje.</h2>
+          <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Mais que um software, seu parceiro de crescimento. Pare de gerenciar e comece a evoluir.
+          </p>
+          <Link href="/cadastro" className="inline-flex items-center gap-3 bg-brand text-white px-12 py-6 rounded-full text-2xl font-black hover:scale-105 hover:shadow-2xl hover:shadow-brand/40 transition-all active:scale-95">
+            Teste Grátis Agora
+            <ArrowRight className="w-8 h-8" />
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white pt-16 pb-8 border-t-4 border-teal-600">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-10 mb-16">
-            <div className="md:col-span-1 border-r border-slate-800 pr-4">
-              <Link href="/" className="flex items-center gap-2 mb-6 group">
-                <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:scale-110 transition-transform">
-                  P
-                </div>
-                <span className="font-extrabold text-2xl tracking-tight">PsicoGestão</span>
-              </Link>
-              <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                A plataforma mais completa e humanizada para gestão de clínicas psicológicas e psiquiátricas do Brasil.
-              </p>
-            </div>
-            <div className="md:ml-4">
-              <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">Produto</h4>
-              <ul className="space-y-4 text-sm font-medium text-slate-400">
-                <li><Link href="#recursos" className="hover:text-teal-400 transition-colors">Prontuário e Assinaturas</Link></li>
-                <li><Link href="#recursos" className="hover:text-teal-400 transition-colors">Agenda Dinâmica</Link></li>
-                <li><Link href="#recursos" className="hover:text-teal-400 transition-colors">Financeiro & Recibos</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">Empresa</h4>
-              <ul className="space-y-4 text-sm font-medium text-slate-400">
-                <li><Link href="#" className="hover:text-teal-400 transition-colors">Quem Somos</Link></li>
-                <li><Link href="#" className="hover:text-teal-400 transition-colors">Central de Ajuda (FAQ)</Link></li>
-                <li><Link href="#" className="hover:text-teal-400 transition-colors">Entre em Contato</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-white mb-6 uppercase tracking-wider text-sm">Políticas</h4>
-              <ul className="space-y-4 text-sm font-medium text-slate-400">
-                <li><Link href="/termos" className="hover:text-teal-400 transition-colors">Termos de Uso</Link></li>
-                <li><Link href="/privacidade" className="hover:text-teal-400 transition-colors">Privacidade (LGPD)</Link></li>
-              </ul>
-            </div>
+      <footer className="py-20 bg-slate-950 border-t border-slate-900 text-slate-500">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-3">
+             <div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center font-bold text-white">P</div>
+             <span className="text-white font-bold text-lg">PsicoGestão</span>
           </div>
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-slate-500 text-sm font-medium text-center md:text-left">
-              © {new Date().getFullYear()} PsicoGestão. Todos os direitos reservados.
-            </p>
-            <div className="flex items-center gap-2 text-slate-500 italic">
-              <span className="text-xs font-bold uppercase tracking-wider">Feito por Lucas Benevides</span>
-            </div>
+          <div className="flex gap-8 text-sm font-medium">
+            <Link href="/privacidade" className="hover:text-white transition-colors">Privacidade</Link>
+            <Link href="/termos" className="hover:text-white transition-colors">Termos</Link>
+            <Link href="https://wa.me/5571992307518" className="hover:text-white transition-colors">Apoio</Link>
           </div>
+          <p className="text-xs">© 2026 PsicoGestão. LGPD Compliant.</p>
         </div>
       </footer>
     </div>
   );
 }
 
-function FeatureCard({ icon, color, title, description }: { icon: React.ReactNode, color: string, title: string, description: string }) {
+function Badge({ icon, text }: { icon: React.ReactNode, text: string }) {
   return (
-    <div className="p-8 rounded-3xl bg-white border border-teal-100 hover:border-teal-300 hover:shadow-xl hover:shadow-teal-900/5 transition-all duration-300 group">
-      <div className={`w-14 h-14 rounded-[1.2rem] ${color} border border-white flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform shadow-sm`}>
+    <div className="flex items-center gap-3 justify-center text-slate-400 font-bold text-xs tracking-wider uppercase">
+      {icon}
+      <span>{text}</span>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, title, description, large }: { icon: React.ReactNode, title: string, description: string, large?: boolean }) {
+  return (
+    <div className={`p-10 rounded-[2.5rem] bg-slate-900 border border-slate-800 hover:border-brand/40 transition-all duration-500 group ${large ? 'md:col-span-2' : ''}`}>
+      <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center mb-8 border border-brand/20 group-hover:scale-110 transition-transform">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-teal-700 transition-colors">{title}</h3>
-      <p className="text-slate-600 leading-relaxed font-medium">{description}</p>
+      <h4 className="text-2xl font-bold text-white mb-4">{title}</h4>
+      <p className="text-slate-400 leading-relaxed font-medium">{description}</p>
     </div>
   );
 }
 
-function TestimonialCard({ quote, author, role }: { quote: string, author: string, role: string }) {
+function Testimonial({ quote, name, role, featured }: { quote: string, name: string, role: string, featured?: boolean }) {
   return (
-    <div className="p-8 pb-10 rounded-3xl bg-white border border-teal-100/50 shadow-sm text-left relative hover:-translate-y-2 transition-transform duration-300">
-      <Star className="w-12 h-12 text-teal-50 absolute top-6 right-6" />
-      <div className="flex gap-1 mb-6">
-        {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />)}
+    <div className={`p-10 rounded-[2.5rem] border transition-all duration-500 ${featured ? 'bg-brand border-brand/20 text-white shadow-2xl' : 'bg-slate-900 border-slate-800 text-slate-200 hover:border-brand/30'}`}>
+      <div className="flex gap-1 mb-8">
+        {[1,2,3,4,5].map(i => <Star key={i} className={`w-4 h-4 fill-current ${featured ? 'text-white' : 'text-brand'}`} />)}
       </div>
-      <p className="text-slate-700 font-medium italic mb-8 relative z-10 text-[17px] leading-relaxed">"{quote}"</p>
+      <p className={`text-xl font-bold leading-relaxed mb-10 ${featured ? 'text-white' : 'text-white'}`}>"{quote}"</p>
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-teal-100 border-2 border-white shadow-sm flex items-center justify-center font-bold text-teal-700 uppercase">
-          {author.charAt(4)}
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${featured ? 'bg-white text-brand' : 'bg-slate-800 text-white'}`}>
+          {name.charAt(4)}
         </div>
         <div>
-          <h4 className="font-bold text-slate-900">{author}</h4>
-          <p className="text-sm font-semibold text-teal-600">{role}</p>
+          <p className="font-bold">{name}</p>
+          <p className={`text-sm opacity-60`}>{role}</p>
         </div>
       </div>
     </div>
   );
 }
 
-function PricingCard({ 
-  name, price, period, description, features, buttonText, buttonLink, isPopular 
-}: { 
-  name: string, price: string, period: string, description: string, features: string[], buttonText: string, buttonLink: string, isPopular?: boolean 
-}) {
+function PricingFeature({ text, bold }: { text: string, bold?: boolean }) {
   return (
-    <div className={`relative flex flex-col h-full p-10 rounded-[2.5rem] transition-all duration-500 ${
-      isPopular 
-        ? 'bg-slate-900 text-white shadow-2xl md:-translate-y-6 md:scale-110 z-10 border border-slate-800' 
-        : 'bg-white text-slate-900 border border-slate-200 hover:shadow-xl hover:border-teal-200 z-0'
-    }`}>
-      {isPopular && (
-        <div className="absolute -top-4 left-0 right-0 max-w-fit mx-auto px-6 py-1.5 rounded-full bg-gradient-to-r from-teal-400 to-emerald-500 text-slate-900 text-xs font-black uppercase tracking-widest shadow-lg shadow-teal-500/30">
-          O Favorito
-        </div>
-      )}
-      
-      <div className="mb-8 mt-2">
-        <h3 className={`text-2xl font-black tracking-tight mb-3 ${isPopular ? 'text-white' : 'text-slate-900'}`}>{name}</h3>
-        <p className={`text-[15px] mb-8 leading-relaxed font-medium ${isPopular ? 'text-slate-300' : 'text-slate-500'}`}>{description}</p>
-        <div className="flex items-baseline gap-1">
-          <span className="text-5xl font-black tracking-tighter">{price}</span>
-          <span className={`text-sm font-bold ${isPopular ? 'text-slate-400' : 'text-slate-400'}`}>{period}</span>
-        </div>
-      </div>
-
-      <div className="flex-1 space-y-5 mb-10 border-t border-slate-200/20 pt-8">
-        {features.map((feature, i) => (
-          <div key={i} className="flex items-start gap-4">
-            <CheckCircle2 className={`w-6 h-6 shrink-0 ${isPopular ? 'text-teal-400' : 'text-teal-600'}`} />
-            <span className={`text-[15px] font-semibold ${isPopular ? 'text-slate-200' : 'text-slate-700'}`}>{feature}</span>
-          </div>
-        ))}
-      </div>
-
-      <Link 
-        href={buttonLink}
-        className={`w-full py-4 px-6 rounded-2xl text-center font-bold tracking-wide transition-all ${
-          isPopular
-            ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white hover:opacity-90 shadow-[0_0_20px_-5px_rgba(20,184,166,0.5)] hover:shadow-[0_0_30px_-5px_rgba(20,184,166,0.7)] active:scale-95'
-            : 'bg-slate-100 text-slate-900 hover:bg-slate-200 active:scale-95'
-        }`}
-      >
-        {buttonText}
-      </Link>
-    </div>
+    <li className="flex items-center gap-3 shrink-0">
+      <CheckCircle2 className={`w-5 h-5 shrink-0 ${bold ? 'text-brand' : 'text-slate-600'}`} />
+      <span className={`text-sm ${bold ? 'font-black text-white' : 'font-medium text-slate-400'}`}>{text}</span>
+    </li>
   );
 }
-
-function FAQItem({ question, answer }: { question: string, answer: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm transition-all hover:border-teal-200">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-6 text-left flex justify-between items-center bg-white hover:bg-slate-50 transition-colors"
-      >
-        <span className="font-bold text-slate-800">{question}</span>
-        <span className={`text-teal-600 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
-      </button>
-      {isOpen && (
-        <div className="p-6 pt-0 text-slate-600 font-medium leading-relaxed border-t border-slate-50">
-          {answer}
-        </div>
-      )}
-    </div>
-  );
-}
-

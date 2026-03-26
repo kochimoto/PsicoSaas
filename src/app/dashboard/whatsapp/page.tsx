@@ -32,14 +32,15 @@ export default async function WhatsappPage() {
   if (tenant.plan === "FREE") {
     return (
       <div className="p-4 md:p-8 max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[70vh] text-center">
-        <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center mb-6 shadow-inner border border-amber-300">
-          <Lock className="w-10 h-10 text-amber-700" />
+        <div className="w-28 h-28 bg-amber-500/10 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl border border-amber-500/20 relative group">
+          <div className="absolute inset-0 bg-amber-500/5 blur-2xl rounded-full group-hover:bg-amber-500/10 transition-colors"></div>
+          <Lock className="w-12 h-12 text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
         </div>
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-4">Automação de WhatsApp</h1>
-        <p className="text-xl text-slate-500 font-medium max-w-xl mb-8 leading-relaxed">
-          Esta é uma funcionalidade exclusiva do <strong className="text-amber-600">Plano VIP</strong>. Envie mensagens automáticas e acabe com as faltas dos seus pacientes usando Lembretes Inteligentes.
+        <h1 className="text-5xl font-black text-white tracking-tight mb-6">Automação de WhatsApp</h1>
+        <p className="text-xl text-slate-400 font-medium max-w-xl mb-10 leading-relaxed italic">
+          Esta é uma funcionalidade exclusiva do <strong className="text-amber-500">Plano VIP</strong>. Envie mensagens automáticas e acabe com as faltas dos seus pacientes usando Lembretes Inteligentes.
         </p>
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-xs scale-110">
            <VIPCheckoutButton />
         </div>
       </div>
@@ -47,12 +48,15 @@ export default async function WhatsappPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-10">
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
-          <MessageCircle className="w-8 h-8 text-emerald-500" /> WhatsApp VIP
+        <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+          <div className="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 shadow-xl shadow-emerald-500/5">
+            <MessageCircle className="w-10 h-10 text-emerald-500" />
+          </div>
+          WhatsApp VIP
         </h1>
-        <p className="text-slate-500 mt-2 text-lg font-medium">Configure os parâmetros do seu robô de lembretes automáticos.</p>
+        <p className="text-slate-400 mt-4 text-lg font-medium italic">Configure os parâmetros do seu robô de lembretes automáticos.</p>
       </div>
 
       <WhatsappClient initialData={initialData} />

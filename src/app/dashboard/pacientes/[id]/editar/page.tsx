@@ -24,15 +24,15 @@ export default async function EditPatientPage({ params }: { params: Promise<{ id
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto space-y-8">
       <div className="flex items-center gap-4">
-        <Link href={`/dashboard/pacientes/${patient.id}`} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-          <ArrowLeft className="w-6 h-6 text-slate-500" />
+        <Link href={`/dashboard/pacientes/${patient.id}`} className="p-3 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition-all hover:scale-110 shadow-lg text-slate-400 hover:text-white">
+          <ArrowLeft className="w-6 h-6" />
         </Link>
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Editar Paciente</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">Editar Paciente</h1>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-slate-900 rounded-[2.5rem] border border-slate-800 shadow-2xl overflow-hidden backdrop-blur-sm">
         <EditClientForm patient={patient} />
       </div>
     </div>
