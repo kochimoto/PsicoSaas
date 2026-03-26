@@ -38,7 +38,7 @@ services:
       - psicosaas_db_data:/var/lib/postgresql/data
 
   evolution:
-    image: atendimentodigital/evolution-api:latest
+    image: atendai/evolution-api:latest
     container_name: evolution
     restart: always
     environment:
