@@ -17,43 +17,37 @@ export async function getWhatsappQrCodeAction() {
 
     const instanceName = `psico_${tenant.id.substring(0, 8)}`;
     
-    // Tenta pegar o estado da conexão
-    let instanceExists = false;
+    // 1. Verifica se já existe e está conectada
     try {
       const state = await getConnectionState(instanceName);
-      instanceExists = true;
       if (state.instance?.state === "open") {
         return { connected: true };
       }
+      // Existe mas não está conectada — pede o QR via connect
     } catch (e) {
-      // Se der erro (instância não existe), vamos criar uma
+      // Instância não existe, cria ela primeiro
       console.log("Instância não existe, criando...");
+      await createInstance(instanceName);
+      // Aguarda um pouco para a Evolution API inicializar a instância
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
 
-    let result;
-    if (instanceExists) {
-      // Se existe mas não está conectada, pede um novo QR Code
-      result = await connectInstance(instanceName);
-    } else {
-      // Se não existe, cria do zero
-      result = await createInstance(instanceName);
-    }
+    // 2. Chama /instance/connect para obter o QR code
+    // Na Evolution API v2, ESTE é o endpoint que retorna o QR base64
+    const result = await connectInstance(instanceName);
+    console.log("Connect result:", JSON.stringify(result).substring(0, 200));
+
+    // Extrai o QR code do resultado (v2 retorna dentro de 'base64')
+    const qrCodeBase64 = result?.base64 || result?.qrcode?.base64 || result?.code;
     
-    // O base64 pode vir na raiz do objeto ou dentro de qrcode.base64 dependendo da rota/versão
-    const qrCodeBase64 = result.base64 || result.qrcode?.base64 || result.qrcode || result.qrCode;
-    
-    // Se não veio QR agora, mas não deu erro, retornamos que está criando (pooling vai cuidar)
-    if (!qrCodeBase64) {
-      return { initializing: true, connected: false };
-    }
-    
-    if (qrCodeBase64 && typeof qrCodeBase64 === "string" && qrCodeBase64.includes("base64")) {
-      // Limpar prefixo data:image se vier
+    if (qrCodeBase64) {
+      // Remove prefixo data:image se vier junto
       const finalQr = qrCodeBase64.replace(/^data:image\/[a-z]+;base64,/, "");
       return { qrcode: finalQr, connected: false };
     }
 
-    return { error: "Não foi possível gerar o QR Code. Tente novamente." };
+    // QR ainda não foi gerado (instância acabou de ser criada) — polling vai buscar
+    return { initializing: true, connected: false };
   } catch (error: any) {
     console.error("Erro na API WhatsApp:", error?.message || error);
     return { error: error?.message || "Erro ao conectar com o servidor de WhatsApp." };
@@ -69,12 +63,32 @@ export async function checkWhatsappStatusAction() {
     if (!tenant) return { error: "Clínica não encontrada" };
 
     const instanceName = `psico_${tenant.id.substring(0, 8)}`;
+    
+    // Verifica estado atual
     const state = await getConnectionState(instanceName);
+    
+    if (state.instance?.state === "open") {
+      return { connected: true, state: "open" };
+    }
+
+    // Se está em connecting, tenta buscar o QR via /instance/connect
+    if (state.instance?.state === "connecting" || state.instance?.state === "initializing" || state.instance?.state === "close") {
+      try {
+        const connectResult = await connectInstance(instanceName);
+        const qrCodeBase64 = connectResult?.base64 || connectResult?.qrcode?.base64 || connectResult?.code;
+        if (qrCodeBase64) {
+          const finalQr = qrCodeBase64.replace(/^data:image\/[a-z]+;base64,/, "");
+          return { connected: false, state: state.instance?.state, qrcode: finalQr };
+        }
+      } catch (e) {
+        console.log("Polling connect error:", e);
+      }
+    }
 
     return { 
-      connected: state.instance?.state === "open",
+      connected: false,
       state: state.instance?.state,
-      qrcode: state.qrcode
+      qrcode: null
     };
   } catch (error) {
     return { connected: false, error: "Servidor offline" };
