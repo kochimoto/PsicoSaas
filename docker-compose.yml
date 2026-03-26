@@ -7,8 +7,8 @@ services:
         - NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${NEXT_PUBLIC_STRIPE_PUBLIC_KEY}
     container_name: psicosaas
     restart: always
-    ports:
-      - "80:3000"
+    expose:
+      - "3000"
     env_file:
       - .env
     environment:
@@ -24,6 +24,22 @@ services:
     depends_on:
       - psicosaas_db
       - evolution
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=www.laisbritoofc.com.br
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - psicosaas
 
   psicosaas_db:
     image: postgres:15-alpine
@@ -83,3 +99,5 @@ services:
 volumes:
   psicosaas_db_data:
   evolution_instances:
+  caddy_data:
+  caddy_config:

@@ -46,8 +46,8 @@ else
     cd "$APP_DIR"
 fi
 
-# 6. Criar arquivo .env
-echo "[6/7] Criando .env de produção..."
+# 6. Criar arquivo .env e Caddyfile
+echo "[6/7] Criando arquivos de configuração..."
 cat > "$APP_DIR/.env" << 'EOF'
 DATABASE_URL="postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db"
 DIRECT_URL="postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db"
@@ -60,6 +60,16 @@ STRIPE_SECRET_KEY="YOUR_STRIPE_SECRET_KEY_HERE"
 WHATS_API_URL="http://evolution:8080"
 WHATS_API_KEY="123456"
 WHATS_MASTER_INSTANCE="psico_system_master"
+EOF
+
+cat > "$APP_DIR/Caddyfile" << 'EOF'
+{
+    email psicogestao@admin.com
+}
+
+www.laisbritoofc.com.br, laisbritoofc.com.br {
+    reverse_proxy psicosaas:3000
+}
 EOF
 
 # 7. Permissões

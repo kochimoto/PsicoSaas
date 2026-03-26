@@ -1,0 +1,7 @@
+{
+    email psicogestao@admin.com
+}
+
+www.laisbritoofc.com.br, laisbritoofc.com.br {
+    reverse_proxy psicosaas:3000
+}
