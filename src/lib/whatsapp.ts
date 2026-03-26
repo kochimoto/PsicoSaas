@@ -22,16 +22,10 @@ async function getBaseUrl() {
 export async function getWppToken() {
   if (cachedWppToken) return cachedWppToken;
   const baseUrl = await getBaseUrl();
-  console.log(`Tentando gerar token no WPPConnect: ${baseUrl}`);
-  
-  // O WPPConnect moderno prefere o segredo no corpo (JSON) para evitar erros de URL
-  const res = await fetch(`${baseUrl}/api/generate-token`, {
+  // Revertendo para o padrão de URL do WPPConnect Server-CLI (mais estável para esta versão)
+  const res = await fetch(`${baseUrl}/api/psicosaas/${WHATS_API_KEY}/generate-token`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      secret: WHATS_API_KEY,
-      sessionName: "psicosaas"
-    })
+    headers: { "Content-Type": "application/json" }
   });
   
   if (!res.ok) {

@@ -43,6 +43,7 @@ services:
     restart: always
     ports:
       - "21465:21465"
+    command: ["--secretKey", "${WHATS_API_KEY:-123456}", "--port", "21465"]
     environment:
       - PORT=21465
       - SECRET_KEY=${WHATS_API_KEY:-"123456"}
