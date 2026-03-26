@@ -220,7 +220,7 @@ export default function LandingPage() {
             <p className="text-slate-600 text-lg font-medium">Comece de graça e faça o upgrade apenas quando seu consultório estiver forte.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16 max-w-7xl mx-auto items-center justify-center">
             <PricingCard 
               name="Iniciante"
               price="Grátis"
@@ -294,7 +294,7 @@ export default function LandingPage() {
           <h3 className="text-3xl lg:text-4xl font-black mb-6">Ainda tem dúvidas? Fale com nosso suporte</h3>
           <p className="text-teal-100 text-lg mb-10 max-w-2xl mx-auto">Nossa equipe está pronta para te ajudar a escolher o melhor plano ou tirar qualquer dúvida técnica sobre o PsicoGestão.</p>
           <Link 
-            href="https://wa.me/5500000000000" 
+            href="https://wa.me/5571992307518?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20PsicoGestão" 
             target="_blank"
             className="inline-flex items-center gap-3 bg-white text-teal-700 px-10 py-5 rounded-full text-xl font-bold hover:bg-teal-50 transition-all shadow-xl"
           >
