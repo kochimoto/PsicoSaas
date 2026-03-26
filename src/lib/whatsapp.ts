@@ -1,12 +1,20 @@
+import dns from 'dns/promises';
+
 const WHATS_API_URL = process.env.WHATS_API_URL;
 const WHATS_API_KEY = process.env.WHATS_API_KEY;
 
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
   let apiUrl = WHATS_API_URL;
   
-  // Comunicação 100% interna e isolada pela public_network do Docker, sem passar por firewall
-  if (process.env.NODE_ENV === "production" && (apiUrl?.includes("laisbritoofc.com.br") || apiUrl?.includes("163.245") || apiUrl?.includes("evolution"))) {
-    apiUrl = "http://evolution:8080"; 
+  // Bypass DEFINITIVO para o bug do Next.js 14 (Undici) com IPv6 no Docker:
+  // Resolvemos manualmente o IPV4 do contêiner 'evolution' para evitar o 'fetch failed'
+  if (process.env.NODE_ENV === "production" && apiUrl?.includes("evolution")) {
+    try {
+      const lookup = await dns.lookup("evolution", { family: 4 });
+      apiUrl = `http://${lookup.address}:8080`;
+    } catch (e) {
+      console.error("DNS lookup for evolution failed:", e);
+    }
   }
 
   if (!apiUrl || !WHATS_API_KEY) {
