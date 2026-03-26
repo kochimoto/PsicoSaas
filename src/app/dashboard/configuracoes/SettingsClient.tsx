@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateSettingsAction } from "@/app/actions/settings";
+import { updateSettingsAction } from "@/actions/settings";
 import { Save, Building, Shield, Bell, RefreshCw } from "lucide-react";
 
 export default function SettingsClient({ initialData }: { initialData: any }) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { addClinicalRecord } from "@/app/actions/records";
+import { addClinicalRecord } from "@/actions/records";
 import { toast } from "sonner";
 import { ClipboardList, Shield } from "lucide-react";
 

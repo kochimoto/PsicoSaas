@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ChevronLeft, UserPlus, Shield } from "lucide-react";
 import Link from "next/link";
-import { createPatientAction } from "@/app/actions/patients";
+import { createPatientAction } from "@/actions/patients";
 
 export default async function NewPatientPage() {
   const session = await getSession();

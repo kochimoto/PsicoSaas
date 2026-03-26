@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
-import { logoutAction } from "@/app/actions/auth";
+import { logoutAction } from "@/actions/auth";
 
 interface LogoutButtonProps {
   className?: string;

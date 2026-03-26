@@ -7,7 +7,7 @@ import {
   Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
   Clock, User, MessageCircle, MoreVertical, X, Check, Phone, RefreshCw
 } from "lucide-react";
-import { updateAppointmentStatusAction } from "@/app/actions/appointments";
+import { updateAppointmentStatusAction } from "@/actions/appointments";
 import { toast } from "sonner";
 
 export default function AgendaClient({ initialAppointments, patients }: { initialAppointments: any[], patients: any[] }) {
