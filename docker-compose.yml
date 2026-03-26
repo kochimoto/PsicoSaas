@@ -43,7 +43,7 @@ services:
       - default
 
   evolution:
-    image: atendai/evolution-api:latest
+    image: atendai/evolution-api:v2.2.3-chrome
     container_name: evolution
     restart: always
     environment:
@@ -72,11 +72,15 @@ services:
       - CACHE_LOCAL_ENABLED=true
       # Instâncias
       - DEL_INSTANCE=false
+      # Browser Config (Essential for Chrome image)
+      - BROWSER_CLIENT=chrome
+      - BROWSER_HEADLESS=true
+      - BROWSER_ARGS=["--no-sandbox","--disable-setuid-sandbox","--disable-dev-shm-usage","--no-first-run"]
     ports:
       - "8080:8080"
     volumes:
       - evolution_instances:/evolution/instances
-    shm_size: '1gb'
+    shm_size: '2gb'
     networks:
       - default
     depends_on:
