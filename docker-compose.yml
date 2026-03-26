@@ -35,6 +35,9 @@ services:
       - AUTH_TOKEN=${WHATS_API_KEY}
       - REDIS_ENABLED=true
       - REDIS_URI=redis://redis:6379/1
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=${DIRECT_URL}?schema=evolution
+      - SERVER_URL=${NEXT_PUBLIC_APP_URL}
     depends_on:
       - redis
 
