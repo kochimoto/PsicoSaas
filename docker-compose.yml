@@ -51,26 +51,13 @@ services:
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=${WHATS_API_KEY:-"123456"}
       - REDIS_ENABLED=false
-      - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgres://evouser:evopass@evolution_db:5432/evolution?schema=public
       - SERVER_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:8080}
-    depends_on:
-      - evolution_db
-
-  evolution_db:
-    image: postgres:15-alpine
-    container_name: evolution_db
-    restart: always
-    environment:
-      - POSTGRES_USER=evouser
-      - POSTGRES_PASSWORD=evopass
-      - POSTGRES_DB=evolution
     volumes:
-      - evol_data:/var/lib/postgresql/data
+      - evolution_instances:/evolution/instances
 
 volumes:
   psicosaas_db_data:
-  evol_data:
+  evolution_instances:
 
 networks:
   default:
