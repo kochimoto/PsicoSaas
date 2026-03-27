@@ -27,6 +27,10 @@ export async function getWhatsappQrCodeAction() {
     // 1. Verifica estado atual
     let state = await getConnectionState(name);
 
+    if (state.state === "open") {
+      return { connected: true, state: "open" };
+    }
+
     // [AUTO-RECOVERY] Se estiver preso em "connecting" sem QR Code, reseta a instância
     if (state.state === "initializing") {
       const qr = await getQrCode(name);

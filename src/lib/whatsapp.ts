@@ -40,11 +40,24 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 // ─── Instâncias ────────────────────────────────────────────────
 
 export async function createInstance(instanceName: string) {
-  return whatsApiRequest("/instance/create", "POST", {
-    instanceName,
-    token: WHATS_API_KEY,
-    qrcode: true,
-  });
+  try {
+    return await whatsApiRequest("/instance/create", "POST", {
+      instanceName,
+      token: WHATS_API_KEY,
+      qrcode: true,
+    });
+  } catch (error: any) {
+    if (error.message.includes("400")) {
+      console.warn(`[WA] Instance ${instanceName} might exist. Retrying after delete...`);
+      await deleteInstance(instanceName).catch(() => {});
+      return await whatsApiRequest("/instance/create", "POST", {
+        instanceName,
+        token: WHATS_API_KEY,
+        qrcode: true,
+      });
+    }
+    throw error;
+  }
 }
 
 export async function getQrCode(instanceName: string): Promise<string | null> {
