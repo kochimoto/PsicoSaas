@@ -63,6 +63,21 @@ export default async function PatientDetailsPage({ params }: { params: any }) {
             <div className="flex items-center gap-3 text-slate-600 text-sm">
               <UserIcon className="w-4 h-4 text-slate-400" /> {patient.cpf || 'CPF não informado'}
             </div>
+            {patient.birthDate && (
+              <div className="flex items-center gap-3 text-slate-600 text-sm">
+                <Calendar className="w-4 h-4 text-slate-400" /> Nasc: {format(new Date(patient.birthDate), "dd/MM/yyyy")}
+              </div>
+            )}
+            {patient.origin && (
+              <div className="flex items-center gap-3 text-slate-600 text-sm">
+                <ClipboardList className="w-4 h-4 text-slate-400" /> Origem: {patient.origin}
+              </div>
+            )}
+            {patient.treatmentStart && (
+              <div className="flex items-center gap-3 text-teal-600 text-sm font-semibold">
+                <Calendar className="w-4 h-4 text-teal-400" /> Início: {format(new Date(patient.treatmentStart), "dd/MM/yyyy")}
+              </div>
+            )}
             <div className="flex items-center gap-3 text-slate-600 text-sm">
               <MapPin className="w-4 h-4 text-slate-400" /> {patient.address || 'Endereço não informado'}
             </div>
