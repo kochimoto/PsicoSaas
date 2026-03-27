@@ -2,8 +2,8 @@
  * Evolution API v2 — Biblioteca de integração WhatsApp (RESTORED STABLE VERSION)
  */
 
-const WHATS_API_URL = process.env.WHATS_API_URL || "http://evolution:8080";
-const WHATS_API_KEY = process.env.WHATS_API_KEY || "123456";
+const WHATS_API_URL = (process.env.WHATS_API_URL || "http://evolution:8080").replace(/\/$/, "");
+const WHATS_API_KEY = (process.env.WHATS_API_KEY || "123456").replace(/"/g, "").trim();
 
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
   // Lista de URLs para tentar em ordem de prioridade
