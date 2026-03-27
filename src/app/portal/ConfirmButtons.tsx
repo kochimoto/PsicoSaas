@@ -13,9 +13,15 @@ export function ConfirmSessionButton({ id, confirmed }: { id: string, confirmed:
       disabled={loading} 
       onClick={async () => { 
         setLoading(true); 
-        await confirmAppointmentAction(id); 
-        setLoading(false); 
-        window.location.reload();
+        try {
+          await confirmAppointmentAction(id); 
+          window.location.reload();
+        } catch (err) {
+          console.error("Confirm error:", err);
+          alert("Erro ao confirmar presença.");
+        } finally {
+          setLoading(false); 
+        }
       }} 
       className="cursor-pointer text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm px-3 py-1 rounded-lg border border-blue-200 uppercase tracking-widest text-[10px] font-bold transition-all disabled:opacity-50 active:scale-95"
     >
@@ -33,9 +39,15 @@ export function ConfirmDocumentButton({ id, read }: { id: string, read: boolean 
       disabled={loading} 
       onClick={async () => { 
         setLoading(true); 
-        await confirmDocumentAction(id); 
-        setLoading(false); 
-        window.location.reload();
+        try {
+          await confirmDocumentAction(id); 
+          window.location.reload();
+        } catch (err) {
+          console.error("Document confirm error:", err);
+          alert("Erro ao marcar como lido.");
+        } finally {
+          setLoading(false); 
+        }
       }} 
       className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md font-bold text-[11px] uppercase tracking-widest hover:bg-blue-100 transition-colors disabled:opacity-50 shadow-sm border border-blue-100"
     >

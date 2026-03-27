@@ -10,7 +10,7 @@ const nextConfig = (phase: string) => {
     },
     experimental: {
       serverActions: {
-        bodySizeLimit: "10mb",
+        bodySizeLimit: "20mb",
       },
     },
   };

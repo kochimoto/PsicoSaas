@@ -42,23 +42,29 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
     setLoading(true);
     setErrorMsg("");
 
-    const data = new FormData();
-    data.append("file", selectedFile);
-    data.append("name", formData.name);
-    data.append("type", formData.type);
-    if(formData.patientId) data.append("patientId", formData.patientId);
+    try {
+      const data = new FormData();
+      data.append("file", selectedFile);
+      data.append("name", formData.name);
+      data.append("type", formData.type);
+      if(formData.patientId) data.append("patientId", formData.patientId);
 
-    const res = await uploadDocumentAction(data);
-    if (res?.error) {
-      toast.error(res.error);
-    } else {
-      toast.success("Documento enviado com sucesso!");
-      setIsModalOpen(false);
-      setSelectedFile(null);
-      setFormData({ name: "", type: "LAUDO", patientId: "" });
-      router.refresh();
+      const res = await uploadDocumentAction(data);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Documento enviado com sucesso!");
+        setIsModalOpen(false);
+        setSelectedFile(null);
+        setFormData({ name: "", type: "LAUDO", patientId: "" });
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Erro de conexão ao enviar o arquivo.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   async function handleDelete(id: string) {
