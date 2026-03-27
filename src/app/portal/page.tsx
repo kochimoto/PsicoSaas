@@ -14,14 +14,6 @@ export default async function PortalPage() {
   noStore();
   await headers(); // Force dynamic
 
-  if (process.env.IS_BUILD === 'true') {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <p className="text-slate-400">Carregando portal...</p>
-      </div>
-    );
-  }
-
   const session = await getSession();
   if (!session) return redirect("/login");
 

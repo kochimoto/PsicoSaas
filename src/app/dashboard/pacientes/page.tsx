@@ -25,7 +25,6 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
   let patients: any[] = [];
   let totalPatients = 0;
 
-  if (process.env.IS_BUILD !== 'true') {
      try {
         const { prisma } = await import("@/lib/prisma");
         
@@ -62,9 +61,8 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
      } catch (err) {
         console.error("Patients fetch error:", err);
      }
-  }
 
-  if (process.env.IS_BUILD !== 'true' && !tenant) return redirect("/login");
+  if (!tenant) return redirect("/login");
 
   const totalPages = Math.ceil(totalPatients / ITEMS_PER_PAGE);
 

@@ -24,7 +24,6 @@ export default async function FinanceiroPage({ searchParams }: { searchParams: a
   let services: any[] = [];
   let tenant: any = null;
 
-  if (process.env.IS_BUILD !== 'true') {
      try {
         const { prisma } = await import("@/lib/prisma");
         tenant = await prisma.tenant.findUnique({
@@ -76,9 +75,8 @@ export default async function FinanceiroPage({ searchParams }: { searchParams: a
      } catch (err) {
         console.error("Finance fetch error:", err);
      }
-  }
 
-  if (process.env.IS_BUILD !== 'true' && !tenant) return redirect("/login");
+  if (!tenant) return redirect("/login");
 
   const totalPages = Math.ceil(totalTransactions / ITEMS_PER_PAGE);
 

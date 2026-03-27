@@ -41,7 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100">
           <Link href="/dashboard" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold">P</div>
-            <span className="font-bold text-xl text-slate-900">PsicoGestão</span>
+            <span className="font-bold text-xl text-slate-900">PsicoSaas</span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-500">
             <X className="w-5 h-5" />

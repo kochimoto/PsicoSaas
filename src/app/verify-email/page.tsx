@@ -8,10 +8,6 @@ export const dynamic = 'force-dynamic';
 
 export default async function VerifyEmailPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const h = await headers();
-  if (process.env.IS_BUILD === 'true') {
-     return <div className="p-10 text-center text-slate-400">Verificando...</div>;
-  }
-
   const params = await searchParams;
   const token = params.token;
 

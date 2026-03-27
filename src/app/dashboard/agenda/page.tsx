@@ -18,7 +18,6 @@ export default async function AgendaPage() {
   let appointments: any[] = [];
   let tenant: any = null;
 
-  if (process.env.IS_BUILD !== 'true') {
      try {
         const { prisma } = await import("@/lib/prisma");
         tenant = await prisma.tenant.findUnique({
@@ -52,9 +51,8 @@ export default async function AgendaPage() {
      } catch (err) {
         console.error("Agenda fetch error:", err);
      }
-  }
 
-  if (process.env.IS_BUILD !== 'true' && !tenant) return redirect("/login");
+  if (!tenant) return redirect("/login");
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-2">
