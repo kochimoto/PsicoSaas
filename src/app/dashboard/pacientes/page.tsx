@@ -22,43 +22,43 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
   const ITEMS_PER_PAGE = 10;
 
   let tenant: any = null;
+  let patients: any[] = [];
   let totalPatients = 0;
 
   if (process.env.IS_BUILD !== 'true') {
      try {
         const { prisma } = await import("@/lib/prisma");
-        const whereClause: any = {};
         
-        if (query) {
-          whereClause.OR = [
-            { name: { contains: query, mode: 'insensitive' } },
-            { cpf: { contains: query, mode: 'insensitive' } },
-          ];
+        tenant = await prisma.tenant.findUnique({
+          where: { ownerId: session.user.id }
+        });
+
+        if (tenant) {
+          const whereClause: any = { tenantId: tenant.id };
+          
+          if (query) {
+            whereClause.OR = [
+              { name: { contains: query, mode: 'insensitive' } },
+              { cpf: { contains: query, mode: 'insensitive' } },
+            ];
+          }
+
+          if (status === 'active') whereClause.active = true;
+          else if (status === 'inactive') whereClause.active = false;
+
+          [patients, totalPatients] = await Promise.all([
+            prisma.patient.findMany({
+              where: whereClause,
+              orderBy: { name: 'asc' },
+              skip: (currentPage - 1) * ITEMS_PER_PAGE,
+              take: ITEMS_PER_PAGE,
+              include: { _count: { select: { appointments: true } } }
+            }),
+            prisma.patient.count({
+              where: whereClause
+            })
+          ]);
         }
-
-        if (status === 'active') whereClause.active = true;
-        else if (status === 'inactive') whereClause.active = false;
-
-        [tenant, totalPatients] = await Promise.all([
-          prisma.tenant.findUnique({
-            where: { ownerId: session.user.id },
-            include: {
-              patients: {
-                where: { ...whereClause },
-                orderBy: { name: 'asc' },
-                skip: (currentPage - 1) * ITEMS_PER_PAGE,
-                take: ITEMS_PER_PAGE,
-                include: { _count: { select: { appointments: true } } }
-              }
-            }
-          }),
-          prisma.patient.count({
-            where: {
-              tenant: { ownerId: session.user.id },
-              ...whereClause
-            }
-          })
-        ]);
      } catch (err) {
         console.error("Patients fetch error:", err);
      }
@@ -104,7 +104,7 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
           </form>
         </div>
 
-        {tenant?.patients.length === 0 ? (
+        {patients.length === 0 ? (
           <div className="p-12 text-center flex flex-col items-center justify-center">
             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
               <UserIcon className="w-8 h-8 text-slate-300" />
@@ -124,7 +124,7 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {tenant?.patients.map((patient: any) => (
+                {patients.map((patient: any) => (
                   <tr key={patient.id} className={`hover:bg-slate-50 transition-colors group ${!patient.active ? 'bg-slate-50/50 grayscale-[0.5] opacity-80' : ''}`}>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">

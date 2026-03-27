@@ -116,10 +116,10 @@ export default async function NewPatientPage() {
              
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-1">
-                   <label className="text-[10px] font-black text-slate-400 uppercase ml-1">E-mail de Login</label>
+                   <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Usuário de Login</label>
                    <input 
                      name="portalLogin"
-                     placeholder="paciente@portal.com"
+                     placeholder="Ex: joao123 ou joao@email.com"
                      className="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-sm"
                    />
                 </div>
