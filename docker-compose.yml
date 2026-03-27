@@ -62,19 +62,24 @@ services:
       - psico_net
 
   evolution:
-    image: atendai/evolution-api:v1.8.2
+    image: atendai/evolution-api:latest
     container_name: evolution
     restart: always
     environment:
-      - SERVER_TYPE=NODE
-      - DOCKER_ENV=true
-      - AUTH_TOKEN=${WHATS_API_KEY:-"123456"}
+      - SERVER_PORT=8080
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=${WHATS_API_KEY:-"123456"}
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgres
+      - DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db?sslmode=disable
+      - DATABASE_CONNECTION_CLIENT_NAME=evolution_api
+      - CACHE_REDIS_ENABLED=false
+      - CACHE_LOCAL_ENABLED=true
     ports:
       - "8080:8080"
     volumes:
       - evolution_instances:/evolution/instances
+    shm_size: '1gb'
     networks:
       - psico_net
     depends_on:

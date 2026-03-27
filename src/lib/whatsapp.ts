@@ -67,8 +67,8 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 
 export async function createInstance(instanceName: string) {
   return whatsApiRequest("/instance/create", "POST", {
-    instanceName,
-    integration: "WHATSAPP-BAILEYS",
+    instanceName: instanceName,
+    token: WHATS_API_KEY, // Blueprint bfae445 usava 'token'
     qrcode: true,
   });
 }
@@ -76,8 +76,8 @@ export async function createInstance(instanceName: string) {
 export async function getQrCode(instanceName: string): Promise<string | null> {
   try {
     const data = await whatsApiRequest(`/instance/connect/${instanceName}`, "GET");
-    // Na v1.8 o QR costuma vir em qrcode.base64 ou base64 direto
-    const raw = data?.qrcode?.base64 || data?.base64 || data?.code;
+    // Snapshot bfae445 pattern
+    const raw = data?.base64 || data?.qrcode?.base64 || data?.code || data?.qrCode;
 
     if (raw) {
       return String(raw).replace(/^data:image\/[a-z]+;base64,/, "");
@@ -91,9 +91,11 @@ export async function getQrCode(instanceName: string): Promise<string | null> {
 export async function getConnectionState(instanceName: string) {
   try {
     const data = await whatsApiRequest(`/instance/connectionState/${instanceName}`, "GET");
-    // Mapeamento v1.8
+    // Snapshot bfae445 mapping (open/close)
     const raw = data?.instance?.state || data?.state || "close";
-    return { state: raw as string };
+    return { 
+      state: raw === "open" ? "open" : (raw === "connecting" ? "initializing" : "close")
+    };
   } catch {
     return { state: "close" as const };
   }
@@ -113,14 +115,9 @@ export async function deleteInstance(instanceName: string) {
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
   return whatsApiRequest(`/message/sendText/${instanceName}`, "POST", {
     number: number,
-    options: {
-      delay: 1200,
-      presence: "composing",
-      linkPreview: true
-    },
-    textMessage: {
-      text: text
-    }
+    text: text, // Blueprint bfae445 pattern
+    delay: 1200,
+    linkPreview: true
   });
 }
 
