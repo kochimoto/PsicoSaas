@@ -67,9 +67,8 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 
 export async function createInstance(instanceName: string) {
   return whatsApiRequest("/instance/create", "POST", {
-    instanceName: instanceName,
+    instanceName,
     token: WHATS_API_KEY,
-    integration: "WHATSAPP-BAILEYS", // Campo OBRIGATÓRIO na v2.2.3
     qrcode: true,
   });
 }
@@ -78,11 +77,8 @@ export async function getQrCode(instanceName: string): Promise<string | null> {
   try {
     const data = await whatsApiRequest(`/instance/connect/${instanceName}`, "GET");
     
-    // LOG DE DEBUG PARA VER O PAYLOAD REAL
-    console.log(`[WA] getQrCode data from ${instanceName}:`, JSON.stringify(data).substring(0, 1000));
-
-    // Na v2.2.3 o QR vem em data.base64 ou data.qrcode.base64
-    const raw = data?.base64 || data?.qrcode?.base64 || data?.code || data?.qrCode;
+    // Na v1.8 o QR costuma vir em qrcode.base64 ou base64 direto
+    const raw = data?.base64 || data?.qrcode?.base64 || data?.code;
 
     if (raw) {
       return String(raw).replace(/^data:image\/[a-z]+;base64,/, "");
@@ -96,8 +92,7 @@ export async function getQrCode(instanceName: string): Promise<string | null> {
 export async function getConnectionState(instanceName: string) {
   try {
     const data = await whatsApiRequest(`/instance/connectionState/${instanceName}`, "GET");
-    
-    // Mapeamento v2
+    // Mapeamento v1.8: 'open', 'connecting', 'close'
     const raw = data?.instance?.state || data?.state || "close";
     return { 
       state: raw === "open" ? "open" : (raw === "connecting" ? "initializing" : "close")
