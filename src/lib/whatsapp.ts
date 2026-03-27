@@ -29,8 +29,10 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
       return data;
     }
     
-    console.error(`[WA] Response Error [Status: ${response.status}]:`, data);
-    throw new Error(`[Status: ${response.status}] ${data?.message || response.statusText}`);
+    // Melhora o report de erro para não vir [object Object]
+    const errMsg = data?.message?.[0]?.message || data?.message?.message || data?.message || response.statusText;
+    console.error(`[WA] Response Error [Status: ${response.status}]:`, JSON.stringify(data));
+    throw new Error(`[Status: ${response.status}] ${typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg}`);
   } catch (error: any) {
     console.error(`[WA] Failed to connect to ${url}:`, error.message);
     throw error;
@@ -101,15 +103,17 @@ export async function deleteInstance(instanceName: string) {
 // ─── Mensagens ─────────────────────────────────────────────────
 
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
+  // Payload híbrido para cobrir todas as variações da v1.8 e v2
   return whatsApiRequest(`/message/sendText/${instanceName}`, "POST", {
-    number: number,
+    number: number.includes("@") ? number : `${number}@s.whatsapp.net`,
+    text: text, // Fallback v2 e alguns builds v1.8
     options: {
-      delay: 1200,
+      delay: 0,
       presence: "composing",
       linkPreview: true
     },
     textMessage: {
-      text: text
+      text: text // Padrão estável v1.8.2
     }
   });
 }
@@ -118,9 +122,13 @@ export async function sendMediaMessage(instanceName: string, number: string, bas
   const rawBase64 = base64.replace(/^data:.*?;base64,/, "");
   
   return whatsApiRequest(`/message/sendMedia/${instanceName}`, "POST", {
-    number: number,
+    number: number.includes("@") ? number : `${number}@s.whatsapp.net`,
+    mediatype: "document", // Fallback v2
+    caption: caption || "", // Fallback v2
+    media: rawBase64,       // Fallback v2
+    fileName: fileName,     // Fallback v2
     options: {
-      delay: 1500,
+      delay: 0,
       presence: "composing"
     },
     mediaMessage: {
