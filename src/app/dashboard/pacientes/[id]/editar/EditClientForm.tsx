@@ -16,7 +16,9 @@ export default function EditClientForm({ patient }: { patient: any }) {
     cpf: patient.cpf || "",
     address: patient.address || "",
     notes: patient.notes || "",
-    active: patient.active
+    active: patient.active,
+    portalLogin: patient.user?.email || "",
+    portalPassword: ""
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -92,7 +94,7 @@ export default function EditClientForm({ patient }: { patient: any }) {
           ></textarea>
         </div>
 
-        <div className="flex items-center gap-2 py-4">
+        <div className="flex items-center gap-2 py-2">
            <input 
             type="checkbox" checked={formData.active}
             onChange={e => setFormData({...formData, active: e.target.checked})}
@@ -101,6 +103,38 @@ export default function EditClientForm({ patient }: { patient: any }) {
            />
            <label htmlFor="active-check" className="text-sm font-bold text-slate-600 cursor-pointer">Paciente está ativo no consultório</label>
         </div>
+
+        {patient.userId && (
+          <div className="pt-6 border-t border-slate-100 space-y-6">
+            <div className="flex items-center gap-2 text-teal-700">
+              <Shield className="w-5 h-5" />
+              <h3 className="font-bold text-sm uppercase tracking-wider">Acesso ao Portal do Paciente</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase ml-1">Usuário / Login (Email)</label>
+                <input 
+                  value={formData.portalLogin}
+                  onChange={e => setFormData({...formData, portalLogin: e.target.value})}
+                  placeholder={patient.user?.email || "Definir login..."}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                />
+                <p className="text-[10px] text-slate-400 ml-1">Login atual: <span className="font-bold">{patient.user?.email}</span></p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase ml-1">Alterar Senha</label>
+                <input 
+                  type="text"
+                  value={formData.portalPassword}
+                  onChange={e => setFormData({...formData, portalPassword: e.target.value})}
+                  placeholder="Deixe em branco para manter"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <button 
           type="submit" disabled={loading}

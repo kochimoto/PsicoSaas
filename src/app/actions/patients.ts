@@ -97,12 +97,28 @@ export async function updatePatientAction(id: string, data: PatientData) {
     const patient = await db.patient.findFirst({ where: { id, tenantId: tenant.id }, include: { user: true } });
     if (!patient) return { error: "Paciente não encontrado" };
 
-    if (patient.userId && data.portalPassword) {
-      const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
-      await db.user.update({
-        where: { id: patient.userId },
-        data: { password: hashedPassword }
-      });
+    // Atualiza dados do Usuário (Portal) se existirem
+    if (patient.userId) {
+      const updateData: any = {};
+      
+      // Se informou nova senha
+      if (data.portalPassword) {
+        updateData.password = await bcrypt.hash(data.portalPassword, 10);
+      }
+
+      // Se alterou o login/email
+      if (data.portalLogin && data.portalLogin !== patient.user?.email) {
+        const existing = await db.user.findUnique({ where: { email: data.portalLogin } });
+        if (existing) return { error: "Este novo login/e-mail já está em uso." };
+        updateData.email = data.portalLogin;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await db.user.update({
+          where: { id: patient.userId },
+          data: updateData
+        });
+      }
     }
 
     await db.patient.update({
