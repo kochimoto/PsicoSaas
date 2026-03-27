@@ -17,8 +17,19 @@ export default async function NewPatientPage() {
     const cpf = formData.get("cpf") as string;
     const address = formData.get("address") as string;
     const notes = formData.get("notes") as string;
+    
+    // Portal Access
+    const createPortalAccess = formData.get("createPortalAccess") === "true";
+    const portalLogin = formData.get("portalLogin") as string;
+    const portalPassword = formData.get("portalPassword") as string;
 
-    const res = await createPatientAction({ name, email, phone, cpf, address, notes });
+    const res = await createPatientAction({ 
+      name, email, phone, cpf, address, notes,
+      createPortalAccess,
+      portalLogin,
+      portalPassword
+    });
+    
     if (res.success) {
       redirect("/dashboard/pacientes");
     }
@@ -84,6 +95,44 @@ export default async function NewPatientPage() {
               placeholder="Rua, Número, Bairro, Cidade - UF"
               className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium"
             />
+          </div>
+
+          {/* Portal Access Section */}
+          <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+             <div className="flex items-center gap-2 mb-2">
+                <Shield className="w-5 h-5 text-teal-600" />
+                <h3 className="font-bold text-slate-900">Acesso ao Portal do Paciente</h3>
+             </div>
+             <div className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  name="createPortalAccess" 
+                  id="createPortalAccess"
+                  value="true"
+                  className="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500"
+                />
+                <label htmlFor="createPortalAccess" className="text-sm font-semibold text-slate-700 underline decoration-slate-200">Criar acesso ao portal agora</label>
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div className="space-y-1">
+                   <label className="text-[10px] font-black text-slate-400 uppercase ml-1">E-mail de Login</label>
+                   <input 
+                     name="portalLogin"
+                     placeholder="paciente@portal.com"
+                     className="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-sm"
+                   />
+                </div>
+                <div className="space-y-1">
+                   <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Senha de Acesso</label>
+                   <input 
+                     name="portalPassword"
+                     type="text"
+                     placeholder="Defina uma senha"
+                     className="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-sm"
+                   />
+                </div>
+             </div>
           </div>
 
           <div className="space-y-1">

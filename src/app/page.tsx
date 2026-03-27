@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Shield, Zap, Sparkles, MessageCircle, BarChart3, Clock, Users } from "lucide-react";
+import { CheckCircle2, Shield, Zap, Sparkles, MessageCircle, BarChart3, Clock, Users, X } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -9,13 +9,13 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
              <div className="w-9 h-9 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">P</div>
-             <span className="text-xl font-black text-slate-900 tracking-tight">PsicoGestão</span>
+             <span className="text-xl font-black text-slate-900 tracking-tight">PsicoSaas</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">Recursos</Link>
             <Link href="#pricing" className="text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">Preços</Link>
             <Link href="/login" className="text-sm font-bold text-slate-900 hover:text-teal-600 transition-colors">Entrar</Link>
-            <Link href="/register" className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95">Experimentar Grátis</Link>
+            <Link href="/cadastro" className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95">Experimentar Grátis</Link>
           </div>
         </div>
       </nav>
@@ -35,7 +35,7 @@ export default function LandingPage() {
                 Sessões, laudos, financeiro e automação de WhatsApp em um único lugar. Organize sua agenda e reduza faltas em até 40%.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4">
-                 <Link href="/register" className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-teal-600/20 text-center active:scale-95">Começar Agora</Link>
+                 <Link href="/cadastro" className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-teal-600/20 text-center active:scale-95">Começar Agora</Link>
                  <Link href="#features" className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 px-10 py-5 rounded-2xl font-bold text-lg transition-all border border-slate-200 text-center active:scale-95">Ver Recursos</Link>
               </div>
               <div className="flex items-center gap-4 pt-4 text-slate-400">
@@ -97,39 +97,91 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Pricing Comparison */}
       <section id="pricing" className="py-24 px-6 bg-slate-50">
-        <div className="max-w-3xl mx-auto bg-white p-12 rounded-[3rem] border border-slate-200 shadow-xl text-center space-y-8 relative overflow-hidden">
-           <div className="absolute top-0 right-0 bg-teal-600 text-white px-8 py-2 rounded-bl-3xl font-bold text-sm">POPULAR</div>
-           <h3 className="text-3xl font-black text-slate-900">Assinatura VIP</h3>
-           <div className="flex items-center justify-center items-baseline gap-1">
-              <span className="text-slate-400 font-bold text-xl">R$</span>
-              <span className="text-6xl font-black text-slate-900">97</span>
-              <span className="text-slate-500 font-bold">/mês</span>
-           </div>
-           <p className="text-slate-500">Acesso ilimitado a todas as ferramentas de automação e gestão.</p>
-           <ul className="text-left space-y-4 max-w-md mx-auto py-8">
-              <li className="flex items-center gap-3 text-slate-700 font-semibold"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Pacientes Ilimitados</li>
-              <li className="flex items-center gap-3 text-slate-700 font-semibold"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Robô de WhatsApp Incluso</li>
-              <li className="flex items-center gap-3 text-slate-700 font-semibold"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Suporte Premium</li>
-              <li className="flex items-center gap-3 text-slate-700 font-semibold"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Prontuários Online</li>
-           </ul>
-           <Link href="/register" className="block w-full bg-teal-600 hover:bg-teal-700 text-white py-5 rounded-2xl font-bold text-xl transition-all shadow-xl shadow-teal-600/20 active:scale-95">Começar Agora</Link>
-           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Cancele quando quiser • Sem fidelidade</p>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-slate-900 tracking-tight">Escolha o plano ideal para você</h2>
+            <p className="text-slate-500 font-medium mt-2">Comece grátis e evolua quando precisar de mais automação.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+            {/* Free Plan */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col">
+              <h3 className="text-xl font-bold text-slate-600 mb-2">Plano Grátis</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-black text-slate-900">R$ 0</span>
+                <span className="text-slate-400 font-bold">/sempre</span>
+              </div>
+              <ul className="space-y-4 mb-10 flex-1 text-sm font-semibold text-slate-600">
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Até 10 Pacientes por mês</li>
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Agenda Completa</li>
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Prontuários Online</li>
+                <li className="flex items-center gap-3 opacity-40"><X className="w-5 h-5 text-slate-300" /> Automação de WhatsApp</li>
+                <li className="flex items-center gap-3 opacity-40"><X className="w-5 h-5 text-slate-300" /> Cobranças Automáticas</li>
+              </ul>
+              <Link href="/cadastro" className="block w-full text-center border-2 border-slate-200 hover:border-teal-600 hover:text-teal-600 text-slate-600 py-4 rounded-xl font-bold transition-all active:scale-95">Começar Grátis</Link>
+            </div>
+
+            {/* VIP Plan */}
+            <div className="bg-white p-10 rounded-[2.5rem] border-2 border-teal-500 shadow-xl relative flex flex-col transform md:scale-105 z-10">
+              <div className="absolute top-6 right-6 bg-teal-500 text-white px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">Popular</div>
+              <h3 className="text-xl font-bold text-teal-600 mb-2">Plano VIP</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-5xl font-black text-slate-900">R$ 97</span>
+                <span className="text-slate-400 font-bold">/mês</span>
+              </div>
+              <ul className="space-y-4 mb-10 flex-1 text-sm font-semibold text-slate-700">
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Pacientes Ilimitados</li>
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Robô de WhatsApp Incluso</li>
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Cobranças e Boletos</li>
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Lembretes 24h e 3h</li>
+                <li className="flex items-center gap-3"><CheckCircle2 className="w-5 h-5 text-teal-600" /> Suporte VIP Priority</li>
+              </ul>
+              <Link href="/cadastro" className="block w-full text-center bg-teal-600 hover:bg-teal-700 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-teal-600/30 active:scale-95">Quero ser VIP</Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
-           <div className="flex items-center gap-2 grayscale brightness-50">
-             <div className="w-6 h-6 bg-slate-600 rounded flex items-center justify-center text-white font-bold">P</div>
-             <span className="font-bold text-slate-900">PsicoGestão © 2026</span>
-           </div>
-           <div className="flex gap-8 text-sm font-bold text-slate-500">
-             <Link href="#" className="hover:text-teal-600 underline decoration-slate-200">Termos de Uso</Link>
-             <Link href="#" className="hover:text-teal-600 underline decoration-slate-200">Privacidade</Link>
-           </div>
+      <footer className="py-20 border-t border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+                <span className="text-xl font-black text-slate-900 uppercase">PsicoSaas</span>
+              </div>
+              <p className="text-sm text-slate-500 font-medium max-w-xs">
+                A plataforma definitiva para psicólogos que buscam produtividade e excelência no atendimento.
+              </p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Criado por <span className="text-teal-600">Lucas Benevides</span>
+              </p>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-slate-900 uppercase text-xs tracking-widest mb-2">Legal</h4>
+              <Link href="/termos" className="text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">Termos de Uso</Link>
+              <Link href="/privacidade" className="text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">Política de Privacidade</Link>
+              <Link href="/privacidade#lgpd" className="text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">Conformidade LGPD</Link>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <h4 className="font-bold text-slate-900 uppercase text-xs tracking-widest mb-2">Suporte</h4>
+              <a href="mailto:suporte@psicosaas.com.br" className="text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">suporte@psicosaas.com.br</a>
+              <span className="text-xs font-bold text-slate-400">Atendimento seg à sex, 9h as 18h</span>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-xs font-bold text-slate-400">© 2026 PsicoSaas • Todos os direitos reservados.</span>
+            <div className="flex items-center gap-6">
+               <Shield className="w-5 h-5 text-slate-300" />
+               <Zap className="w-5 h-5 text-slate-300" />
+            </div>
+          </div>
         </div>
       </footer>
     </div>

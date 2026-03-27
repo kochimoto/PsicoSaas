@@ -104,3 +104,22 @@ export async function sendTextMessage(instanceName: string, number: string, text
     }
   });
 }
+
+export async function sendMediaMessage(instanceName: string, number: string, base64: string, fileName: string, caption?: string) {
+  // O base64 deve vir com o prefixo 'data:...;base64,' ou apenas a string raw
+  const rawBase64 = base64.replace(/^data:.*?;base64,/, "");
+  
+  return whatsApiRequest(`/message/sendMedia/${instanceName}`, "POST", {
+    number: number,
+    options: {
+      delay: 1500,
+      presence: "composing"
+    },
+    mediaMessage: {
+       mediatype: "document", // Enviamos como documento para manter qualidade e compatibilidade (PDF/IMG)
+       caption: caption || "",
+       media: rawBase64,
+       fileName: fileName
+    }
+  });
+}

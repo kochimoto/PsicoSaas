@@ -27,12 +27,14 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
   if (process.env.IS_BUILD !== 'true') {
      try {
         const { prisma } = await import("@/lib/prisma");
-        const whereClause: any = {
-           OR: [
-             { name: { contains: query, mode: 'insensitive' } },
-             { cpf: { contains: query, mode: 'insensitive' } },
-           ]
-        };
+        const whereClause: any = {};
+        
+        if (query) {
+          whereClause.OR = [
+            { name: { contains: query, mode: 'insensitive' } },
+            { cpf: { contains: query, mode: 'insensitive' } },
+          ];
+        }
 
         if (status === 'active') whereClause.active = true;
         else if (status === 'inactive') whereClause.active = false;

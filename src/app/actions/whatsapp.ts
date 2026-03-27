@@ -166,6 +166,16 @@ export async function sendManualPaymentReminderAction(transactionId: string) {
       .replace(/{descricao}/g, transaction.description)
       .replace(/{link_pagamento}/g, transaction.paymentLink || "");
 
+    if (transaction.paymentProofData) {
+      const fileName = `boleto_${transaction.id.substring(0, 5)}.pdf`;
+      try {
+        const { sendMediaMessage } = await import("@/lib/whatsapp");
+        await sendMediaMessage(instanceName(transaction.tenantId), normalizePhone(transaction.patient.phone), transaction.paymentProofData, fileName, `Segue o boleto ref. a ${transaction.description}`);
+      } catch (err) {
+        console.error("[WA] Failed to send media:", err);
+      }
+    }
+
     await sendTextMessage(instanceName(transaction.tenantId), normalizePhone(transaction.patient.phone), message);
 
     await (prisma as any).notificationLog.create({

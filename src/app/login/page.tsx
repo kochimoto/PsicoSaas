@@ -54,13 +54,13 @@ export default function LoginPage() {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg group-hover:scale-110 transition-transform">
             P
           </div>
-          <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoGestão</span>
+          <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoSaas</span>
         </Link>
         <h2 className="text-center text-3xl font-extrabold text-slate-900">
           Bem-vindo de volta
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
-          Acesse a sua conta PsicoGestão
+          Acesse a sua conta PsicoSaas
         </p>
       </div>
 

@@ -47,11 +47,23 @@ export default function FinanceClient({ initialTransactions, patients, services,
   const [serviceId, setServiceId] = useState("");
   const [editTxId, setEditTxId] = useState("");
   
+  const [paymentProofData, setPaymentProofData] = useState("");
   const [loading, setLoading] = useState(false);
   const [workingId, setWorkingId] = useState("");
   const [error, setError] = useState("");
   
   const router = useRouter();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPaymentProofData(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -128,9 +140,10 @@ export default function FinanceClient({ initialTransactions, patients, services,
       amount: parsedAmount,
       date: new Date(`${date}T12:00:00`),
       patientId,
-      paymentLink: paymentLink || undefined,
+      paymentLink: (paymentMethod === 'CARD' || paymentMethod === 'BOLETO') ? paymentLink : undefined,
       paymentMethod,
-      pixKey: paymentMethod === 'PIX' ? pixKey : undefined
+      pixKey: paymentMethod === 'PIX' ? pixKey : undefined,
+      paymentProofData: paymentMethod === 'BOLETO' ? paymentProofData : undefined
     });
 
     if (res?.error) {
@@ -490,6 +503,41 @@ export default function FinanceClient({ initialTransactions, patients, services,
                         placeholder="Chave para o paciente..."
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all font-medium text-slate-700"
                       />
+                    </div>
+                  )}
+                  {paymentMethod === 'CARD' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200">
+                      <label className="block text-sm font-bold text-slate-700 mb-1.5">Link de Pagamento</label>
+                      <input 
+                        type="text" 
+                        value={paymentLink}
+                        onChange={e => setPaymentLink(e.target.value)}
+                        placeholder="https://..."
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all font-medium text-slate-700"
+                      />
+                    </div>
+                  )}
+                  {paymentMethod === 'BOLETO' && (
+                    <div className="animate-in fade-in zoom-in-95 duration-200 space-y-4">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Anexar Boleto (PDF/Imagem)</label>
+                        <input 
+                          type="file" 
+                          onChange={handleFileChange}
+                          accept="application/pdf,image/*"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all font-medium text-slate-700 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Link do Boleto (Opcional)</label>
+                        <input 
+                          type="text" 
+                          value={paymentLink}
+                          onChange={e => setPaymentLink(e.target.value)}
+                          placeholder="https://..."
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all font-medium text-slate-700"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
