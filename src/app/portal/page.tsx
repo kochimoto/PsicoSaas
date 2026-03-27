@@ -31,8 +31,8 @@ export default async function PortalPage() {
           take: 5
         },
         transactions: {
-          where: { status: 'PENDING' },
-          orderBy: { date: 'desc' }
+          orderBy: { date: 'desc' },
+          take: 10
         },
         documents: {
           orderBy: { createdAt: 'desc' },
@@ -100,20 +100,27 @@ export default async function PortalPage() {
         {/* Financeiro / Pendencias e Documentos */}
         <div className="space-y-8">
           {patient.transactions.length > 0 && (
-            <div className="bg-rose-50 rounded-[2.5rem] border border-rose-100 p-6 sm:p-10">
-              <h2 className="text-2xl font-bold text-rose-900 flex items-center gap-3 mb-8 tracking-tight">
-                <Wallet className="w-7 h-7 text-rose-500" /> Pagamentos Pendentes
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 p-6 sm:p-10 shadow-sm">
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3 mb-8 tracking-tight">
+                <Wallet className="w-7 h-7 text-teal-600" /> Financeiro
               </h2>
               <div className="space-y-4">
                 {patient.transactions.map(t => (
-                  <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-white p-6 rounded-3xl border border-rose-100 shadow-sm">
+                  <div key={t.id} className={`flex flex-col sm:flex-row sm:items-center justify-between gap-5 p-6 rounded-3xl border shadow-sm ${t.status === 'PAID' ? 'bg-emerald-50/30 border-emerald-100' : 'bg-rose-50/30 border-rose-100'}`}>
                     <div>
-                      <p className="font-bold text-slate-800 text-lg">{t.description}</p>
-                      <p className="text-[13px] text-slate-500 font-semibold mt-1">Vencimento: {format(new Date(t.date), "dd/MM/yyyy")}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-slate-800 text-lg">{t.description}</p>
+                        {t.status === 'PAID' ? (
+                          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black uppercase tracking-tighter">Pago</span>
+                        ) : (
+                          <span className="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-black uppercase tracking-tighter">Pendente</span>
+                        )}
+                      </div>
+                      <p className="text-[13px] text-slate-500 font-semibold mt-1">Data: {format(new Date(t.date), "dd/MM/yyyy")}</p>
                     </div>
-                    <div className="flex flex-col gap-4">
-                       <span className="font-black text-rose-600 text-xl tracking-tight">R$ {Math.abs(t.amount).toFixed(2).replace('.', ',')}</span>
-                       <UploadReceiptButton id={t.id} hasReceipt={!!t.paymentProofData} />
+                    <div className="flex flex-col sm:items-end gap-3">
+                       <span className={`font-black text-xl tracking-tight ${t.status === 'PAID' ? 'text-emerald-600' : 'text-rose-600'}`}>R$ {Math.abs(t.amount).toFixed(2).replace('.', ',')}</span>
+                       {t.status === 'PENDING' && <UploadReceiptButton id={t.id} hasReceipt={!!t.paymentProofData} />}
                     </div>
                   </div>
                 ))}

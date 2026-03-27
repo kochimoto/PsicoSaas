@@ -156,7 +156,7 @@ export default async function DashboardPage() {
           </h2>
           <div className="space-y-4">
             <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm">
-              <span className="font-bold block mb-1">Dica do PsicoGestão</span>
+              <span className="font-bold block mb-1">Dica do PsicoSaas</span>
               Ative as mensagens automatizadas de WhatsApp no menu Configurações para reduzir faltas em até 40%.
             </div>
             {isTrialActive && (

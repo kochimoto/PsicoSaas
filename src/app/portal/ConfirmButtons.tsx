@@ -67,14 +67,24 @@ export function UploadReceiptButton({ id, hasReceipt }: { id: string, hasReceipt
     setLoading(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const base64 = reader.result as string;
-      const res = await uploadPaymentProofAction(id, base64);
-      setLoading(false);
-      if (res?.success) {
-        window.location.reload();
-      } else {
-        alert(res?.error || "Erro ao enviar comprovante");
+      try {
+        const base64 = reader.result as string;
+        const res = await uploadPaymentProofAction(id, base64);
+        if (res?.success) {
+          window.location.reload();
+        } else {
+          alert(res?.error || "Erro ao enviar comprovante");
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert("Erro de conexão ao enviar o arquivo.");
+      } finally {
+        setLoading(false);
       }
+    };
+    reader.onerror = () => {
+      alert("Erro ao ler o arquivo local.");
+      setLoading(false);
     };
     reader.readAsDataURL(file);
   };

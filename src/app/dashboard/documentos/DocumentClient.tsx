@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle, X } from "lucide-react";
+import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle, X, CheckCircle2 } from "lucide-react";
 import { uploadDocumentAction, deleteDocumentAction } from "@/app/actions/documents";
 import { sendDocumentWhatsAppAction } from "@/app/actions/whatsapp";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
   const [errorMsg, setErrorMsg] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [workingId, setWorkingId] = useState("");
+  const [sentIds, setSentIds] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -81,6 +82,7 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
       toast.error(res.error);
     } else {
       toast.success("Enviado com sucesso!");
+      setSentIds(prev => [...prev, id]);
     }
     setWorkingId("");
   }
@@ -126,16 +128,16 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {whatsappEnabled && doc.patient && (
-                    <button 
-                      onClick={() => handleSendZap(doc.id)}
-                      disabled={workingId === doc.id}
-                      className="p-3 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl hover:bg-emerald-100 transition-colors font-bold disabled:opacity-50 flex items-center gap-2"
-                      title="Enviar via WhatsApp"
-                    >
-                      <MessageCircle className="w-4 h-4" /> 
-                    </button>
-                  )}
+                    {whatsappEnabled && doc.patient && (
+                      <button 
+                        onClick={() => handleSendZap(doc.id)}
+                        disabled={workingId === doc.id}
+                        className={`p-3 border rounded-xl transition-colors font-bold disabled:opacity-50 flex items-center gap-2 ${sentIds.includes(doc.id) ? 'bg-emerald-600 text-white border-emerald-600' : 'text-emerald-600 bg-emerald-50 border-emerald-100 hover:bg-emerald-100'}`}
+                        title={sentIds.includes(doc.id) ? "Enviado com sucesso" : "Enviar via WhatsApp"}
+                      >
+                        {sentIds.includes(doc.id) ? <CheckCircle2 className="w-4 h-4" /> : <MessageCircle className="w-4 h-4" />} 
+                      </button>
+                    )}
                   <a 
                     href={doc.fileUrl} 
                     target="_blank" 

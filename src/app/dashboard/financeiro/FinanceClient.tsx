@@ -21,6 +21,7 @@ type Transaction = {
   status: string;
   paymentLink?: string | null;
   receiptUrl?: string | null;
+  paymentProofData?: string | null;
   patient: { name: string } | null;
   service?: { name: string } | null;
 };
@@ -227,24 +228,43 @@ export default function FinanceClient({ initialTransactions, patients, services,
                          <LinkIcon className="w-5 h-5" />
                        </a>
                     )}
-                    {t.receiptUrl && (
-                       <a href={t.receiptUrl} target="_blank" className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-transparent hover:border-amber-100" title="Comprovante">
-                         <Paperclip className="w-5 h-5" />
-                       </a>
+                     {(t.receiptUrl || t.paymentProofData) && (
+                       <button
+                         onClick={() => {
+                            const data = t.paymentProofData || t.receiptUrl;
+                            if (!data) return;
+                            if (data.startsWith('http')) {
+                               window.open(data, '_blank');
+                            } else {
+                               const link = document.createElement('a');
+                               link.href = data;
+                               link.download = `comprovante_${t.id.substring(0,8)}.${data.includes('pdf') ? 'pdf' : 'png'}`;
+                               link.click();
+                            }
+                         }}
+                         className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-transparent hover:border-amber-100" 
+                         title="Baixar Comprovante"
+                       >
+                         <Download className="w-5 h-5" />
+                       </button>
                     )}
-                    {t.status === 'PENDING' && t.receiptUrl && (
+                    {t.status === 'PENDING' && (
                        <button
                          onClick={async () => {
-                           if (confirm("Aprovar este pagamento?")) {
-                             await approveTransactionAction(t.id);
-                             toast.success("Pagamento aprovado!");
+                           if (confirm("Marcar este lançamento como PAGO?")) {
+                             setWorkingId(t.id);
+                             const res = await approveTransactionAction(t.id);
+                             setWorkingId("");
+                             if (res.success) toast.success("Pagamento aprovado!");
+                             else toast.error(res.error || "Erro ao aprovar");
                              router.refresh();
                            }
                          }}
-                         className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-100"
-                         title="Aprovar"
+                         disabled={workingId === t.id}
+                         className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-100 disabled:opacity-50"
+                         title="Marcar como Pago"
                        >
-                         <CheckCircle className="w-5 h-5" />
+                         {workingId === t.id ? <RefreshCw className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
                        </button>
                     )}
                     {whatsappEnabled && t.type === 'INCOME' && t.status === 'PENDING' && t.patient && (
