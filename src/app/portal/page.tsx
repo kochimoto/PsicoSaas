@@ -1,7 +1,7 @@
 // removed prisma static import to prevent build-time connectivity issues
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar, Clock, MapPin, UserIcon, ChevronRight, CheckCircle2, AlertCircle, FileText, Phone } from "lucide-react";
+import { Calendar, Clock, MapPin, ChevronRight, CheckCircle2, AlertCircle, FileText, Phone } from "lucide-react";
 import { headers } from "next/headers";
 import { unstable_noStore as noStore } from 'next/cache';
 import ConfirmButtons from "./ConfirmButtons";
@@ -156,5 +156,6 @@ export default async function PortalPage({ searchParams }: { searchParams: any }
     </div>
   );
 }
+
 
 

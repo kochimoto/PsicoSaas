@@ -5,7 +5,7 @@ import { format, startOfWeek, addDays, startOfMonth, endOfMonth, eachDayOfInterv
 import { ptBR } from "date-fns/locale";
 import { 
   Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
-  Clock, UserIcon, MessageCircle, MoreVertical, X, Check, Phone, RefreshCw
+  Clock, User as UserIcon, MessageCircle, MoreVertical, X, Check, Phone, RefreshCw
 } from "lucide-react";
 import { updateAppointmentStatusAction } from "@/app/actions/appointments";
 import { toast } from "sonner";
@@ -93,5 +93,6 @@ export default function AgendaClient({ initialAppointments, patients }: { initia
     </div>
   );
 }
+
 
 

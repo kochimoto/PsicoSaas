@@ -6,7 +6,7 @@ import { ptBR } from "date-fns/locale";
 import { 
   Plus, Search, Filter, ArrowUpCircle, ArrowDownCircle, 
   Wallet, Calendar as CalendarIcon, Download, Trash2, 
-  CheckCircle2, Clock, MoreHorizontal, FileText, Send, UserIcon
+  CheckCircle2, Clock, MoreHorizontal, FileText, Send, User as UserIcon
 } from "lucide-react";
 import { 
   createTransactionAction, 
@@ -304,5 +304,6 @@ function TransactionModal({ isOpen, onClose, patients, onSuccess }: any) {
     </div>
   );
 }
+
 
 
