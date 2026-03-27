@@ -67,15 +67,10 @@ services:
     restart: always
     environment:
       - SERVER_TYPE=NODE
-      - SERVER_PORT=8080
       - DOCKER_ENV=true
       - AUTH_TOKEN=${WHATS_API_KEY:-"123456"}
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=${WHATS_API_KEY:-"123456"}
-      # v1.8 usa configurações mais simples de QR e Logs
-      - LOG_LEVEL=DEBUG
-      - LOG_COLOR=true
-      - DEL_INSTANCE=false
     ports:
       - "8080:8080"
     volumes:
