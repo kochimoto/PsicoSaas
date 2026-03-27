@@ -66,15 +66,11 @@ services:
     container_name: evolution
     restart: always
     environment:
-      - SERVER_TYPE=express
-      - HOST=0.0.0.0
-      - PORT=8080
+      - SERVER_TYPE=http
       - SERVER_PORT=8080
-      - DOCKER_ENV=true
-      - AUTH_TOKEN=${WHATS_API_KEY:-"123456"}
+      - SERVER_URL=http://evolution:8080
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=${WHATS_API_KEY:-"123456"}
-      - DATABASE_ENABLED=false
       - LOG_LEVEL=DEBUG
       - LOG_COLOR=true
       - DEL_INSTANCE=false
