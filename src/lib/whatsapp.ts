@@ -8,11 +8,9 @@ const WHATS_API_KEY = process.env.WHATS_API_KEY || "123456";
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
   // Lista de URLs para tentar em ordem de prioridade
   const targets = [
-    WHATS_API_URL,                                  // 1. Configuração do ENV (ex: evolution:8080)
-    "http://evolution:8080",                       // 2. Tenta nome fixo do container
-    "http://172.18.0.1:8080",                      // 3. Gateway comum do Docker Compose
-    "http://172.17.0.1:8080",                      // 4. Gateway padrão do Docker
-    "http://163.245.202.150:8080"                  // 5. IP Público como último recurso
+    "http://evolution:8080",                       // 1. Prioridade: Nome interno do container
+    WHATS_API_URL,                                  // 2. Configuração do ENV
+    "http://163.245.202.150:8080"                  // 3. IP Público como fallback
   ];
 
   const options: RequestInit = {
@@ -22,8 +20,8 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
       "apikey": WHATS_API_KEY
     },
     cache: "no-store",
-    // Aumentamos para 30 segundos (POST /create pode demorar no v2 se estiver carregando banco)
-    signal: AbortSignal.timeout(30000)
+    // 10 segundos por tentativa (rede interna é instantânea)
+    signal: AbortSignal.timeout(10000)
   };
 
   if (body) options.body = JSON.stringify(body);
@@ -33,6 +31,9 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
   for (const baseUrl of targets) {
     if (!baseUrl) continue;
     
+    // Evita duplicidade se WHATS_API_URL for igual a evolution:8080
+    if (baseUrl === "http://evolution:8080" && targets.indexOf(baseUrl) > 0) continue;
+
     const url = `${baseUrl.replace(/\/$/, "")}${endpoint}`;
     console.log(`[WA] Attempting ${method} ${url}...`);
 
@@ -47,7 +48,6 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
         return data;
       }
       
-      console.warn(`[WA] Non-OK response from ${url}:`, response.status, data);
       lastError = new Error(`[Status: ${response.status}] ${data?.message || response.statusText}`);
       
       // Se for um erro de autenticação ou parâmetro errado na API, para de tentar outras URLs
@@ -76,6 +76,10 @@ export async function createInstance(instanceName: string) {
 export async function getQrCode(instanceName: string): Promise<string | null> {
   try {
     const data = await whatsApiRequest(`/instance/connect/${instanceName}`, "GET");
+    
+    // LOG DE DEBUG PARA VER O PAYLOAD REAL
+    console.log(`[WA] getQrCode data from ${instanceName}:`, JSON.stringify(data).substring(0, 1000));
+
     // Snapshot bfae445 pattern
     const raw = data?.base64 || data?.qrcode?.base64 || data?.code || data?.qrCode;
 
