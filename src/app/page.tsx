@@ -1,21 +1,63 @@
+"use client";
+
 import Link from "next/link";
-import { CheckCircle2, Shield, Zap, Sparkles, MessageCircle, BarChart3, Clock, Users, X } from "lucide-react";
+import { CheckCircle2, Shield, Zap, Sparkles, MessageCircle, BarChart3, Clock, Users, X, Menu, Crown, Globe } from "lucide-react";
+import { useState } from "react";
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-teal-100 selection:text-teal-900">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-             <div className="w-9 h-9 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">P</div>
+          <Link href="/" className="flex items-center gap-2 active:scale-95 transition-transform">
+             <div className="w-9 h-9 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-teal-600/20">P</div>
              <span className="text-xl font-black text-slate-900 tracking-tight">PsicoSaas</span>
-          </div>
+          </Link>
+
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">Recursos</Link>
             <Link href="#pricing" className="text-sm font-semibold text-slate-600 hover:text-teal-600 transition-colors">Preços</Link>
             <Link href="/login" className="text-sm font-bold text-slate-900 hover:text-teal-600 transition-colors">Entrar</Link>
             <Link href="/cadastro" className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95">Experimentar Grátis</Link>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2.5 bg-slate-100 text-slate-600 rounded-xl active:scale-95 transition-all"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Menu (Suspended Card) */}
+        <div className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ${mobileMenuOpen ? 'visible pointer-events-auto bg-slate-900/20 backdrop-blur-[2px]' : 'invisible pointer-events-none'}`} onClick={() => setMobileMenuOpen(false)}>
+          <div 
+            className={`absolute top-24 right-6 left-6 p-6 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl shadow-slate-900/10 transform transition-all duration-300 ease-out-back ${
+              mobileMenuOpen ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95'
+            }`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-4">
+               <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="flex items-center p-4 bg-slate-50 rounded-2xl text-sm font-bold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-all">
+                  <Zap className="w-5 h-5 mr-3 text-teal-600" /> Recursos
+               </Link>
+               <Link href="#pricing" onClick={() => setMobileMenuOpen(false)} className="flex items-center p-4 bg-slate-50 rounded-2xl text-sm font-bold text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-all">
+                  <BarChart3 className="w-5 h-5 mr-3 text-teal-600" /> Preços
+               </Link>
+               <div className="pt-2 flex flex-col gap-3">
+                  <Link href="/login" className="w-full text-center py-4 rounded-2xl font-bold text-slate-900 bg-slate-100 hover:bg-slate-200 transition-all">
+                    Entrar
+                  </Link>
+                  <Link href="/cadastro" className="w-full text-center py-4 rounded-2xl font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-xl shadow-teal-600/20 transition-all">
+                    Experimentar Grátis
+                  </Link>
+               </div>
+            </div>
           </div>
         </div>
       </nav>
