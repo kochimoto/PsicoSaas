@@ -6,16 +6,10 @@ const WHATS_API_URL = process.env.WHATS_API_URL || "http://evolution:8080";
 const WHATS_API_KEY = process.env.WHATS_API_KEY || "123456";
 
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
-  let apiUrl = WHATS_API_URL;
+  const url = `${WHATS_API_URL.replace(/\/$/, "")}${endpoint}`;
   
-  // Docker DNS fallback bypass (força o tráfego pela interface pública da VPS se necessário)
-  if (process.env.NODE_ENV === "production" && (apiUrl?.includes("laisbritoofc.com.br") || apiUrl?.includes("evolution"))) {
-    // Tenta primeiro DNS interno, mas se falhar no build/runtime em alguns containers, 
-    // o uso do IP público foi o que resolveu na última vez
-    apiUrl = "http://163.245.202.150:8080"; 
-  }
-
-  const url = `${apiUrl.replace(/\/$/, "")}${endpoint}`;
+  // LOG para monitorar em produção (docker compose logs -f psicosaas)
+  console.log(`[WA] Request: ${method} ${url}`);
   
   const options: RequestInit = {
     method,
