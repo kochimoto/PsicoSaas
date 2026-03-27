@@ -103,9 +103,14 @@ export async function deleteInstance(instanceName: string) {
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
   return whatsApiRequest(`/message/sendText/${instanceName}`, "POST", {
     number: number,
-    text: text, 
-    delay: 1200,
-    linkPreview: true
+    options: {
+      delay: 1200,
+      presence: "composing",
+      linkPreview: true
+    },
+    textMessage: {
+      text: text
+    }
   });
 }
 
@@ -114,10 +119,15 @@ export async function sendMediaMessage(instanceName: string, number: string, bas
   
   return whatsApiRequest(`/message/sendMedia/${instanceName}`, "POST", {
     number: number,
-    mediatype: "document", 
-    caption: caption || "",
-    media: rawBase64,
-    fileName: fileName,
-    delay: 1500
+    options: {
+      delay: 1500,
+      presence: "composing"
+    },
+    mediaMessage: {
+       mediatype: "document",
+       caption: caption || "",
+       media: rawBase64,
+       fileName: fileName
+    }
   });
 }
