@@ -23,6 +23,9 @@ services:
       - NODE_OPTIONS=--dns-result-order=ipv4first
     depends_on:
       - psicosaas_db
+      - evolution
+    networks:
+      - psico_net
 
   caddy:
     image: caddy:latest
@@ -39,6 +42,8 @@ services:
       - caddy_config:/config
     depends_on:
       - psicosaas
+    networks:
+      - psico_net
 
   psicosaas_db:
     image: postgres:15-alpine
@@ -53,6 +58,8 @@ services:
     volumes:
       - psicosaas_db_data:/var/lib/postgresql/data
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    networks:
+      - psico_net
 
   evolution:
     image: atendai/evolution-api:v2.2.3
@@ -73,7 +80,6 @@ services:
       - DATABASE_SAVE_MESSAGE_UPDATE=true
       - DATABASE_SAVE_DATA_CONTACTS=true
       - DATABASE_SAVE_DATA_CHATS=true
-
 
       # QR Code
       - QRCODE_LIMIT=30
@@ -96,9 +102,15 @@ services:
     shm_size: '1gb'
     depends_on:
       - psicosaas_db
+    networks:
+      - psico_net
 
 volumes:
   psicosaas_db_data:
   evolution_instances:
   caddy_data:
   caddy_config:
+
+networks:
+  psico_net:
+    driver: bridge

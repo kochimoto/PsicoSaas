@@ -6,38 +6,58 @@ const WHATS_API_URL = process.env.WHATS_API_URL || "http://evolution:8080";
 const WHATS_API_KEY = process.env.WHATS_API_KEY || "123456";
 
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
-  const url = `${WHATS_API_URL.replace(/\/$/, "")}${endpoint}`;
-  
-  // LOG para monitorar em produção (docker compose logs -f psicosaas)
-  console.log(`[WA] Request: ${method} ${url}`);
-  
+  // Lista de URLs para tentar em ordem de prioridade
+  const targets = [
+    WHATS_API_URL,                                  // 1. Configuração do ENV (ex: evolution:8080)
+    "http://evolution:8080",                       // 2. Tenta nome fixo do container
+    "http://172.18.0.1:8080",                      // 3. Gateway comum do Docker Compose
+    "http://172.17.0.1:8080",                      // 4. Gateway padrão do Docker
+    "http://163.245.202.150:8080"                  // 5. IP Público como último recurso
+  ];
+
   const options: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
       "apikey": WHATS_API_KEY
     },
-    cache: "no-store"
+    cache: "no-store",
+    // Timeout de 6 segundos para cada tentativa para não travar o server action demais
+    signal: AbortSignal.timeout(6000)
   };
 
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
+  if (body) options.body = JSON.stringify(body);
 
-  try {
-    const response = await fetch(url, options);
+  let lastError: any = null;
 
-    if (!response.ok) {
+  for (const baseUrl of targets) {
+    if (!baseUrl) continue;
+    
+    const url = `${baseUrl.replace(/\/$/, "")}${endpoint}`;
+    console.log(`[WA] Attempting ${method} ${url}...`);
+
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+        console.log(`[WA] Success on ${url}`);
+        return response.json();
+      }
+      
       const errorData = await response.json().catch(() => ({}));
-      console.error("[WA] Error Response:", response.status, errorData);
-      throw new Error(`[Status: ${response.status}] ${errorData?.message?.message || errorData?.message || response.statusText}`);
+      console.warn(`[WA] Non-OK response from ${url}:`, response.status, errorData);
+      lastError = new Error(`[Status: ${response.status}] ${errorData?.message || response.statusText}`);
+      
+      // Se for um erro de autenticação ou parâmetro errado na API, para de tentar outras URLs
+      if (response.status === 401 || response.status === 403 || response.status === 400) {
+        break;
+      }
+    } catch (error: any) {
+      console.error(`[WA] Failed to connect to ${url}:`, error.message);
+      lastError = error;
     }
-
-    return response.json();
-  } catch (error: any) {
-    console.error("[WA] Network Error:", error.message);
-    throw new Error(`Falha de conexão com a Evolution API: ${error.message} (URL: ${url})`);
   }
+
+  throw new Error(`Falha total de conexão com Evolution API. Tentativas esgotadas. Último erro: ${lastError?.message}`);
 }
 
 // ─── Instâncias ────────────────────────────────────────────────
