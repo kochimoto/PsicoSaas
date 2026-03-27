@@ -76,45 +76,50 @@ export default function FinanceClient({ initialTransactions, patients, services,
     setLoading(true);
     setError("");
     
-    const parsedAmount = parseFloat(amount.replace(',', '.'));
-    if (isNaN(parsedAmount)) {
-      setError("Valor numérico inválido.");
+    try {
+      const parsedAmount = parseFloat(amount.replace(',', '.'));
+      if (isNaN(parsedAmount)) {
+        setError("Valor numérico inválido.");
+        return;
+      }
+      
+      const dateTime = new Date(`${date}T12:00:00`);
+      
+      let res;
+      if (editTxId) {
+        res = await updateTransactionAction(editTxId, { 
+          description, 
+          amount: parsedAmount, 
+          date: dateTime, 
+          patientId: patientId || undefined 
+        });
+      } else {
+        res = await createTransactionAction({ 
+          description, 
+          amount: parsedAmount, 
+          type, 
+          date: dateTime, 
+          patientId: patientId || undefined,
+          serviceId: serviceId || undefined
+        });
+      }
+      
+      if (res?.error) {
+        setError(res.error);
+      } else {
+        setIsModalOpen(false);
+        setDescription("");
+        setAmount("");
+        setPatientId("");
+        router.refresh();
+        toast.success(editTxId ? "Lançamento atualizado" : "Lançamento criado");
+      }
+    } catch (err) {
+      console.error("Add error:", err);
+      setError("Erro de conexão ao salvar.");
+    } finally {
       setLoading(false);
-      return;
     }
-    
-    const dateTime = new Date(`${date}T12:00:00`);
-    
-    let res;
-    if (editTxId) {
-      res = await updateTransactionAction(editTxId, { 
-        description, 
-        amount: parsedAmount, 
-        date: dateTime, 
-        patientId: patientId || undefined 
-      });
-    } else {
-      res = await createTransactionAction({ 
-        description, 
-        amount: parsedAmount, 
-        type, 
-        date: dateTime, 
-        patientId: patientId || undefined,
-        serviceId: serviceId || undefined
-      });
-    }
-    
-    if (res?.error) {
-      setError(res.error);
-    } else {
-      setIsModalOpen(false);
-      setDescription("");
-      setAmount("");
-      setPatientId("");
-      router.refresh();
-      toast.success(editTxId ? "Lançamento atualizado" : "Lançamento criado");
-    }
-    setLoading(false);
   }
 
   async function handleSendWhatsapp(transactionId: string) {
@@ -135,26 +140,37 @@ export default function FinanceClient({ initialTransactions, patients, services,
       return;
     }
     setLoading(true);
-    const parsedAmount = parseFloat(amount.replace(',', '.'));
-    const res = await createChargeAction({
-      description,
-      amount: parsedAmount,
-      date: new Date(`${date}T12:00:00`),
-      patientId,
-      paymentLink: (paymentMethod === 'CARD' || paymentMethod === 'BOLETO') ? paymentLink : undefined,
-      paymentMethod,
-      pixKey: paymentMethod === 'PIX' ? pixKey : undefined,
-      paymentProofData: paymentMethod === 'BOLETO' ? paymentProofData : undefined
-    });
+    try {
+      const parsedAmount = parseFloat(amount.replace(',', '.'));
+      const response = await fetch('/api/finance/create-charge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description,
+          amount: parsedAmount,
+          date: new Date(`${date}T12:00:00`),
+          patientId,
+          paymentLink: (paymentMethod === 'CARD' || paymentMethod === 'BOLETO') ? paymentLink : undefined,
+          paymentMethod,
+          pixKey: paymentMethod === 'PIX' ? pixKey : undefined,
+          paymentProofData: paymentMethod === 'BOLETO' ? paymentProofData : undefined
+        })
+      });
+      const res = await response.json();
 
-    if (res?.error) {
-      setError(res.error);
-    } else {
-      setIsChargeModalOpen(false);
-      toast.success("Cobrança criada com sucesso!");
-      router.refresh();
+      if (res?.error) {
+        setError(res.error);
+      } else {
+        setIsChargeModalOpen(false);
+        toast.success("Cobrança criada com sucesso!");
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Charge error:", err);
+      setError("Erro de conexão ao gerar cobrança.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (

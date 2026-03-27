@@ -81,7 +81,13 @@ export function UploadReceiptButton({ id, hasReceipt }: { id: string, hasReceipt
     reader.onloadend = async () => {
       try {
         const base64 = reader.result as string;
-        const res = await uploadPaymentProofAction(id, base64);
+        const response = await fetch('/api/portal/upload-proof', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transactionId: id, base64Data: base64 })
+        });
+        const res = await response.json();
+
         if (res?.success) {
           window.location.reload();
         } else {

@@ -49,7 +49,12 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
       data.append("type", formData.type);
       if(formData.patientId) data.append("patientId", formData.patientId);
 
-      const res = await uploadDocumentAction(data);
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: data
+      });
+      const res = await response.json();
+
       if (res?.error) {
         toast.error(res.error);
       } else {
