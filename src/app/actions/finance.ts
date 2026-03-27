@@ -1,6 +1,5 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -9,10 +8,11 @@ export async function createTransactionAction(data: { description: string, amoun
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    await prisma.transaction.create({
+    await db.transaction.create({
       data: {
         description: data.description,
         amount: data.type === 'EXPENSE' ? -Math.abs(data.amount) : Math.abs(data.amount),
@@ -39,13 +39,14 @@ export async function updateTransactionAction(id: string, data: { description: s
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    const transaction = await prisma.transaction.findFirst({ where: { id, tenantId: tenant.id } });
+    const transaction = await db.transaction.findFirst({ where: { id, tenantId: tenant.id } });
     if (!transaction) return { error: "Lançamento não encontrado" };
 
-    await prisma.transaction.update({
+    await db.transaction.update({
       where: { id },
       data: {
         description: data.description,
@@ -77,10 +78,11 @@ export async function createChargeAction(data: {
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    await prisma.transaction.create({
+    await db.transaction.create({
       data: {
         description: data.description,
         amount: Math.abs(data.amount),
@@ -109,10 +111,11 @@ export async function approveTransactionAction(id: string) {
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    await prisma.transaction.update({
+    await db.transaction.update({
       where: { id, tenantId: tenant.id },
       data: { status: "PAID" }
     });
@@ -132,12 +135,12 @@ export async function uploadReceiptAction(transactionId: string, receiptUrl: str
   if (!session) return { error: "Não autorizado" };
 
   try {
-    // Verificar se a transação pertence ao paciente logado
-    const patient = await prisma.patient.findUnique({ where: { userId: session.user.id } });
-    if (!patient) return { error: "Paciente não encontrado" };
+    const { prisma: db } = await import("@/lib/prisma");
+    const patientRow = await db.patient.findUnique({ where: { userId: session.user.id } });
+    if (!patientRow) return { error: "Paciente não encontrado" };
 
-    await prisma.transaction.update({
-      where: { id: transactionId, patientId: patient.id },
+    await db.transaction.update({
+      where: { id: transactionId, patientId: patientRow.id },
       data: { receiptUrl }
     });
 

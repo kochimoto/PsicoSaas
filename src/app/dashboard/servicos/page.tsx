@@ -42,7 +42,7 @@ export default async function ServicesPage() {
             </div>
             <div>
               <p className="font-bold text-slate-900">{service.name}</p>
-              <p className="text-xs text-slate-500 mb-2">{service.duration} min • R$ {service.price.toFixed(2)}</p>
+              <p className="text-xs text-slate-500 mb-2">R$ {service.price.toFixed(2)}</p>
               <Link href={`/dashboard/servicos/${service.id}/editar`} className="text-xs font-bold text-teal-600 hover:underline">Editar</Link>
             </div>
           </div>

@@ -1,20 +1,62 @@
-import { prisma } from "@/lib/prisma";
+// removed prisma static import to prevent build-time connectivity issues
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar, Clock, MapPin, User, ChevronRight, CheckCircle2, AlertCircle, FileText, Phone } from "lucide-react";
+import { headers } from "next/headers";
+import { unstable_noStore as noStore } from 'next/cache';
 import ConfirmButtons from "./ConfirmButtons";
 
-export default async function PortalPage({ searchParams }: { searchParams: any }) {
-  const patientId = searchParams.id;
-  const appointmentId = searchParams.app;
+export const dynamic = 'force-dynamic';
 
-  const appointment = await prisma.appointment.findUnique({
-    where: { id: appointmentId || "" },
-    include: {
-      patient: true,
-      tenant: true,
+export default async function PortalPage({ searchParams }: { searchParams: any }) {
+  noStore();
+  await headers(); // Force dynamic and opt-out of static generation
+
+  if (process.env.IS_BUILD === 'true') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md w-full text-center space-y-4">
+           <p className="text-slate-400 animate-pulse">Carregando portal...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const params = await searchParams;
+  const appointmentId = params?.app;
+
+  if (!appointmentId) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-md w-full text-center space-y-4">
+          <AlertCircle className="w-12 h-12 text-slate-300 mx-auto" />
+          <h1 className="text-xl font-bold text-slate-900">Agendamento não encontrado</h1>
+          <p className="text-slate-500 text-sm">O link pode ter expirado ou o agendamento foi cancelado.</p>
+        </div>
+      </div>
+    );
+  }
+
+  let appointment = null;
+  // Use dynamic import to prevent Prisma from initializing during static build pre-render
+  if (appointmentId && process.env.IS_BUILD !== 'true') {
+    try {
+      const { prisma: db } = await import("@/lib/prisma");
+      appointment = await db.appointment.findUnique({
+        where: { id: appointmentId },
+        include: {
+          patient: true,
+          tenant: {
+            include: {
+              owner: true
+            }
+          },
+        }
+      });
+    } catch (err) {
+      console.error("Portal runtime error:", err);
     }
-  });
+  }
 
   if (!appointment) {
     return (
@@ -79,17 +121,6 @@ export default async function PortalPage({ searchParams }: { searchParams: any }
                  </div>
               </div>
 
-              {tenant.address && (
-                <div className="flex items-start gap-4 pt-4 border-t border-slate-100">
-                   <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
-                      <MapPin className="w-5 h-5 text-slate-400" />
-                   </div>
-                   <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Local</p>
-                      <p className="text-sm text-slate-600 leading-relaxed font-medium">{tenant.address}</p>
-                   </div>
-                </div>
-              )}
            </div>
 
            <div className="p-6 bg-slate-50 border-t border-slate-100">

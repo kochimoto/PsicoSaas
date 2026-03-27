@@ -1,6 +1,5 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
@@ -24,7 +23,8 @@ export async function createPatientAction(data: PatientData) {
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
     const trialDaysLimit = 7;
@@ -36,18 +36,18 @@ export async function createPatientAction(data: PatientData) {
       const currentMonthStart = new Date();
       currentMonthStart.setDate(1);
       currentMonthStart.setHours(0, 0, 0, 0);
-      const count = await prisma.patient.count({ where: { tenantId: tenant.id, createdAt: { gte: currentMonthStart } } });
+      const count = await db.patient.count({ where: { tenantId: tenant.id, createdAt: { gte: currentMonthStart } } });
       if (count >= 10) return { error: "LIMITE EXCEDIDO: Você atingiu o limite de 10 pacientes novos neste mês (Plano Gratuito). Assine o VIP para cadastros ilimitados ou aguarde o próximo mês." };
     }
 
     let userId = null;
     
     if (data.createPortalAccess && data.portalLogin && data.portalPassword) {
-      const existingUser = await prisma.user.findUnique({ where: { email: data.portalLogin } });
+      const existingUser = await db.user.findUnique({ where: { email: data.portalLogin } });
       if (existingUser) return { error: "Este nome de usuário/e-mail já está em uso para acesso ao portal." };
     
       const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
-      const newUser = await prisma.user.create({
+      const newUser = await db.user.create({
         data: {
           name: data.name,
           email: data.portalLogin,
@@ -58,7 +58,7 @@ export async function createPatientAction(data: PatientData) {
       userId = newUser.id;
     }
 
-    await prisma.patient.create({
+    await db.patient.create({
       data: {
         name: data.name,
         email: data.email || null,
@@ -90,22 +90,22 @@ export async function updatePatientAction(id: string, data: PatientData) {
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    const patient = await prisma.patient.findFirst({ where: { id, tenantId: tenant.id }, include: { user: true } });
+    const patient = await db.patient.findFirst({ where: { id, tenantId: tenant.id }, include: { user: true } });
     if (!patient) return { error: "Paciente não encontrado" };
 
-    // Update User if needed (e.g. password)
     if (patient.userId && data.portalPassword) {
       const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
-      await prisma.user.update({
+      await db.user.update({
         where: { id: patient.userId },
         data: { password: hashedPassword }
       });
     }
 
-    await prisma.patient.update({
+    await db.patient.update({
       where: { id },
       data: {
         name: data.name,
@@ -132,16 +132,18 @@ export async function deletePatientAction(id: string) {
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
   
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    const patient = await prisma.patient.findFirst({ where: { id, tenantId: tenant.id } });
+    const patient = await db.patient.findFirst({ where: { id, tenantId: tenant.id } });
     if (!patient) return { error: "Paciente não encontrado" };
     
-    await prisma.patient.delete({ where: { id } });
+    await db.patient.delete({ where: { id } });
     revalidatePath("/dashboard/pacientes");
     return { success: true };
   } catch(err) {
+    console.error(err);
     return { error: "Erro interno ao excluir paciente." };
   }
 }
@@ -151,13 +153,14 @@ export async function togglePatientStatusAction(id: string) {
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
   try {
-    const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    const patient = await prisma.patient.findFirst({ where: { id, tenantId: tenant.id } });
+    const patient = await db.patient.findFirst({ where: { id, tenantId: tenant.id } });
     if (!patient) return { error: "Paciente não encontrado" };
 
-    await prisma.patient.update({
+    await db.patient.update({
       where: { id },
       data: { active: !patient.active }
     });
