@@ -22,8 +22,8 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
       "apikey": WHATS_API_KEY
     },
     cache: "no-store",
-    // Timeout de 6 segundos para cada tentativa para não travar o server action demais
-    signal: AbortSignal.timeout(6000)
+    // Aumentamos para 30 segundos (POST /create pode demorar no v2 se estiver carregando banco)
+    signal: AbortSignal.timeout(30000)
   };
 
   if (body) options.body = JSON.stringify(body);
@@ -38,14 +38,17 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 
     try {
       const response = await fetch(url, options);
+      const data = await response.json().catch(() => ({}));
+      
+      console.log(`[WA] Response from ${url} [Status: ${response.status}]:`, JSON.stringify(data).substring(0, 500));
+
       if (response.ok) {
         console.log(`[WA] Success on ${url}`);
-        return response.json();
+        return data;
       }
       
-      const errorData = await response.json().catch(() => ({}));
-      console.warn(`[WA] Non-OK response from ${url}:`, response.status, errorData);
-      lastError = new Error(`[Status: ${response.status}] ${errorData?.message || response.statusText}`);
+      console.warn(`[WA] Non-OK response from ${url}:`, response.status, data);
+      lastError = new Error(`[Status: ${response.status}] ${data?.message || response.statusText}`);
       
       // Se for um erro de autenticação ou parâmetro errado na API, para de tentar outras URLs
       if (response.status === 401 || response.status === 403 || response.status === 400) {
