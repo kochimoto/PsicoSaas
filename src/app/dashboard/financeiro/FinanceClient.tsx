@@ -6,7 +6,7 @@ import { ptBR } from "date-fns/locale";
 import { 
   Plus, Search, Filter, ArrowUpCircle, ArrowDownCircle, 
   Wallet, Calendar as CalendarIcon, Download, Trash2, 
-  CheckCircle2, Clock, MoreHorizontal, FileText, Send, User
+  CheckCircle2, Clock, MoreHorizontal, FileText, Send, UserIcon
 } from "lucide-react";
 import { 
   createTransactionAction, 
@@ -121,7 +121,7 @@ export default function FinanceClient({ initialTransactions, patients }: { initi
                     <div className="text-sm font-bold text-slate-900">{t.description}</div>
                     {t.patient && (
                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
-                         <User className="w-3 h-3" /> {t.patient.name}
+                         <UserIcon className="w-3 h-3" /> {t.patient.name}
                        </div>
                     )}
                   </td>
@@ -163,7 +163,7 @@ export default function FinanceClient({ initialTransactions, patients }: { initi
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
           patients={patients}
-          onSuccess={(newTransaction) => {
+          onSuccess={(newTransaction: any) => {
              setTransactions(prev => [newTransaction, ...prev]);
              setIsModalOpen(false);
           }}
@@ -281,7 +281,7 @@ function TransactionModal({ isOpen, onClose, patients, onSuccess }: any) {
               onChange={e => setFormData({...formData, patientId: e.target.value})}
             >
                <option value="">Selecione...</option>
-               {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+               {patients.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
           <div className="space-y-1">
@@ -304,3 +304,5 @@ function TransactionModal({ isOpen, onClose, patients, onSuccess }: any) {
     </div>
   );
 }
+
+

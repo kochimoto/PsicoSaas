@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm as useReactHookForm } from "react-hook-form";
+import { useForm as useForm } from "react-hook-form";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerAction } from "@/app/actions/auth";
@@ -29,7 +29,7 @@ function RegisterForm() {
   const [isPending, setIsPending] = useState(false);
   const [isGooglePending, setIsGooglePending] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useReactHookForm<RegisterData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
   });
 
@@ -175,3 +175,5 @@ export default function RegisterPage() {
     </Suspense>
   );
 }
+
+

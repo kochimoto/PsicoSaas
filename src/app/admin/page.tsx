@@ -13,7 +13,7 @@ export default async function AdminDashboardPage() {
     orderBy: { createdAt: 'desc' }
   });
   
-  const usersCount = await prisma.user.count();
+  const UsersCount = await prisma.user.count();
 
   const mrr = tenants.reduce((acc, t) => {
     if (t.plan === 'VIP_MENSAL') return acc + 97;
@@ -43,3 +43,5 @@ export default async function AdminDashboardPage() {
     </div>
   );
 }
+
+

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm as useReactHookForm } from "react-hook-form";
+import { useForm as useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginAction } from "@/app/actions/auth";
@@ -23,7 +23,7 @@ export default function LoginPage() {
   const [isPending, setIsPending] = useState(false);
   const [isGooglePending, setIsGooglePending] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useReactHookForm<LoginData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -133,3 +133,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+

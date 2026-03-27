@@ -38,3 +38,5 @@ export default async function EditPatientPage({ params }: { params: Promise<{ id
     </div>
   );
 }
+
+

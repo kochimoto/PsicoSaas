@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle, X, Plus, User } from "lucide-react";
+import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle, X, Plus, UserIcon as UserIconIcon } from "lucide-react";
 import { uploadDocumentAction, deleteDocumentAction } from "@/app/actions/documents";
 import { sendDocumentWhatsAppAction } from "@/app/actions/whatsapp";
 import { useRouter } from "next/navigation";
@@ -128,7 +128,7 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
                     <td className="px-6 py-4">
                       {doc.patient ? (
                         <div className="text-sm font-medium text-slate-600 flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-slate-400" /> {doc.patient.name}
+                          <UserIconIcon className="w-3.5 h-3.5 text-slate-400" /> {doc.patient.name}
                         </div>
                       ) : (
                         <span className="text-xs text-slate-400 italic">Uso Interno</span>
@@ -217,7 +217,7 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:ring-1 focus:ring-teal-500"
                   >
                      <option value="">Uso Interno</option>
-                     {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                     {patients.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
               </div>
@@ -255,3 +255,5 @@ export default function DocumentClient({ documents, patients, whatsappEnabled = 
     </div>
   );
 }
+
+

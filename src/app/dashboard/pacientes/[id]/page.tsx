@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
-import { Calendar, User, Phone, MapPin, ClipboardList, Plus, Wallet, FileText, ChevronLeft, Trash2 } from "lucide-react";
+import { Calendar, User as UserIcon, Phone, MapPin, ClipboardList, Plus, Wallet, FileText, ChevronLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -61,7 +61,7 @@ export default async function PatientDetailsPage({ params }: { params: any }) {
               <Phone className="w-4 h-4 text-slate-400" /> {patient.phone || 'Nenhum'}
             </div>
             <div className="flex items-center gap-3 text-slate-600 text-sm">
-              <User className="w-4 h-4 text-slate-400" /> {patient.cpf || 'CPF não informado'}
+              <UserIcon className="w-4 h-4 text-slate-400" /> {patient.cpf || 'CPF não informado'}
             </div>
             <div className="flex items-center gap-3 text-slate-600 text-sm">
               <MapPin className="w-4 h-4 text-slate-400" /> {patient.address || 'Endereço não informado'}
@@ -115,3 +115,5 @@ export default async function PatientDetailsPage({ params }: { params: any }) {
     </div>
   );
 }
+
+

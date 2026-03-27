@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Plus, Search, User, ClipboardList, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Search, UserIcon as UserIconIcon, ClipboardList, Calendar as CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import StatusToggle from "./StatusToggle";
 
@@ -131,7 +131,7 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
                            href={`/dashboard/pacientes/${patient.id}/editar`}
                            className="p-2 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                          >
-                            <User className="w-5 h-5" />
+                            <UserIcon className="w-5 h-5" />
                          </Link>
                        </div>
                     </td>
@@ -149,3 +149,5 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
     </div>
   );
 }
+
+
