@@ -25,13 +25,21 @@ export async function getWhatsappQrCodeAction() {
     const name = instanceName(tenant.id);
 
     // 1. Verifica estado atual
-    const state = await getConnectionState(name);
+    let state = await getConnectionState(name);
 
-    if (state.state === "open") {
-      return { connected: true };
+    // [AUTO-RECOVERY] Se estiver preso em "connecting" sem QR Code, reseta a instância
+    if (state.state === "initializing") {
+      const qr = await getQrCode(name);
+      if (!qr) {
+        console.log(`[WA] Instance ${name} stuck in connecting without QR. Force resetting...`);
+        await deleteInstance(name);
+        state = { state: "close" }; // Força a recriação no passo seguinte
+      } else {
+        return { qrcode: qr, connected: false };
+      }
     }
 
-    // 2. Se não existe, cria (ignora se já existe — 409)
+    // 2. Se não existe (ou foi resetada acima), cria
     if (state.state === "close") {
       await createInstance(name);
     }
