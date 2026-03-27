@@ -19,11 +19,11 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
     method,
     headers: {
       "Content-Type": "application/json",
-      "apikey": WHATS_API_KEY
+      "apikey": WHATS_API_KEY,      // Padrão Evolution v2 e v1.8
+      "token": WHATS_API_KEY       // Fallback para algums builds de v1.8
     },
     cache: "no-store",
-    // 15 segundos para dar folga em redes saturadas
-    signal: AbortSignal.timeout(15000)
+    // Removido sinal de timeout para evitar Erro de Tentativas Esgotadas em redes lentas
   };
 
   if (body) options.body = JSON.stringify(body);
