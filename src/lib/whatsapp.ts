@@ -29,10 +29,18 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
       return data;
     }
     
-    // Melhora o report de erro para não vir [object Object]
-    const errMsg = data?.message?.[0]?.message || data?.message?.message || data?.message || response.statusText;
+    // Melhora o report de erro para ler arrays internos (comum na Evolution)
+    let errMsg = response.statusText;
+    if (data?.message) {
+      if (Array.isArray(data.message) && Array.isArray(data.message[0])) {
+        errMsg = JSON.stringify(data.message[0]);
+      } else {
+        errMsg = typeof data.message === 'object' ? JSON.stringify(data.message) : data.message;
+      }
+    }
+    
     console.error(`[WA] Response Error [Status: ${response.status}]:`, JSON.stringify(data));
-    throw new Error(`[Status: ${response.status}] ${typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg}`);
+    throw new Error(`[Status: ${response.status}] ${errMsg}`);
   } catch (error: any) {
     console.error(`[WA] Failed to connect to ${url}:`, error.message);
     throw error;
@@ -103,34 +111,28 @@ export async function deleteInstance(instanceName: string) {
 // ─── Mensagens ─────────────────────────────────────────────────
 
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
-  // Payload híbrido para cobrir todas as variações da v1.8 e v2
+  const cleanNumber = number.replace(/\D/g, "");
+  
+  // Payload Estável v1.8.2
   return whatsApiRequest(`/message/sendText/${instanceName}`, "POST", {
-    number: number.includes("@") ? number : `${number}@s.whatsapp.net`,
-    text: text, // Fallback v2 e alguns builds v1.8
+    number: cleanNumber,
     options: {
-      delay: 0,
+      delay: 1200,
       presence: "composing",
       linkPreview: true
     },
     textMessage: {
-      text: text // Padrão estável v1.8.2
+      text: text
     }
   });
 }
 
 export async function sendMediaMessage(instanceName: string, number: string, base64: string, fileName: string, caption?: string) {
   const rawBase64 = base64.replace(/^data:.*?;base64,/, "");
+  const cleanNumber = number.replace(/\D/g, "");
   
   return whatsApiRequest(`/message/sendMedia/${instanceName}`, "POST", {
-    number: number.includes("@") ? number : `${number}@s.whatsapp.net`,
-    mediatype: "document", // Fallback v2
-    caption: caption || "", // Fallback v2
-    media: rawBase64,       // Fallback v2
-    fileName: fileName,     // Fallback v2
-    options: {
-      delay: 0,
-      presence: "composing"
-    },
+    number: cleanNumber,
     mediaMessage: {
        mediatype: "document",
        caption: caption || "",
