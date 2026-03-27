@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle, X, Plus } from "lucide-react";
+import { UploadCloud, File, Trash2, Download, Search, FileText, MessageCircle, X, Plus, User } from "lucide-react";
 import { uploadDocumentAction, deleteDocumentAction } from "@/app/actions/documents";
 import { sendDocumentWhatsAppAction } from "@/app/actions/whatsapp";
 import { useRouter } from "next/navigation";
