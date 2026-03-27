@@ -9,8 +9,10 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
   // Lista de URLs para tentar em ordem de prioridade
   const targets = [
     "http://evolution:8080",                       // 1. Prioridade: Nome interno do container
-    WHATS_API_URL,                                  // 2. Configuração do ENV
-    "http://163.245.202.150:8080"                  // 3. IP Público como fallback
+    WHATS_API_URL,                                  // 2. Configuração do ENV (ex: evolution:8080)
+    "http://172.18.0.1:8080",                      // 3. Gateway comum do Docker Compose
+    "http://172.17.0.1:8080",                      // 4. Gateway padrão do Docker
+    "http://163.245.202.150:8080"                  // 5. IP Público como fallback
   ];
 
   const options: RequestInit = {
@@ -20,8 +22,8 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
       "apikey": WHATS_API_KEY
     },
     cache: "no-store",
-    // 10 segundos por tentativa (rede interna é instantânea)
-    signal: AbortSignal.timeout(10000)
+    // 15 segundos para dar folga em redes saturadas
+    signal: AbortSignal.timeout(15000)
   };
 
   if (body) options.body = JSON.stringify(body);
