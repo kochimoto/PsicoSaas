@@ -62,48 +62,28 @@ services:
       - psico_net
 
   evolution:
-    image: atendai/evolution-api:v2.2.3
+    image: atendai/evolution-api:v1.8.2
     container_name: evolution
     restart: always
     environment:
+      - SERVER_TYPE=NODE
       - SERVER_PORT=8080
-      # Auth
+      - DOCKER_ENV=true
+      - AUTH_TOKEN=123456
       - AUTHENTICATION_TYPE=apikey
       - AUTHENTICATION_API_KEY=123456
-      # Banco de dados (BUG: v2.2.3 falha QR se true)
-      - DATABASE_ENABLED=false
-      - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://postgres:intelbras3246@psicosaas_db:5432/evolution_db?sslmode=disable
-      - DATABASE_CONNECTION_CLIENT_NAME=evolution_api
-      - DATABASE_SAVE_DATA_INSTANCE=true
-      - DATABASE_SAVE_DATA_NEW_MESSAGE=true
-      - DATABASE_SAVE_MESSAGE_UPDATE=true
-      - DATABASE_SAVE_DATA_CONTACTS=true
-      - DATABASE_SAVE_DATA_CHATS=true
-
-      # QR Code
-      - QRCODE_LIMIT=30
-      - QRCODE_COLOR=#198754
-      # Session
-      - CONFIG_SESSION_PHONE_CLIENT=PsicoSaas
-      - CONFIG_SESSION_PHONE_NAME=Chrome
-      # Logs
-      - LOG_LEVEL=WARN
+      # v1.8 usa configurações mais simples de QR e Logs
+      - LOG_LEVEL=DEBUG
       - LOG_COLOR=true
-      # Cache
-      - CACHE_REDIS_ENABLED=false
-      - CACHE_LOCAL_ENABLED=true
-      # Instances
       - DEL_INSTANCE=false
     ports:
       - "8080:8080"
     volumes:
       - evolution_instances:/evolution/instances
-    shm_size: '1gb'
-    depends_on:
-      - psicosaas_db
     networks:
       - psico_net
+    depends_on:
+      - psicosaas_db
 
 volumes:
   psicosaas_db_data:

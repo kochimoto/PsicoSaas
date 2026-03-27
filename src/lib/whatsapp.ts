@@ -76,7 +76,8 @@ export async function createInstance(instanceName: string) {
 export async function getQrCode(instanceName: string): Promise<string | null> {
   try {
     const data = await whatsApiRequest(`/instance/connect/${instanceName}`, "GET");
-    const raw = data?.base64 || data?.qrcode?.base64 || data?.code || data?.qrCode;
+    // Na v1.8 o QR costuma vir em qrcode.base64 ou base64 direto
+    const raw = data?.qrcode?.base64 || data?.base64 || data?.code;
 
     if (raw) {
       return String(raw).replace(/^data:image\/[a-z]+;base64,/, "");
@@ -90,6 +91,7 @@ export async function getQrCode(instanceName: string): Promise<string | null> {
 export async function getConnectionState(instanceName: string) {
   try {
     const data = await whatsApiRequest(`/instance/connectionState/${instanceName}`, "GET");
+    // Mapeamento v1.8
     const raw = data?.instance?.state || data?.state || "close";
     return { state: raw as string };
   } catch {
