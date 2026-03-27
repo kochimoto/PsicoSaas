@@ -18,7 +18,10 @@ export default function EditClientForm({ patient }: { patient: any }) {
     notes: patient.notes || "",
     active: patient.active,
     portalLogin: patient.user?.email || "",
-    portalPassword: ""
+    portalPassword: "",
+    birthDate: patient.birthDate ? new Date(patient.birthDate).toISOString().split('T')[0] : "",
+    origin: patient.origin || "",
+    treatmentStart: patient.treatmentStart ? new Date(patient.treatmentStart).toISOString().split('T')[0] : ""
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -83,6 +86,43 @@ export default function EditClientForm({ patient }: { patient: any }) {
             onChange={e => setFormData({...formData, address: e.target.value})}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
           />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Data de Nascimento</label>
+            <input 
+              type="date"
+              value={formData.birthDate}
+              onChange={e => setFormData({...formData, birthDate: e.target.value})}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Origem do Cliente</label>
+            <select 
+              value={formData.origin}
+              onChange={e => setFormData({...formData, origin: e.target.value})}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+            >
+              <option value="">Selecione uma opção...</option>
+              <option value="Indicação">Indicação</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Facebook">Facebook</option>
+              <option value="TikTok">TikTok</option>
+              <option value="Google">Google</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Início do Tratamento</label>
+            <input 
+              type="date"
+              value={formData.treatmentStart}
+              onChange={e => setFormData({...formData, treatmentStart: e.target.value})}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+            />
+          </div>
         </div>
 
         <div className="space-y-1">

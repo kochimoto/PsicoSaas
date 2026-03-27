@@ -75,6 +75,10 @@ model Patient {
   userId    String?  @unique
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  birthDate      DateTime?
+  origin         String?
+  treatmentStart DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

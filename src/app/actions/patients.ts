@@ -16,6 +16,9 @@ interface PatientData {
   portalLogin?: string | null;
   portalPassword?: string | null;
   active?: boolean;
+  birthDate?: string | null;
+  origin?: string | null;
+  treatmentStart?: string | null;
 }
 
 export async function createPatientAction(data: PatientData) {
@@ -66,6 +69,9 @@ export async function createPatientAction(data: PatientData) {
         cpf: data.cpf || null,
         address: data.address || null,
         notes: data.notes || null,
+        birthDate: data.birthDate ? new Date(data.birthDate) : null,
+        origin: data.origin || null,
+        treatmentStart: data.treatmentStart ? new Date(data.treatmentStart) : null,
         tenantId: tenant.id,
         userId: userId
       }
@@ -130,7 +136,10 @@ export async function updatePatientAction(id: string, data: PatientData) {
         cpf: data.cpf || null,
         address: data.address || null,
         notes: data.notes || null,
-        active: data.active
+        active: data.active,
+        birthDate: data.birthDate ? new Date(data.birthDate) : null,
+        origin: data.origin || null,
+        treatmentStart: data.treatmentStart ? new Date(data.treatmentStart) : null,
       }
     });
 

@@ -24,6 +24,9 @@ export default function NewPatientForm() {
             createPortalAccess: formData.get("createPortalAccess") === "true",
             portalLogin: formData.get("portalLogin") as string,
             portalPassword: formData.get("portalPassword") as string,
+            birthDate: formData.get("birthDate") as string,
+            origin: formData.get("origin") as string,
+            treatmentStart: formData.get("treatmentStart") as string,
         };
 
         try {
@@ -89,6 +92,38 @@ export default function NewPatientForm() {
               placeholder="Rua, Número, Bairro, Cidade - UF"
               className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Data de Nascimento</label>
+              <input 
+                name="birthDate" type="date"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Origem do Cliente</label>
+              <select 
+                name="origin"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700"
+              >
+                <option value="">Selecione uma opção...</option>
+                <option value="Indicação">Indicação</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Facebook">Facebook</option>
+                <option value="TikTok">TikTok</option>
+                <option value="Google">Google</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Início do Tratamento</label>
+              <input 
+                name="treatmentStart" type="date"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 transition-all font-medium text-slate-700"
+              />
+            </div>
           </div>
 
           {/* Portal Access Section */}
