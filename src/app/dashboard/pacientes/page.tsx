@@ -46,18 +46,18 @@ export default async function PacientesPage({ searchParams }: { searchParams: an
           if (status === 'active') whereClause.active = true;
           else if (status === 'inactive') whereClause.active = false;
 
-          [patients, totalPatients] = await Promise.all([
-            prisma.patient.findMany({
-              where: whereClause,
-              orderBy: { name: 'asc' },
-              skip: (currentPage - 1) * ITEMS_PER_PAGE,
-              take: ITEMS_PER_PAGE,
-              include: { _count: { select: { appointments: true } } }
-            }),
-            prisma.patient.count({
-              where: whereClause
-            })
-          ]);
+          totalPatients = await prisma.patient.count({ where: whereClause });
+          patients = await prisma.patient.findMany({
+            where: whereClause,
+            orderBy: { name: 'asc' },
+            skip: (currentPage - 1) * ITEMS_PER_PAGE,
+            take: ITEMS_PER_PAGE,
+            include: { _count: { select: { appointments: true } } }
+          });
+          
+          console.log(`DEBUG: Found ${totalPatients} patients for tenant ${tenant.id}`);
+        } else {
+          console.log(`DEBUG: No tenant found for ownerId ${session.user.id}`);
         }
      } catch (err) {
         console.error("Patients fetch error:", err);
