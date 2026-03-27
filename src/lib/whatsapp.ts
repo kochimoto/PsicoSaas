@@ -68,7 +68,8 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 export async function createInstance(instanceName: string) {
   return whatsApiRequest("/instance/create", "POST", {
     instanceName: instanceName,
-    token: WHATS_API_KEY, // Blueprint bfae445 usava 'token'
+    token: WHATS_API_KEY,
+    integration: "WHATSAPP-BAILEYS", // Campo OBRIGATÓRIO na v2.2.3
     qrcode: true,
   });
 }
@@ -80,7 +81,7 @@ export async function getQrCode(instanceName: string): Promise<string | null> {
     // LOG DE DEBUG PARA VER O PAYLOAD REAL
     console.log(`[WA] getQrCode data from ${instanceName}:`, JSON.stringify(data).substring(0, 1000));
 
-    // Snapshot bfae445 pattern
+    // Na v2.2.3 o QR vem em data.base64 ou data.qrcode.base64
     const raw = data?.base64 || data?.qrcode?.base64 || data?.code || data?.qrCode;
 
     if (raw) {
@@ -95,7 +96,8 @@ export async function getQrCode(instanceName: string): Promise<string | null> {
 export async function getConnectionState(instanceName: string) {
   try {
     const data = await whatsApiRequest(`/instance/connectionState/${instanceName}`, "GET");
-    // Snapshot bfae445 mapping (open/close)
+    
+    // Mapeamento v2
     const raw = data?.instance?.state || data?.state || "close";
     return { 
       state: raw === "open" ? "open" : (raw === "connecting" ? "initializing" : "close")
@@ -119,27 +121,21 @@ export async function deleteInstance(instanceName: string) {
 export async function sendTextMessage(instanceName: string, number: string, text: string) {
   return whatsApiRequest(`/message/sendText/${instanceName}`, "POST", {
     number: number,
-    text: text, // Blueprint bfae445 pattern
+    text: text, 
     delay: 1200,
     linkPreview: true
   });
 }
 
 export async function sendMediaMessage(instanceName: string, number: string, base64: string, fileName: string, caption?: string) {
-  // O base64 deve vir com o prefixo 'data:...;base64,' ou apenas a string raw
   const rawBase64 = base64.replace(/^data:.*?;base64,/, "");
   
   return whatsApiRequest(`/message/sendMedia/${instanceName}`, "POST", {
     number: number,
-    options: {
-      delay: 1500,
-      presence: "composing"
-    },
-    mediaMessage: {
-       mediatype: "document", // Enviamos como documento para manter qualidade e compatibilidade (PDF/IMG)
-       caption: caption || "",
-       media: rawBase64,
-       fileName: fileName
-    }
+    mediatype: "document", 
+    caption: caption || "",
+    media: rawBase64,
+    fileName: fileName,
+    delay: 1500
   });
 }
