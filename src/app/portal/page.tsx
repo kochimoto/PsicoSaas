@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ConfirmSessionButton, ConfirmDocumentButton, UploadReceiptButton } from "./ConfirmButtons";
+import LogoutButton from "./LogoutButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -52,15 +53,23 @@ export default async function PortalPage() {
       <div className="p-8 text-center bg-white rounded-3xl border border-slate-200 shadow-sm max-w-xl mx-auto mt-20">
         <h2 className="text-2xl font-black text-rose-600 mb-3 tracking-tight">Erro no Acesso</h2>
         <p className="text-slate-600 font-medium">A sua conta não parece estar vinculada a nenhum prontuário ativo do seu profissional de saúde.</p>
+        <div className="mt-6">
+          <LogoutButton />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 space-y-10">
-      <div className="mb-4">
-        <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight mb-2">Olá, {patient.name.split(" ")[0]} 👋</h1>
-        <p className="text-slate-500 text-lg font-medium">Bem-vindo(a) ao seu portal. Acompanhamento pela <strong className="text-slate-700">{patient.tenant.clinicName || 'clínica'}</strong>.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-4">
+        <div>
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight mb-2">Olá, {patient.name.split(" ")[0]} 👋</h1>
+          <p className="text-slate-500 text-lg font-medium">Bem-vindo(a) ao seu portal. Acompanhamento pela <strong className="text-slate-700">{patient.tenant.clinicName || 'clínica'}</strong>.</p>
+        </div>
+        <div className="shrink-0 flex sm:block justify-end">
+           <LogoutButton />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
