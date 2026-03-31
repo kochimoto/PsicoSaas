@@ -56,6 +56,8 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Erro no checkout:", error);
-    return NextResponse.json({ error: "Erro interno ao gerar pagamento" }, { status: 500 });
+    return NextResponse.json({ 
+      error: `Erro ao gerar pagamento: ${error.message || "Erro interno"}` 
+    }, { status: 500 });
   }
 }
