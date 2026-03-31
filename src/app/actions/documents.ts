@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { isVip } from "@/lib/permissions";
+import { sendTextMessage } from "@/lib/whatsapp";
 import fs from "fs/promises";
 import path from "path";
 
@@ -64,7 +65,35 @@ export async function uploadDocumentAction(formData: FormData) {
     });
 
     revalidatePath("/dashboard/documentos");
-    if (patientId) revalidatePath(`/dashboard/pacientes/${patientId}`);
+    if (patientId) {
+      revalidatePath(`/dashboard/pacientes/${patientId}`);
+      
+      // Notificação via WhatsApp
+      if (tenant.whatsappEnabled) {
+        const patient = await prisma.patient.findUnique({ where: { id: patientId } });
+        if (patient?.phone) {
+          const instanceName = `psico_${tenant.id.substring(0, 8)}`;
+          const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL}/portal`;
+          const messageTemplate = tenant.whatsappDocumentMessage || "Olá {nome}, seu novo documento ({nome_doc}) já está disponível no seu portal: {link}";
+          
+          const message = messageTemplate
+            .replace(/{nome}/g, patient.name)
+            .replace(/{nome_doc}/g, name)
+            .replace(/{link}/g, portalUrl);
+
+          let cleanPhone = patient.phone.replace(/\D/g, "");
+          if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+            cleanPhone = `55${cleanPhone}`;
+          }
+
+          try {
+            await sendTextMessage(instanceName, cleanPhone, message);
+          } catch (e) {
+            console.error("Falha ao enviar aviso de documento:", e);
+          }
+        }
+      }
+    }
 
     return { success: true };
   } catch (error: any) {

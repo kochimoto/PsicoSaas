@@ -20,11 +20,9 @@ export async function GET(request: Request) {
     await processAppointmentReminders(now, 24, "APPOINTMENT_24H", results);
     await processAppointmentReminders(now, 3, "APPOINTMENT_3H", results);
 
-    // 2. LEMBRETES DE PAGAMENTO (3d, 2d, 1d antes e 1d, 2d depois)
+    // 2. LEMBRETES DE PAGAMENTO (3 dias antes, no dia e 2 dias depois)
     await processPaymentReminders(now, 3, "PAYMENT_3D_BEFORE", results);
-    await processPaymentReminders(now, 2, "PAYMENT_2D_BEFORE", results);
-    await processPaymentReminders(now, 1, "PAYMENT_1D_BEFORE", results);
-    await processPaymentReminders(now, -1, "PAYMENT_1D_AFTER", results);
+    await processPaymentReminders(now, 0, "PAYMENT_TODAY", results);
     await processPaymentReminders(now, -2, "PAYMENT_2D_AFTER", results);
 
     return NextResponse.json({ success: true, processed: results.length, details: results });
@@ -124,17 +122,17 @@ async function processPaymentReminders(now: Date, days: number, type: string, re
         .replace(/{descricao}/g, tx.description)
         .replace(/{vencimento}/g, vencimentoStr);
       
-      // Add dynamic context if needed
-      if (days < 0) {
-        message += `\n(Lembrete: Pagamento pendente desde ${vencimentoStr})`;
-      } else {
-        message += `\n(Vencimento em ${vencimentoStr})`;
-      }
+      if (days === 0) message = `Lembrete: Seu pagamento de ${amountStr} vence hoje.`;
+      else if (days < 0) message += `\n(Lembrete: Pagamento pendente desde ${vencimentoStr})`;
+      else message += `\n(Vencimento em ${vencimentoStr})`;
     } else {
-      if (days > 0) {
-        message = `Olá ${tx.patient.name}, passando para lembrar que seu pagamento de ${amountStr} vence em ${days} dia(s) (${format(tx.date, "dd/MM")}).`;
+      // Mensagem Padrão solicitada
+      if (days === 0) {
+        message = `Olá ${tx.patient.name}, o seu pagamento de ${amountStr} vence hoje, regularize a sua pendência. Para consultar a fatura, acesse o Portal do Paciente: ${process.env.NEXT_PUBLIC_APP_URL}/portal`;
+      } else if (days > 0) {
+        message = `Olá ${tx.patient.name}, passando para lembrar que seu pagamento de ${amountStr} vence em ${days} dia(s) (${format(tx.date, "dd/MM")}). Para consultar a fatura, acesse o Portal: ${process.env.NEXT_PUBLIC_APP_URL}/portal`;
       } else {
-        message = `Olá ${tx.patient.name}, notamos que o pagamento de ${amountStr} está atrasado há ${Math.abs(days)} dia(s). Caso já tenha pago, desconsidere.`;
+        message = `Olá ${tx.patient.name}, notamos que o pagamento de ${amountStr} está atrasado há ${Math.abs(days)} dia(s). Caso já tenha pago, desconsidere. Acesse o portal: ${process.env.NEXT_PUBLIC_APP_URL}/portal`;
       }
     }
 
