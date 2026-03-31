@@ -23,16 +23,16 @@ export async function POST(req: Request) {
 
     // Cria a sessão de Checkout no Stripe para o Plano VIP (R$ 39,99)
     const stripeSession = await stripe.checkout.sessions.create({
-      payment_method_types: ["card", "pix"],
+      payment_method_types: ["card", "boleto"],
       mode: "subscription",
-      customer_email: tenant.owner.email,
+      customer_email: tenant.owner.email || undefined,
       client_reference_id: tenant.id, // ID local da clínica para ligar com o Webhook
       line_items: [
         {
           price_data: {
             currency: "brl",
             product_data: {
-              name: "PsicoGestão VIP",
+              name: "PsicoSaas VIP",
               description: "Acesso ilimitado à gestão completa.",
             },
             unit_amount: 3999, // R$ 39,99 (em centavos)
