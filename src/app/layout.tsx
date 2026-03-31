@@ -9,8 +9,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Psicologia",
-  description: "Plataforma completa para gestão de clínicas de psicologia",
+  title: "Gestão Terapêutica",
+  description: "Plataforma completa para gestão de clínicas e profissionais da saúde mental",
 };
 
 import NextTopLoader from "nextjs-toploader";

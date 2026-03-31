@@ -32,10 +32,10 @@ export async function POST(req: Request) {
           price_data: {
             currency: "brl",
             product_data: {
-              name: "PsicoSaas VIP",
+              name: "Gestão Terapêutica VIP",
               description: "Acesso ilimitado à gestão completa.",
             },
-            unit_amount: 3999, // R$ 39,99 (em centavos)
+            unit_amount: 3990, // R$ 39,90 (em centavos)
             recurring: {
               interval: "month",
             },

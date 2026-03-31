@@ -5,3 +5,7 @@
 www.gestaoterapeutica.com.br, gestaoterapeutica.com.br {
     reverse_proxy psicosaas:3000
 }
+
+api.gestaoterapeutica.com.br {
+    reverse_proxy evolution:8080
+}

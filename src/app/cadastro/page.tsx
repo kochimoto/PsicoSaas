@@ -52,9 +52,9 @@ function RegisterForm() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 mb-6 group">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg group-hover:scale-110 transition-transform">
-            P
+            G
           </div>
-          <span className="font-bold text-2xl tracking-tight text-slate-800">PsicoSaas</span>
+          <span className="font-bold text-2xl tracking-tight text-slate-800">Gestão Terapêutica</span>
         </Link>
         <h2 className="text-center text-3xl font-extrabold text-slate-900">
           Crie a sua conta

@@ -93,8 +93,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 hidden lg:block`}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold">P</div>
-            <span className="font-bold text-xl text-slate-900">PsicoSaas</span>
+            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold">G</div>
+            <span className="font-bold text-xl text-slate-900">Gestão Terapêutica</span>
           </Link>
         </div>
 
@@ -141,8 +141,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Mobile Header (Sticky Glassmorphism) */}
         <header className="lg:hidden sticky top-0 left-0 right-0 z-40 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/50 flex items-center px-6 justify-between shrink-0">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold shadow-lg shadow-teal-600/20">P</div>
-            <span className="font-bold text-lg text-slate-900 tracking-tight">Painel</span>
+            <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold shadow-lg shadow-teal-600/20">G</div>
+            <span className="font-bold text-lg text-slate-900 tracking-tight">Painel Gestão</span>
           </Link>
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}

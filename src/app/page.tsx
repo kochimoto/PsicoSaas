@@ -13,8 +13,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 active:scale-95 transition-transform">
-             <div className="w-9 h-9 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-teal-600/20">P</div>
-             <span className="text-xl font-black text-slate-900 tracking-tight">PsicoSaas</span>
+             <div className="w-9 h-9 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-teal-600/20">G</div>
+             <span className="text-xl font-black text-slate-900 tracking-tight">Gestão Terapêutica</span>
           </Link>
 
           {/* Desktop Menu */}
@@ -170,7 +170,7 @@ export default function LandingPage() {
               <div className="absolute top-6 right-6 bg-teal-500 text-white px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">Popular</div>
               <h3 className="text-xl font-bold text-teal-600 mb-2">Plano VIP</h3>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-5xl font-black text-slate-900">R$ 97</span>
+                <span className="text-5xl font-black text-slate-900">R$ 39,90</span>
                 <span className="text-slate-400 font-bold">/mês</span>
               </div>
               <ul className="space-y-4 mb-10 flex-1 text-sm font-semibold text-slate-700">
@@ -192,8 +192,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
-                <span className="text-xl font-black text-slate-900 uppercase">PsicoSaas</span>
+                <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold">G</div>
+                <span className="text-xl font-black text-slate-900 uppercase">Gestão Terapêutica</span>
               </div>
               <p className="text-sm text-slate-500 font-medium max-w-xs">
                 A plataforma definitiva para psicólogos que buscam produtividade e excelência no atendimento.
@@ -212,13 +212,13 @@ export default function LandingPage() {
 
             <div className="flex flex-col gap-3">
               <h4 className="font-bold text-slate-900 uppercase text-xs tracking-widest mb-2">Suporte</h4>
-              <a href="mailto:suporte@psicosaas.com.br" className="text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">suporte@psicosaas.com.br</a>
+              <a href="mailto:suporte@gestaoterapeutica.com.br" className="text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">suporte@gestaoterapeutica.com.br</a>
               <span className="text-xs font-bold text-slate-400">Atendimento seg à sex, 9h as 18h</span>
             </div>
           </div>
           
           <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs font-bold text-slate-400">© 2026 PsicoSaas • Todos os direitos reservados.</span>
+            <span className="text-xs font-bold text-slate-400">© 2026 Gestão Terapêutica • Todos os direitos reservados.</span>
             <div className="flex items-center gap-6">
                <Shield className="w-5 h-5 text-slate-300" />
                <Zap className="w-5 h-5 text-slate-300" />
