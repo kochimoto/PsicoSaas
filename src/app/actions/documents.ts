@@ -68,30 +68,31 @@ export async function uploadDocumentAction(formData: FormData) {
     if (patientId) {
       revalidatePath(`/dashboard/pacientes/${patientId}`);
       
-      // Notificação via WhatsApp
+      // Notificação via WhatsApp (AGENDADA PARA 2 MINUTOS)
       if (tenant.whatsappEnabled) {
-        const patient = await prisma.patient.findUnique({ where: { id: patientId } });
-        if (patient?.phone) {
-          const instanceName = `psico_${tenant.id.substring(0, 8)}`;
-          const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL}/portal`;
-          const messageTemplate = tenant.whatsappDocumentMessage || "Olá {nome}, seu novo documento ({nome_doc}) já está disponível no seu portal: {link}";
-          
-          const message = messageTemplate
-            .replace(/{nome}/g, patient.name)
-            .replace(/{nome_doc}/g, name)
-            .replace(/{link}/g, portalUrl);
+        // Rodar em background (setTimeout) para não bloquear a resposta do usuário
+        (async () => {
+          setTimeout(async () => {
+            try {
+              const patient = await prisma.patient.findUnique({ where: { id: patientId } });
+              if (patient?.phone) {
+                const instanceName = `psico_${tenant.id.substring(0, 8)}`;
+                const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL}/portal`;
+                // Para o automático, usamos sempre a mensagem padrão (preset) como combinado
+                const message = `Olá ${patient.name}, seu novo documento (${name}) já está disponível no seu portal: ${portalUrl}`;
 
-          let cleanPhone = patient.phone.replace(/\D/g, "");
-          if (cleanPhone.length === 10 || cleanPhone.length === 11) {
-            cleanPhone = `55${cleanPhone}`;
-          }
+                let cleanPhone = patient.phone.replace(/\D/g, "");
+                if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+                  cleanPhone = `55${cleanPhone}`;
+                }
 
-          try {
-            await sendTextMessage(instanceName, cleanPhone, message);
-          } catch (e) {
-            console.error("Falha ao enviar aviso de documento:", e);
-          }
-        }
+                await sendTextMessage(instanceName, cleanPhone, message);
+              }
+            } catch (e) {
+              console.error("Erro no delay da notificação de documento:", e);
+            }
+          }, 120000); // 2 minutos de margem
+        })();
       }
     }
 

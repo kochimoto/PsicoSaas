@@ -63,7 +63,34 @@ export async function POST(request: Request) {
     });
 
     revalidatePath("/dashboard/documentos");
-    if (patientId) revalidatePath(`/dashboard/pacientes/${patientId}`);
+    if (patientId) {
+       revalidatePath(`/dashboard/pacientes/${patientId}`);
+       
+       // Notificação via WhatsApp AUTOMÁTICA (DELAY 2 MIN)
+       if (tenant.whatsappEnabled) {
+         const { sendTextMessage } = await import("@/lib/whatsapp");
+         (async () => {
+           setTimeout(async () => {
+             try {
+               const patient = await prisma.patient.findUnique({ where: { id: patientId } });
+               if (patient?.phone) {
+                 const instanceName = `psico_${tenant.id.substring(0, 8)}`;
+                 const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL}/portal`;
+                 const message = `Olá ${patient.name}, seu novo documento (${name}) já está disponível no seu portal: ${portalUrl}`;
+
+                 let cleanPhone = patient.phone.replace(/\D/g, "");
+                 if (cleanPhone.length === 10 || cleanPhone.length === 11) {
+                   cleanPhone = `55${cleanPhone}`;
+                 }
+                 await sendTextMessage(instanceName, cleanPhone, message);
+               }
+             } catch (e) {
+               console.error("Erro no delay API upload:", e);
+             }
+           }, 120000);
+         })();
+       }
+    }
 
     return NextResponse.json({ success: true, id: doc.id });
   } catch (error) {
