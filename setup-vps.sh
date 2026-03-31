@@ -52,9 +52,9 @@ cat > "$APP_DIR/.env" << 'EOF'
 DATABASE_URL="postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db"
 DIRECT_URL="postgresql://postgres:intelbras3246@psicosaas_db:5432/psico_db"
 JWT_SECRET="secret_super_seguro_para_desenvolvimento_local"
-NEXTAUTH_URL="https://www.laisbritoofc.com.br"
+NEXTAUTH_URL="https://www.gestaoterapeutica.com.br"
 NEXTAUTH_SECRET="secret_super_seguro_para_desenvolvimento_local"
-NEXT_PUBLIC_APP_URL="https://www.laisbritoofc.com.br"
+NEXT_PUBLIC_APP_URL="https://www.gestaoterapeutica.com.br"
 NEXT_PUBLIC_STRIPE_PUBLIC_KEY="YOUR_STRIPE_PUBLIC_KEY_HERE"
 STRIPE_SECRET_KEY="YOUR_STRIPE_SECRET_KEY_HERE"
 WHATS_API_URL="http://evolution:8080"
@@ -67,7 +67,7 @@ cat > "$APP_DIR/Caddyfile" << 'EOF'
     email psicogestao@admin.com
 }
 
-www.laisbritoofc.com.br, laisbritoofc.com.br {
+www.gestaoterapeutica.com.br, gestaoterapeutica.com.br {
     reverse_proxy psicosaas:3000
 }
 EOF
@@ -91,5 +91,5 @@ echo "  # Depois que o app subir:"
 echo "  docker exec psicosaas npx prisma migrate deploy"
 echo "  docker exec psicosaas npx prisma db seed"
 echo ""
-echo "  Acesse: https://www.laisbritoofc.com.br"
+echo "  Acesse: https://www.gestaoterapeutica.com.br"
 echo "========================================="

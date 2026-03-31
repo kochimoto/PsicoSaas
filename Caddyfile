@@ -2,6 +2,6 @@
     email psicogestao@admin.com
 }
 
-www.laisbritoofc.com.br, laisbritoofc.com.br {
+www.gestaoterapeutica.com.br, gestaoterapeutica.com.br {
     reverse_proxy psicosaas:3000
 }

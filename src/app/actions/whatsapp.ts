@@ -214,7 +214,7 @@ export async function sendDocumentWhatsAppAction(documentId: string) {
 
     if (!doc || !doc.patient?.phone) return { error: "Documento não encontrado ou paciente sem telefone." };
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.laisbritoofc.com.br";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.gestaoterapeutica.com.br";
     const documentLink = `${appUrl}/api/documents/${doc.id}`;
 
     const template = doc.tenant.whatsappDocumentMessage

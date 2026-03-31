@@ -35,7 +35,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      - DOMAIN=www.laisbritoofc.com.br
+      - DOMAIN=www.gestaoterapeutica.com.br
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data

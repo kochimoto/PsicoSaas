@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
              <button 
                 onClick={() => {
-                  const url = "https://www.laisbritoofc.com.br/portal";
+                  const url = `${process.env.NEXT_PUBLIC_APP_URL}/portal`;
                   navigator.clipboard.writeText(url);
                   toast.success("Link do Portal copiado!");
                   setSidebarOpen(false);
@@ -120,7 +120,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="pt-4 mt-4 border-t border-slate-100">
              <button 
               onClick={() => {
-                const url = "https://www.laisbritoofc.com.br/portal";
+                const url = `${process.env.NEXT_PUBLIC_APP_URL}/portal`;
                 navigator.clipboard.writeText(url);
                 toast.success("Link do Portal copiado!");
               }}
