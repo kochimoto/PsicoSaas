@@ -21,9 +21,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Clínica não encontrada" }, { status: 404 });
     }
 
-    // Cria a sessão de Checkout no Stripe Dinamicamente para o Plano VIP (R$ 1,00)
+    // Cria a sessão de Checkout no Stripe para o Plano VIP (R$ 39,99)
     const stripeSession = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_types: ["card", "pix"],
       mode: "subscription",
       customer_email: tenant.owner.email,
       client_reference_id: tenant.id, // ID local da clínica para ligar com o Webhook
@@ -43,6 +43,11 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
+      subscription_data: {
+        metadata: {
+          tenantId: tenant.id,
+        },
+      },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?checkout=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?checkout=canceled`,
     });

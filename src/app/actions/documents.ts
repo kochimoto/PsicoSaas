@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { isVip } from "@/lib/permissions";
 import fs from "fs/promises";
 import path from "path";
 
@@ -14,7 +15,7 @@ export async function uploadDocumentAction(formData: FormData) {
     const tenant = await prisma.tenant.findUnique({ where: { ownerId: session.user.id } });
     if (!tenant) return { error: "Clínica não encontrada" };
 
-    if (tenant.plan === "FREE") {
+    if (!isVip(tenant)) {
       const currentMonthStart = new Date();
       currentMonthStart.setDate(1);
       currentMonthStart.setHours(0, 0, 0, 0);

@@ -5,6 +5,8 @@ import WhatsappClient from "./WhatsappClient";
 import VIPCheckoutButton from "../VIPCheckoutButton";
 import { Lock, MessageCircle } from "lucide-react";
 
+import { isVip } from "@/lib/permissions";
+
 export default async function WhatsappPage() {
   const session = await getSession();
   if (!session) return redirect("/login");
@@ -16,20 +18,7 @@ export default async function WhatsappPage() {
 
   if (!tenant) return redirect("/login");
 
-  const initialData = {
-    whatsappEnabled: tenant.whatsappEnabled,
-    whatsappNumber: tenant.whatsappNumber || "",
-    whatsappMessage: tenant.whatsappMessage || "",
-    whatsappPaymentMessage: tenant.whatsappPaymentMessage || "",
-    whatsappDocumentMessage: tenant.whatsappDocumentMessage || "",
-    services: tenant.services.map(s => ({
-      id: s.id,
-      name: s.name,
-      whatsappMessage: s.whatsappMessage || ""
-    }))
-  };
-
-  if (tenant.plan === "FREE") {
+  if (!isVip(tenant)) {
     return (
       <div className="p-4 md:p-8 max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center">
         <div className="w-20 h-20 bg-amber-50 rounded-2xl flex items-center justify-center mb-6">
@@ -43,6 +32,19 @@ export default async function WhatsappPage() {
       </div>
     );
   }
+
+  const initialData = {
+    whatsappEnabled: tenant.whatsappEnabled,
+    whatsappNumber: tenant.whatsappNumber || "",
+    whatsappMessage: tenant.whatsappMessage || "",
+    whatsappPaymentMessage: tenant.whatsappPaymentMessage || "",
+    whatsappDocumentMessage: tenant.whatsappDocumentMessage || "",
+    services: tenant.services.map(s => ({
+      id: s.id,
+      name: s.name,
+      whatsappMessage: s.whatsappMessage || ""
+    }))
+  };
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8">

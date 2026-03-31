@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Shield, CheckCircle2, Crown, Star } from "lucide-react";
+import { CheckCircle2, Crown, Star } from "lucide-react";
 import VIPCheckoutButton from "../VIPCheckoutButton";
+import { isVip, getPlanLabel } from "@/lib/permissions";
 
 export default async function BillingPage() {
   const session = await getSession();
@@ -13,6 +14,9 @@ export default async function BillingPage() {
   });
 
   if (!tenant) return redirect("/login");
+
+  const planIsVip = isVip(tenant);
+  const planLabel = getPlanLabel(tenant);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -28,10 +32,10 @@ export default async function BillingPage() {
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Seu Plano Atual</h3>
             <div className="flex items-center gap-3 mb-6">
                <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white">
-                  {tenant.plan === 'VIP' ? <Crown className="w-6 h-6 text-amber-400" /> : <Star className="w-6 h-6 text-slate-400" />}
+                  {planIsVip ? <Crown className="w-6 h-6 text-amber-400" /> : <Star className="w-6 h-6 text-slate-400" />}
                </div>
                <div>
-                  <p className="text-2xl font-black text-slate-900">Plano {tenant.plan}</p>
+                  <p className="text-2xl font-black text-slate-900">{planLabel}</p>
                   <p className="text-sm font-medium text-slate-500 italic">Renovação mensal</p>
                </div>
             </div>
@@ -49,20 +53,19 @@ export default async function BillingPage() {
 
          {/* Upgrade Section */}
          {tenant.plan === 'FREE' && (
-           <div className="bg-teal-600 p-8 rounded-[2.5rem] shadow-xl shadow-teal-600/20 text-white space-y-6">
-              <h3 className="text-xl font-bold">Faça o Upgrade para VIP</h3>
-              <p className="text-teal-50 text-sm leading-relaxed">Libere o envio ilimitado de documentos, automação total de WhatsApp e suporte dedicado.</p>
-              <ul className="space-y-2 text-sm">
-                 <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-teal-200" /> WhatsApp Ilimitado</li>
-                 <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-teal-200" /> Pacientes Ilimitados</li>
-              </ul>
-              <VIPCheckoutButton />
-           </div>
+            <div className="bg-teal-600 p-8 rounded-[2.5rem] shadow-xl shadow-teal-600/20 text-white space-y-6">
+               <h3 className="text-xl font-bold">Faça o Upgrade para VIP</h3>
+               <p className="text-teal-50 text-sm leading-relaxed">Libere o envio ilimitado de documentos, automação total de WhatsApp e suporte dedicado.</p>
+               <ul className="space-y-2 text-sm">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-teal-200" /> WhatsApp Ilimitado</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-teal-200" /> Pacientes Ilimitados</li>
+               </ul>
+               <VIPCheckoutButton />
+            </div>
          )}
       </div>
     </div>
   );
 }
-
 
 

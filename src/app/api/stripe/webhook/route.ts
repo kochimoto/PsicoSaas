@@ -26,24 +26,30 @@ export async function POST(req: Request) {
 
   // Handle the event
   switch (event.type) {
-    case 'checkout.session.completed': {
+    case 'checkout.session.completed':
+    case 'checkout.session.async_payment_succeeded': {
       const session = event.data.object;
-      const tenantId = session.client_reference_id;
-      const customerId = session.customer as string;
-      const subscriptionId = session.subscription as string;
+      
+      // Só ativa se o pagamento estiver de fato confirmado
+      if (session.payment_status === 'paid') {
+        const tenantId = session.client_reference_id;
+        const customerId = session.customer as string;
+        const subscriptionId = session.subscription as string;
 
-      if (tenantId) {
-        // Atualiza a assinatura do psicólogo para VIP e salva os IDs do Stripe
-        await prisma.tenant.update({
-          where: { id: tenantId },
-          data: {
-            plan: "VIP_MENSAL",
-            stripeCustomerId: customerId,
-            stripeSubscriptionId: subscriptionId,
-            stripeSubscriptionStatus: "active"
-          }
-        });
-        console.log(`✅ Assinatura VIP ativada para Clínica: ${tenantId}`);
+        if (tenantId) {
+          await prisma.tenant.update({
+            where: { id: tenantId },
+            data: {
+              plan: "VIP_MENSAL",
+              stripeCustomerId: customerId,
+              stripeSubscriptionId: subscriptionId,
+              stripeSubscriptionStatus: "active"
+            }
+          });
+          console.log(`✅ Assinatura VIP ativada via ${event.type} para Clínica: ${tenantId}`);
+        }
+      } else {
+        console.log(`⏳ Sessão completada mas pagamento ainda pendente (${session.payment_status}).`);
       }
       break;
     }
@@ -59,16 +65,23 @@ export async function POST(req: Request) {
       });
 
       if (tenant) {
-        const newPlan = status === "active" ? "VIP_MENSAL" : "FREE";
+        // Se a assinatura não estiver ativa/trialling, voltamos para o plano FREE
+        const isPaid = status === "active" || status === "trialing";
         await prisma.tenant.update({
           where: { id: tenant.id },
           data: {
-            plan: newPlan,
+            plan: isPaid ? "VIP_MENSAL" : "FREE",
             stripeSubscriptionStatus: status
           }
         });
-        console.log(`🔄 Assinatura da Clínica ${tenant.id} atualizada para ${status}`);
+        console.log(`🔄 Assinatura da Clínica ${tenant.id} atualizada para ${status}. Plano: ${isPaid ? 'VIP' : 'FREE'}`);
       }
+      break;
+    }
+
+    case 'checkout.session.async_payment_failed': {
+      const session = event.data.object;
+      console.error(`❌ Pagamento assíncrono falhou para sessão: ${session.id}`);
       break;
     }
 

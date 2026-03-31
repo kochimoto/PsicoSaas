@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { isVip } from "@/lib/permissions";
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
     if (!tenant) return NextResponse.json({ error: "Clínica não encontrada" }, { status: 404 });
 
     // Plano FREE limit check
-    if (tenant.plan === "FREE") {
+    if (!isVip(tenant)) {
       const currentMonthStart = new Date();
       currentMonthStart.setDate(1);
       currentMonthStart.setHours(0, 0, 0, 0);

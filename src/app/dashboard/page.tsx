@@ -3,7 +3,8 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Users, Calendar, Wallet, TrendingUp, Sparkles, Clock } from "lucide-react";
 import VIPCheckoutButton from "./VIPCheckoutButton";
-import { startOfDay, endOfDay, startOfMonth, endOfMonth, differenceInDays } from "date-fns";
+import { startOfDay, endOfDay, startOfMonth, endOfMonth } from "date-fns";
+import { isVip as checkIsVip, getRemainingTrialDays } from "@/lib/permissions";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -72,12 +73,10 @@ export default async function DashboardPage() {
     })
   ]);
 
-  // Lógica de Trial 7 dias
-  const trialDaysLimit = 7;
-  const daysSinceCreated = differenceInDays(now, tenant.createdAt);
-  const remainingTrialDays = trialDaysLimit - daysSinceCreated;
+  // Lógica de VIP e Trial unificada
+  const remainingTrialDays = getRemainingTrialDays(tenant.createdAt);
   const isTrialActive = remainingTrialDays > 0 && tenant.plan === "FREE";
-  const isVip = tenant.plan !== "FREE" || isTrialActive;
+  const isVip = checkIsVip(tenant);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
