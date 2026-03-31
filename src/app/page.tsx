@@ -89,7 +89,7 @@ export default function LandingPage() {
               <div className="absolute -inset-4 bg-teal-200/20 blur-3xl rounded-full"></div>
               <div className="relative bg-white p-4 rounded-[2.5rem] shadow-2xl border border-slate-200 rotate-1">
                  <div className="bg-slate-50 rounded-[2rem] overflow-hidden border border-slate-100 aspect-video flex items-center justify-center">
-                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" alt="Dashboard Mockup" className="opacity-80" />
+                    <img src="/dashboard-hero.png" alt="Gestão Terapêutica Dashboard" className="opacity-100" />
                  </div>
               </div>
            </div>
