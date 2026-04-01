@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import LogoutButton from "@/components/LogoutButton";
 import UpdatesPopup from "@/components/dashboard/UpdatesPopup";
+import NotificationCenter from "@/components/dashboard/NotificationCenter";
 
 const navigation = [
   { name: 'Início', href: '/dashboard', icon: LayoutDashboard },
@@ -144,12 +145,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold shadow-lg shadow-teal-600/20">G</div>
             <span className="font-bold text-lg text-slate-900 tracking-tight">Painel Gestão</span>
           </Link>
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className={`p-2.5 transition-all active:scale-95 rounded-xl ${sidebarOpen ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/30' : 'text-slate-600 bg-slate-100'}`}
-          >
-            {sidebarOpen ? <X className="w-5 h-5 font-bold" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <NotificationCenter />
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`p-2.5 transition-all active:scale-95 rounded-xl ${sidebarOpen ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/30' : 'text-slate-600 bg-slate-100'}`}
+            >
+              {sidebarOpen ? <X className="w-5 h-5 font-bold" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </header>
+
+        {/* Desktop Header for Notifications */}
+        <header className="hidden lg:flex sticky top-0 left-0 right-0 z-40 h-20 bg-slate-50/80 backdrop-blur-md px-8 items-center justify-end shrink-0 pointer-events-none">
+          <div className="pointer-events-auto">
+            <NotificationCenter />
+          </div>
         </header>
 
         {/* Page Content */}

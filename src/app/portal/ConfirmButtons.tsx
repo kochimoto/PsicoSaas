@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { confirmAppointmentAction, confirmDocumentAction, uploadPaymentProofAction } from "@/app/actions/portal";
-import { Check, CheckCircle2, Paperclip } from "lucide-react";
+import { confirmAppointmentAction, confirmDocumentAction, uploadPaymentProofAction, cancelAppointmentPortalAction } from "@/app/actions/portal";
+import { Check, CheckCircle2, Paperclip, XCircle } from "lucide-react";
 
 export function ConfirmSessionButton({ id, confirmed }: { id: string, confirmed: boolean }) {
   const [loading, setLoading] = useState(false);
@@ -26,6 +26,33 @@ export function ConfirmSessionButton({ id, confirmed }: { id: string, confirmed:
       className="cursor-pointer text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-sm px-3 py-1 rounded-lg border border-blue-200 uppercase tracking-widest text-[10px] font-bold transition-all disabled:opacity-50 active:scale-95"
     >
       {loading ? "Confirmando..." : "Confirmar Presença"}
+    </button>
+  );
+}
+
+export function CancelSessionButton({ id }: { id: string }) {
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <button 
+      disabled={loading} 
+      onClick={async () => { 
+        if (!confirm("Tem certeza que deseja cancelar esta sessão?")) return;
+        setLoading(true); 
+        try {
+          await cancelAppointmentPortalAction(id); 
+          window.location.reload();
+        } catch (err) {
+          console.error("Cancel error:", err);
+          alert("Erro ao cancelar sessão.");
+        } finally {
+          setLoading(false); 
+        }
+      }} 
+      className="cursor-pointer text-rose-700 bg-rose-50 hover:bg-rose-100 shadow-sm px-3 py-1 rounded-lg border border-rose-200 uppercase tracking-widest text-[10px] font-bold transition-all disabled:opacity-50 active:scale-95 flex items-center gap-1"
+    >
+      <XCircle className="w-3 h-3" />
+      {loading ? "Cancelando..." : "Cancelar Sessão"}
     </button>
   );
 }

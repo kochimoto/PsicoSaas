@@ -9,71 +9,73 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String?
-  name      String
-  role      String   @default("PSICOLOGO") // SUPER_ADMIN, PSICOLOGO, FUNCIONARIO, PACIENTE
+  id         String   @id @default(cuid())
+  email      String   @unique
+  password   String?
+  name       String
+  role       String   @default("PSICOLOGO") // SUPER_ADMIN, PSICOLOGO, FUNCIONARIO, PACIENTE
   whereFound String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  emailVerified     DateTime?
-  verificationToken String? @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  tenantOwner Tenant?    @relation("TenantOwner")
-  patient     Patient?
-  employee    Employee?
+  emailVerified     DateTime?
+  verificationToken String?   @unique
+
+  tenantOwner   Tenant?        @relation("TenantOwner")
+  patient       Patient?
+  employee      Employee?
+  notifications Notification[] @relation("UserNotifications")
 }
 
 model Tenant {
-  id          String   @id @default(cuid())
-  ownerId     String   @unique
-  owner       User     @relation("TenantOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  plan        String   @default("FREE") // FREE, VIP_MENSAL, VIP_ANUAL
-  clinicName      String?
-  
-  whatsappEnabled Boolean  @default(false)
-  whatsappNumber  String?
-  whatsappMessage String?  @default("Olá {nome}, sua sessão está marcada para amanhã às {hora}. Responda para confirmar!")
-  whatsappPaymentMessage String? @default("Olá {nome}, passando para lembrar do pagamento de {valor} referente a {descricao}.")
+  id         String  @id @default(cuid())
+  ownerId    String  @unique
+  owner      User    @relation("TenantOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  plan       String  @default("FREE") // FREE, VIP_MENSAL, VIP_ANUAL
+  clinicName String?
+
+  whatsappEnabled         Boolean @default(false)
+  whatsappNumber          String?
+  whatsappMessage         String? @default("Olá {nome}, sua sessão está marcada para amanhã às {hora}. Responda para confirmar!")
+  whatsappPaymentMessage  String? @default("Olá {nome}, passando para lembrar do pagamento de {valor} referente a {descricao}.")
   whatsappDocumentMessage String? @default("Olá {nome}! Segue o link do seu documento ({documento}): {link}")
 
   stripeCustomerId         String?
   stripeSubscriptionId     String?
   stripeSubscriptionStatus String?
 
-  mpSubscriptionId         String?
-  mpSubscriptionStatus     String?
+  mpSubscriptionId     String?
+  mpSubscriptionStatus String?
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  patients     Patient[]
-  appointments Appointment[]
-  documents    Document[]
-  transactions Transaction[]
-  employees    Employee[]
-  clinicalRecords ClinicalRecord[]
-  services     Service[]
+  patients         Patient[]
+  appointments     Appointment[]
+  documents        Document[]
+  transactions     Transaction[]
+  employees        Employee[]
+  clinicalRecords  ClinicalRecord[]
+  services         Service[]
   notificationLogs NotificationLog[]
+  notifications    Notification[]
 }
 
 model Patient {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?
-  phone     String?
-  cpf       String?
-  address   String?
-  notes     String?
-  active    Boolean  @default(true)
-  
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id      String  @id @default(cuid())
+  name    String
+  email   String?
+  phone   String?
+  cpf     String?
+  address String?
+  notes   String?
+  active  Boolean @default(true)
 
-  userId    String?  @unique
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   birthDate      DateTime?
   origin         String?
@@ -82,55 +84,55 @@ model Patient {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  appointments Appointment[]
-  documents    Document[]
-  transactions Transaction[]
+  appointments    Appointment[]
+  documents       Document[]
+  transactions    Transaction[]
   clinicalRecords ClinicalRecord[]
 }
 
 model Service {
-  id          String   @id @default(cuid())
-  name        String
-  price       Float
-  description String?
+  id              String  @id @default(cuid())
+  name            String
+  price           Float
+  description     String?
   whatsappMessage String?
 
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   appointments Appointment[]
   transactions Transaction[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Employee {
-  id        String   @id @default(cuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  roleName  String
-  
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  roleName String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Appointment {
-  id        String   @id @default(cuid())
-  date      DateTime
-  status    String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELED
-  notes     String?
-  patientConfirmed Boolean @default(false)
+  id               String   @id @default(cuid())
+  date             DateTime
+  status           String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELED
+  notes            String?
+  patientConfirmed Boolean  @default(false)
 
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   serviceId String?
   service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
@@ -142,19 +144,19 @@ model Appointment {
 }
 
 model Document {
-  id        String   @id @default(cuid())
-  name      String
-  fileUrl   String
-  type      String   // LAUDO, RECIBO, OUTRO
+  id          String  @id @default(cuid())
+  name        String
+  fileUrl     String
+  type        String // LAUDO, RECIBO, OUTRO
   patientRead Boolean @default(false)
 
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   patientId String?
-  patient   Patient?  @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  patient   Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
 
-  fileData  FileData?
+  fileData FileData?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,32 +166,32 @@ model FileData {
   id         String   @id @default(cuid())
   documentId String   @unique
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  data       String   // Base64 string
+  data       String // Base64 string
   mimeType   String
 }
 
 model Transaction {
-  id              String   @id @default(cuid())
-  amount          Float
-  date            DateTime
-  description     String
-  type            String   // INCOME, EXPENSE
-  status          String   @default("PENDING") // PENDING, PAID, CANCELLED
-  paymentMethod   String?  // PIX, BOLETO, CARD
-  pixKey          String?
-  paymentLink     String?
-  receiptUrl      String?
-  paymentProofUrl String?
+  id               String   @id @default(cuid())
+  amount           Float
+  date             DateTime
+  description      String
+  type             String // INCOME, EXPENSE
+  status           String   @default("PENDING") // PENDING, PAID, CANCELLED
+  paymentMethod    String? // PIX, BOLETO, CARD
+  pixKey           String?
+  paymentLink      String?
+  receiptUrl       String?
+  paymentProofUrl  String?
   paymentProofData String? // Base64 or URL
 
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  patientId       String?
-  patient         Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
 
-  serviceId       String?
-  service         Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -198,32 +200,50 @@ model Transaction {
 }
 
 model ClinicalRecord {
-  id        String   @id @default(cuid())
-  date      DateTime @default(now())
-  content   String
-  
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id      String   @id @default(cuid())
+  date    DateTime @default(now())
+  content String
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model NotificationLog {
-  id              String   @id @default(cuid())
-  type            String   // APPOINTMENT_24H, APPOINTMENT_3H, PAYMENT_REMINDER, etc.
-  appointmentId   String?
-  appointment     Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
-  transactionId   String?
-  transaction     Transaction? @relation(fields: [transactionId], references: [id], onDelete: Cascade)
-  sentAt          DateTime @default(now())
+  id            String       @id @default(cuid())
+  type          String // APPOINTMENT_24H, APPOINTMENT_3H, PAYMENT_REMINDER, etc.
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  sentAt        DateTime     @default(now())
 
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([appointmentId, type])
   @@index([transactionId, type])
+}
+
+model Notification {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId String // Recipient (Psychologist/User)
+  user   User   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  title     String
+  message   String
+  type      String // APPOINTMENT_CONFIRMED, APPOINTMENT_CANCELED, PAYMENT_PROOF_UPLOADED, SYSTEM
+  read      Boolean  @default(false)
+  link      String? // Optional link to related resource
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
 }

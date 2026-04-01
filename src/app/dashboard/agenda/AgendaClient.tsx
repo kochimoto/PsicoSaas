@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar as CalendarIcon, Clock, Plus, X, MessageCircle, CheckCircle2, Ban, Edit2, RefreshCw, User as UserIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus, X, MessageCircle, CheckCircle2, Ban, Edit2, RefreshCw, User as UserIcon, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -33,6 +33,8 @@ export default function AgendaClient({ initialAppointments, patients, services, 
   const [loading, setLoading] = useState(false);
   const [workingId, setWorkingId] = useState("");
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
+  const [pendingData, setPendingData] = useState<any>(null);
   
   const router = useRouter();
 
@@ -66,16 +68,29 @@ export default function AgendaClient({ initialAppointments, patients, services, 
     
     let res;
     if (editAppId) {
-      res = await updateAppointmentDateAction(editAppId, dateTime);
+      res = await updateAppointmentDateAction(editAppId, dateTime, !!pendingData);
     } else {
-      res = await createAppointmentAction({ patientId, date: dateTime, recurring, occurrences, serviceId: serviceId || null });
+      res = await createAppointmentAction({ 
+        patientId, 
+        date: dateTime, 
+        recurring, 
+        occurrences, 
+        serviceId: serviceId || null,
+        force: !!pendingData 
+      });
     }
 
     if (res?.error) {
       setError(res.error);
       toast.error(res.error);
+      setPendingData(null);
+    } else if (res?.warning) {
+      setWarning(res.warning);
+      setPendingData({ ok: true }); // Store anything to indicate we are in "force" mode next time
     } else {
       setIsModalOpen(false);
+      setWarning("");
+      setPendingData(null);
       toast.success(editAppId ? "Sessão Remarcada" : "Sessão Agendada");
       router.refresh();
     }
@@ -213,6 +228,29 @@ export default function AgendaClient({ initialAppointments, patients, services, 
             </div>
             <form onSubmit={handleAdd} className="p-6 space-y-5">
               {error && <div className="p-3 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100">{error}</div>}
+              {warning && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl animate-in zoom-in-95 duration-200">
+                  <div className="flex items-center gap-2 text-amber-800 font-bold mb-2 text-sm">
+                    <AlertCircle className="w-5 h-5 text-amber-500" /> Aviso de Conflito
+                  </div>
+                  <p className="text-sm text-amber-700 font-medium mb-4">{warning}</p>
+                  <div className="flex gap-2">
+                    <button 
+                      type="submit" 
+                      className="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2 rounded-lg transition-all"
+                    >
+                      Confirmar mesmo assim
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => { setWarning(""); setPendingData(null); }}
+                      className="flex-1 bg-white border border-amber-200 text-amber-700 text-xs font-bold py-2 rounded-lg hover:bg-amber-100 transition-all"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
               
               {!editAppId && (
                 <div className="grid grid-cols-2 gap-4">

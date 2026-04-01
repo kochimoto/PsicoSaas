@@ -22,6 +22,8 @@ type Transaction = {
   paymentLink?: string | null;
   receiptUrl?: string | null;
   paymentProofData?: string | null;
+  paymentMethod?: string | null;
+  pixKey?: string | null;
   patient: { name: string } | null;
   service?: { name: string } | null;
 };
@@ -153,7 +155,7 @@ export default function FinanceClient({ initialTransactions, patients, services,
           paymentLink: (paymentMethod === 'CARD' || paymentMethod === 'BOLETO') ? paymentLink : undefined,
           paymentMethod,
           pixKey: paymentMethod === 'PIX' ? pixKey : undefined,
-          paymentProofData: paymentMethod === 'BOLETO' ? paymentProofData : undefined
+          receiptUrl: paymentMethod === 'BOLETO' ? paymentProofData : undefined
         })
       });
       const res = await response.json();
@@ -244,10 +246,23 @@ export default function FinanceClient({ initialTransactions, patients, services,
                          <LinkIcon className="w-5 h-5" />
                        </a>
                     )}
-                     {(t.receiptUrl || t.paymentProofData) && (
+                     {t.paymentMethod === 'BOLETO' && t.receiptUrl && (
                        <button
                          onClick={() => {
-                            const data = t.paymentProofData || t.receiptUrl;
+                           const link = document.createElement('a');
+                           link.href = t.receiptUrl!;
+                           link.download = `boleto_${t.id.substring(0,8)}.pdf`;
+                           link.click();
+                         }}
+                         className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                       >
+                         <Download className="w-3.5 h-3.5" /> Baixar Boleto
+                       </button>
+                     )}
+                     {(t.receiptUrl && t.paymentMethod !== 'BOLETO') && (
+                       <button
+                         onClick={() => {
+                            const data = t.receiptUrl;
                             if (!data) return;
                             if (data.startsWith('http')) {
                                window.open(data, '_blank');

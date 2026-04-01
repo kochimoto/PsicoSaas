@@ -1,12 +1,12 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar, Clock, MapPin, ChevronRight, CheckCircle2, AlertCircle, FileText, Phone, Wallet, Download } from "lucide-react";
+import { Calendar, Clock, MapPin, ChevronRight, CheckCircle2, AlertCircle, FileText, Phone, Wallet, Download, Link as LinkIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { unstable_noStore as noStore } from 'next/cache';
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ConfirmSessionButton, ConfirmDocumentButton, UploadReceiptButton } from "./ConfirmButtons";
+import { ConfirmSessionButton, ConfirmDocumentButton, UploadReceiptButton, CancelSessionButton } from "./ConfirmButtons";
 import LogoutButton from "./LogoutButton";
 
 export const dynamic = 'force-dynamic';
@@ -96,9 +96,18 @@ export default async function PortalPage() {
                   <div>
                     <p className="font-bold text-slate-800 text-lg capitalize">{format(new Date(app.date), "EEEE", { locale: ptBR })}</p>
                     <div className="text-sm font-semibold text-slate-500 flex items-center gap-3 mt-1">
-                       <span>{format(new Date(app.date), 'HH:mm')}</span>
-                       <ConfirmSessionButton id={app.id} confirmed={app.patientConfirmed} />
-                    </div>
+                        <span>{format(new Date(app.date), 'HH:mm')}</span>
+                        {app.status === 'SCHEDULED' ? (
+                          <div className="flex items-center gap-2">
+                            <ConfirmSessionButton id={app.id} confirmed={app.patientConfirmed} />
+                            {!app.patientConfirmed && <CancelSessionButton id={app.id} />}
+                          </div>
+                        ) : app.status === 'COMPLETED' ? (
+                          <span className="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-100 uppercase tracking-widest text-[10px] font-bold flex items-center gap-1">Sessão Realizada</span>
+                        ) : (
+                          <span className="text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-lg border border-rose-100 uppercase tracking-widest text-[10px] font-bold flex items-center gap-1">Sessão Cancelada</span>
+                        )}
+                      </div>
                   </div>
                 </div>
               ))}
@@ -129,7 +138,39 @@ export default async function PortalPage() {
                     </div>
                     <div className="flex flex-col sm:items-end gap-3">
                        <span className={`font-black text-xl tracking-tight ${t.status === 'PAID' ? 'text-emerald-600' : 'text-rose-600'}`}>R$ {Math.abs(t.amount).toFixed(2).replace('.', ',')}</span>
-                       {t.status === 'PENDING' && <UploadReceiptButton id={t.id} hasReceipt={!!t.paymentProofData} />}
+                       {t.status === 'PENDING' && (
+                         <div className="flex flex-col gap-2 w-full sm:w-auto">
+                           {t.paymentMethod === 'PIX' && t.pixKey && (
+                             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Chave Pix</p>
+                               <p className="text-sm font-bold text-slate-700 select-all">{t.pixKey}</p>
+                             </div>
+                           )}
+                           {t.paymentMethod === 'BOLETO' && t.receiptUrl && (
+                             <button
+                               onClick={() => {
+                                 const link = document.createElement('a');
+                                 link.href = t.receiptUrl!;
+                                 link.download = `boleto_${t.id.substring(0,8)}.pdf`;
+                                 link.click();
+                               }}
+                               className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                             >
+                               <Download className="w-3.5 h-3.5" /> Baixar Boleto
+                             </button>
+                           )}
+                           {(t.paymentMethod === 'CARD' || t.paymentLink) && t.paymentLink && (
+                             <Link
+                               href={t.paymentLink}
+                               target="_blank"
+                               className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg border border-purple-100 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-purple-100 transition-colors"
+                             >
+                               <LinkIcon className="w-3.5 h-3.5" /> Link de Pagamento
+                             </Link>
+                           )}
+                           <UploadReceiptButton id={t.id} hasReceipt={!!t.paymentProofData} />
+                         </div>
+                       )}
                     </div>
                   </div>
                 ))}

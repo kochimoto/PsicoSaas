@@ -6,7 +6,15 @@ import { sendTextMessage } from "@/lib/whatsapp";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-export async function createAppointmentAction(data: { patientId: string, date: Date, notes?: string, recurring?: "NONE" | "WEEKLY" | "BIWEEKLY", occurrences?: number, serviceId?: string | null }) {
+export async function createAppointmentAction(data: { 
+  patientId: string, 
+  date: Date, 
+  notes?: string, 
+  recurring?: "NONE" | "WEEKLY" | "BIWEEKLY", 
+  occurrences?: number, 
+  serviceId?: string | null,
+  force?: boolean 
+}) {
   const session = await getSession();
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
@@ -18,7 +26,6 @@ export async function createAppointmentAction(data: { patientId: string, date: D
     const recurrence = data.recurring || "NONE";
     const loops = recurrence === "NONE" ? 1 : Math.max(1, Math.min(24, data.occurrences || 4));
     const datesToBook: Date[] = [];
-
     let currentDate = new Date(data.date);
     for (let i = 0; i < loops; i++) {
        datesToBook.push(new Date(currentDate));
@@ -28,6 +35,51 @@ export async function createAppointmentAction(data: { patientId: string, date: D
          currentDate.setDate(currentDate.getDate() + 14);
        }
     }
+
+    // --- Collision Check ---
+    const startRange = new Date(datesToBook[0]);
+    startRange.setHours(startRange.getHours() - 1);
+    const endRange = new Date(datesToBook[datesToBook.length - 1]);
+    endRange.setHours(endRange.getHours() + 1);
+
+    const existing = await db.appointment.findMany({
+      where: {
+        tenantId: tenant.id,
+        status: { in: ['SCHEDULED', 'COMPLETED'] },
+        date: {
+          gte: startRange,
+          lte: endRange
+        }
+      }
+    });
+
+    let strictCollision = false;
+    let nearCollision = false;
+
+    for (const d of datesToBook) {
+      const exactMatch = existing.find(e => e.date.getTime() === d.getTime());
+      if (exactMatch) {
+         strictCollision = true;
+         break;
+      }
+      
+      const nearMatch = existing.find(e => {
+        const diff = Math.abs(e.date.getTime() - d.getTime());
+        return diff < 60 * 60 * 1000; // 1 hour
+      });
+      if (nearMatch) {
+        nearCollision = true;
+      }
+    }
+
+    if (strictCollision) {
+      return { error: "Já existe uma sessão exatamente neste horário." };
+    }
+
+    if (nearCollision && !data.force) {
+      return { warning: "Você tem uma sessão próxima (intervalo menor que 1h). Deseja confirmar mesmo assim?" };
+    }
+    // ------------------------
 
     const creates = datesToBook.map(d => ({
         date: d,
@@ -71,7 +123,7 @@ export async function createAppointmentAction(data: { patientId: string, date: D
   }
 }
 
-export async function updateAppointmentDateAction(id: string, date: Date) {
+export async function updateAppointmentDateAction(id: string, date: Date, force?: boolean) {
   const session = await getSession();
   if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
 
@@ -82,6 +134,30 @@ export async function updateAppointmentDateAction(id: string, date: Date) {
 
     const app = await db.appointment.findFirst({ where: { id, tenantId: tenant.id } });
     if (!app) return { error: "Sessão não existe" };
+
+    // --- Collision Check (Single) ---
+    const startR = new Date(date);
+    startR.setHours(startR.getHours() - 1);
+    const endR = new Date(date);
+    endR.setHours(endR.getHours() + 1);
+
+    const existing = await db.appointment.findMany({
+      where: {
+        tenantId: tenant.id,
+        id: { not: id },
+        status: { in: ['SCHEDULED', 'COMPLETED'] },
+        date: { gte: startR, lte: endR }
+      }
+    });
+
+    const exact = existing.find(e => e.date.getTime() === new Date(date).getTime());
+    if (exact) return { error: "Já existe uma sessão exatamente neste horário." };
+
+    const near = existing.find(e => Math.abs(e.date.getTime() - new Date(date).getTime()) < 60 * 60 * 1000);
+    if (near && !force) {
+      return { warning: "Você tem uma sessão próxima (intervalo menor que 1h). Deseja confirmar mesmo assim?" };
+    }
+    // --------------------------------
 
     await db.appointment.update({
       where: { id },

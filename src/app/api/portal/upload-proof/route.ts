@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { createNotification } from "@/app/actions/notifications";
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -27,9 +28,21 @@ export async function POST(request: Request) {
       where: { id: transactionId },
       data: {
         paymentProofData: base64Data,
-        status: "PAID",
+        // Status remains PENDING until professional approves
       }
     });
+
+    const tenant = await prisma.tenant.findUnique({ where: { id: transaction.tenantId } });
+    if (tenant) {
+      await createNotification({
+        tenantId: tenant.id,
+        userId: tenant.ownerId,
+        title: "Comprovante Recebido",
+        message: `O paciente ${patientRow.name} enviou um comprovante para: ${transaction.description}.`,
+        type: "PAYMENT_PROOF_UPLOADED",
+        link: "/dashboard/financeiro"
+      });
+    }
 
     revalidatePath("/portal");
     revalidatePath(`/dashboard/pacientes/${patientRow.id}`);
