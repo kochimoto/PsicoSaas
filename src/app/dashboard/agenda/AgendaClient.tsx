@@ -223,16 +223,14 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                       </>
                     )}
 
-                    {(appointment.status === 'COMPLETED' || appointment.status === 'CANCELED') && (
-                      <button
-                        disabled={loading}
-                        onClick={() => handleDelete(appointment.id)}
-                        className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all active:scale-95 border border-transparent hover:border-rose-100"
-                        title="Excluir Sessão"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    )}
+                    <button
+                      disabled={loading}
+                      onClick={() => handleDelete(appointment.id)}
+                      className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all active:scale-95 border border-transparent hover:border-rose-100"
+                      title="Excluir Sessão"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
               );

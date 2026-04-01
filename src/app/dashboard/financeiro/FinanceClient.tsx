@@ -259,6 +259,22 @@ export default function FinanceClient({ initialTransactions, patients, services,
                          <Download className="w-3.5 h-3.5" /> Baixar Boleto
                        </button>
                      )}
+                     {(t.paymentProofData) && (
+                       <button
+                         onClick={() => {
+                            const data = t.paymentProofData;
+                            if (!data) return;
+                            const link = document.createElement('a');
+                            link.href = data;
+                            link.download = `comprovante_paciente_${t.id.substring(0,8)}.${data.includes('pdf') ? 'pdf' : 'png'}`;
+                            link.click();
+                         }}
+                         className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-100" 
+                         title="Baixar Comprovante do Paciente"
+                       >
+                         <Download className="w-5 h-5" />
+                       </button>
+                     )}
                      {(t.receiptUrl && t.paymentMethod !== 'BOLETO') && (
                        <button
                          onClick={() => {

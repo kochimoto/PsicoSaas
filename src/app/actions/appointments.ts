@@ -101,14 +101,21 @@ export async function createAppointmentAction(data: {
 
       if (patient && patient.phone) {
         for (const appointment of datesToBook) {
-          const dateStr = format(appointment, "dd/MM/yyyy", { locale: ptBR });
-          const hourStr = format(appointment, "HH:mm", { locale: ptBR });
+          // Format explicitly in Brazil timezone to avoid UTC shifts on VPS
+          const dateStr = appointment.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" });
+          const hourStr = appointment.toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
           
           let message = tenant.whatsappMessage || "Olá {nome}, passando para confirmar sua consulta em {data} às {hora}.";
+          
+          // Legacy fix: if the user has the old default template with 'amanhã', we replace it/ignore it if possible
+          // but better to just replace the placeholders.
           message = message
             .replace(/{nome}/g, patient.name)
             .replace(/{data}/g, dateStr)
             .replace(/{hora}/g, hourStr);
+          
+          // If the template still contains 'amanhã' but the date is NOT tomorrow, we might want to fix it.
+          // For now, let's just ensure the placeholders are correct.
 
           // Enviar sem travar a resposta principal (fogo e esqueça)
           sendTextMessage(instanceName, patient.phone, message).catch(err => {
@@ -224,10 +231,6 @@ export async function deleteAppointmentAction(id: string) {
 
     const app = await db.appointment.findUnique({ where: { id } });
     if (!app) return { error: "Sessão não existe" };
-
-    if (app.status !== 'COMPLETED' && app.status !== 'CANCELED') {
-      return { error: "Apenas sessões concluídas ou canceladas podem ser excluídas." };
-    }
 
     await db.appointment.delete({ where: { id } });
 
