@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, Menu, MessageCircle, Crown, Tag, Globe, X } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, Menu, MessageCircle, Crown, Tag, Globe, X, LifeBuoy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import LogoutButton from "@/components/LogoutButton";
@@ -19,6 +19,11 @@ const navigation = [
   { name: 'WhatsApp', href: '/dashboard/whatsapp', icon: MessageCircle },
   { name: 'Configurações', href: '/dashboard/configuracoes', icon: Settings },
   { name: 'Assinatura VIP', href: '/dashboard/assinatura', icon: Crown },
+  { 
+    name: 'Suporte', 
+    href: 'https://wa.me/5571984584757?text=Olá,%20quero%20tirar%20dúvidas%20sobre%20o%20Gestão%20Terapêutica', 
+    icon: LifeBuoy 
+  },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -52,6 +57,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <nav className="grid grid-cols-2 gap-2">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
+              const isExternal = item.href.startsWith('http');
+              
+              if (isExternal) {
+                return (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex items-center p-3 text-xs font-bold rounded-2xl transition-all active:scale-95 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  >
+                    <item.icon className="mr-2 h-4 w-4 text-slate-400" />
+                    {item.name}
+                  </a>
+                );
+              }
+
               return (
                 <Link
                   key={item.name}
@@ -102,6 +125,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100%-4rem)]">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
+            const isExternal = item.href.startsWith('http');
+
+            if (isExternal) {
+              return (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                >
+                  <item.icon className="mr-3 h-5 w-5 text-slate-400" />
+                  {item.name}
+                </a>
+              );
+            }
+
             return (
               <Link
                 key={item.name}
