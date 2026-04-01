@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar as CalendarIcon, Clock, Plus, X, MessageCircle, CheckCircle2, Ban, Edit2, RefreshCw, User as UserIcon, AlertCircle } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus, X, MessageCircle, CheckCircle2, Ban, Edit2, RefreshCw, User as UserIcon, AlertCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { createAppointmentAction, updateAppointmentStatusAction, updateAppointmentDateAction } from "@/app/actions/appointments";
+import { createAppointmentAction, updateAppointmentStatusAction, updateAppointmentDateAction, deleteAppointmentAction } from "@/app/actions/appointments";
 import { sendManualReminderAction } from "@/app/actions/whatsapp";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -92,6 +92,19 @@ export default function AgendaClient({ initialAppointments, patients, services, 
       setWarning("");
       setPendingData(null);
       toast.success(editAppId ? "Sessão Remarcada" : "Sessão Agendada");
+      router.refresh();
+    }
+    setLoading(false);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Tem certeza que deseja excluir permanentemente esta sessão?")) return;
+    setLoading(true);
+    const res = await deleteAppointmentAction(id);
+    if (res?.error) {
+      toast.error(res.error);
+    } else {
+      toast.success("Sessão excluída");
       router.refresh();
     }
     setLoading(false);
@@ -208,6 +221,17 @@ export default function AgendaClient({ initialAppointments, patients, services, 
                           <Ban className="w-4 h-4" /> Cancelar
                         </button>
                       </>
+                    )}
+
+                    {(appointment.status === 'COMPLETED' || appointment.status === 'CANCELED') && (
+                      <button
+                        disabled={loading}
+                        onClick={() => handleDelete(appointment.id)}
+                        className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all active:scale-95 border border-transparent hover:border-rose-100"
+                        title="Excluir Sessão"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     )}
                   </div>
                 </div>

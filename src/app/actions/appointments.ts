@@ -3,7 +3,7 @@
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { sendTextMessage } from "@/lib/whatsapp";
-import { format } from "date-fns";
+import { format, isSameDay, differenceInMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export async function createAppointmentAction(data: { 
@@ -57,16 +57,20 @@ export async function createAppointmentAction(data: {
     let nearCollision = false;
 
     for (const d of datesToBook) {
+      // 1. Exact Match on same day/time
       const exactMatch = existing.find(e => e.date.getTime() === d.getTime());
       if (exactMatch) {
          strictCollision = true;
          break;
       }
       
+      // 2. Proximity (1h) on the SAME DAY
       const nearMatch = existing.find(e => {
-        const diff = Math.abs(e.date.getTime() - d.getTime());
-        return diff < 60 * 60 * 1000; // 1 hour
+        if (!isSameDay(e.date, d)) return false;
+        const diffMinutes = Math.abs(differenceInMinutes(e.date, d));
+        return diffMinutes < 60;
       });
+      
       if (nearMatch) {
         nearCollision = true;
       }
@@ -153,7 +157,12 @@ export async function updateAppointmentDateAction(id: string, date: Date, force?
     const exact = existing.find(e => e.date.getTime() === new Date(date).getTime());
     if (exact) return { error: "Já existe uma sessão exatamente neste horário." };
 
-    const near = existing.find(e => Math.abs(e.date.getTime() - new Date(date).getTime()) < 60 * 60 * 1000);
+    const near = existing.find(e => {
+      if (!isSameDay(e.date, date)) return false;
+      const diffM = Math.abs(differenceInMinutes(e.date, date));
+      return diffM < 60;
+    });
+
     if (near && !force) {
       return { warning: "Você tem uma sessão próxima (intervalo menor que 1h). Deseja confirmar mesmo assim?" };
     }
@@ -203,5 +212,29 @@ export async function updateAppointmentStatusAction(id: string, status: string) 
   } catch (error) {
     console.error(error);
     return { error: "Erro ao atualizar status." };
+  }
+}
+
+export async function deleteAppointmentAction(id: string) {
+  const session = await getSession();
+  if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
+
+  try {
+    const { prisma: db } = await import("@/lib/prisma");
+
+    const app = await db.appointment.findUnique({ where: { id } });
+    if (!app) return { error: "Sessão não existe" };
+
+    if (app.status !== 'COMPLETED' && app.status !== 'CANCELED') {
+      return { error: "Apenas sessões concluídas ou canceladas podem ser excluídas." };
+    }
+
+    await db.appointment.delete({ where: { id } });
+
+    revalidatePath("/dashboard/agenda");
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: "Erro ao excluir sessão." };
   }
 }
