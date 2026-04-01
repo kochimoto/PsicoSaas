@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, Menu, MessageCircle, Crown, Tag, Globe, X, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, FileText, Wallet, Settings, Menu, MessageCircle, Crown, Tag, Globe, X, LifeBuoy, Video } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import LogoutButton from "@/components/LogoutButton";
@@ -19,6 +19,11 @@ const navigation = [
   { name: 'WhatsApp', href: '/dashboard/whatsapp', icon: MessageCircle },
   { name: 'Configurações', href: '/dashboard/configuracoes', icon: Settings },
   { name: 'Assinatura VIP', href: '/dashboard/assinatura', icon: Crown },
+  { 
+    name: 'Tutoriais', 
+    href: 'https://youtube.com/playlist?list=PLrB34VfLmMVMOJoolttAKEGthEYGN2lBJ&si=D4T9ImTJkgNJE5R-', 
+    icon: Video 
+  },
   { 
     name: 'Suporte', 
     href: 'https://wa.me/5571984584757?text=Olá,%20quero%20tirar%20dúvidas%20sobre%20o%20Gestão%20Terapêutica', 
