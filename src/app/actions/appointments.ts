@@ -94,38 +94,6 @@ export async function createAppointmentAction(data: {
 
     await db.appointment.createMany({ data: creates });
 
-    // --- Lógica de WhatsApp ---
-    if (tenant.whatsappEnabled && tenant.whatsappNumber) {
-      const patient = await db.patient.findUnique({ where: { id: data.patientId } });
-      const instanceName = `psico_${tenant.id.substring(0, 8)}`;
-
-      if (patient && patient.phone) {
-        for (const appointment of datesToBook) {
-          // Format explicitly in Brazil timezone to avoid UTC shifts on VPS
-          const dateStr = appointment.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" });
-          const hourStr = appointment.toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
-          
-          let message = tenant.whatsappMessage || "Olá {nome}, passando para confirmar sua consulta em {data} às {hora}.";
-          
-          // Legacy fix: if the user has the old default template with 'amanhã', we replace it/ignore it if possible
-          // but better to just replace the placeholders.
-          message = message
-            .replace(/{nome}/g, patient.name)
-            .replace(/{data}/g, dateStr)
-            .replace(/{hora}/g, hourStr);
-          
-          // If the template still contains 'amanhã' but the date is NOT tomorrow, we might want to fix it.
-          // For now, let's just ensure the placeholders are correct.
-
-          // Enviar sem travar a resposta principal (fogo e esqueça)
-          sendTextMessage(instanceName, patient.phone, message).catch(err => {
-             console.error("Erro ao enviar WhatsApp automático:", err);
-          });
-        }
-      }
-    }
-    // ---------------------------
-
     revalidatePath("/dashboard/agenda");
     return { success: true };
   } catch (error) {
