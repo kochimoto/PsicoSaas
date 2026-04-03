@@ -5,11 +5,45 @@ import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { getConnectionState, createInstance, getQrCode } from "@/lib/whatsapp";
+import { addMonths } from "date-fns";
 
 async function verifySuperAdmin() {
   const session = await getSession();
   if (!session || session.user.role !== "SUPER_ADMIN") {
     throw new Error("Não autorizado");
+  }
+}
+
+export async function addVipMonthsAction(tenantId: string, months: number) {
+  try {
+    await verifySuperAdmin();
+    
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { planExpiresAt: true }
+    });
+
+    if (!tenant) throw new Error("Tenant não encontrado");
+
+    // Se já tem uma data no futuro, adiciona a partir dela. Se não, adiciona a partir de agora.
+    const baseDate = tenant.planExpiresAt && new Date(tenant.planExpiresAt) > new Date() 
+      ? new Date(tenant.planExpiresAt) 
+      : new Date();
+
+    const newExpiration = addMonths(baseDate, months);
+
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: { 
+        plan: 'VIP',
+        planExpiresAt: newExpiration
+      }
+    });
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error.message || "Erro ao adicionar VIP" };
   }
 }
 

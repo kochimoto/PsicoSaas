@@ -92,6 +92,13 @@ export default async function DashboardPage() {
             <span className="text-sm font-bold">{remainingTrialDays} {remainingTrialDays === 1 ? 'dia' : 'dias'} de VIP restante</span>
           </div>
         )}
+
+        {tenant.planExpiresAt && new Date(tenant.planExpiresAt) > now && (
+          <div className="bg-indigo-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-bold uppercase tracking-wider">VIP ATIVO ATÉ {new Date(tenant.planExpiresAt).toLocaleDateString('pt-BR')}</span>
+          </div>
+        )}
       </div>
 
       {!isVip && (
@@ -162,6 +169,12 @@ export default async function DashboardPage() {
               <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 text-sm">
                 <span className="font-bold block mb-1">Período de Experiência</span>
                 Aproveite todos os recursos VIP gratuitamente pelos primeiros 7 dias.
+              </div>
+            )}
+            {tenant.planExpiresAt && (
+              <div className="p-4 rounded-xl bg-purple-50 border border-purple-100 text-purple-700 text-sm">
+                <span className="font-bold block mb-1">Sua Assinatura VIP</span>
+                Seu acesso VIP está garantido até o dia {new Date(tenant.planExpiresAt).toLocaleDateString('pt-BR')}.
               </div>
             )}
           </div>

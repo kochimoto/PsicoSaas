@@ -47,6 +47,8 @@ model Tenant {
   mpSubscriptionId     String?
   mpSubscriptionStatus String?
 
+  planExpiresAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

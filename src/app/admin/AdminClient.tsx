@@ -8,9 +8,11 @@ import {
 import { 
   updateTenantPlanAction, 
   deleteAccountAction, 
-  resetPasswordAction 
+  resetPasswordAction,
+  addVipMonthsAction
 } from "@/app/actions/admin";
 import { toast } from "sonner";
+import { Plus, Clock as ClockIcon } from "lucide-react";
 
 export default function AdminClient({ initialTenants }: { initialTenants: any[] }) {
   const [tenants, setTenants] = useState(initialTenants);
@@ -45,6 +47,21 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
     } else {
       toast.error(res.error || "Erro ao atualizar plano");
     }
+  }
+
+  async function handleAddVip(id: string, months: number) {
+    setLoading(true);
+    const res = await addVipMonthsAction(id, months);
+    if (res.success) {
+      // Forçamos um reload ou atualizamos o estado local se tivéssemos a data fácil
+      // Como a ação revalida, o ideal seria que o componente pai passasse os dados atualizados
+      // Mas para uma UI rápida, vamos apenas avisar que deu certo e sugerir refresh ou confiar na revalidação
+      toast.success(`${months} meses de VIP adicionados`);
+      window.location.reload(); // Simples para garantir consistência dos dados complexos de data
+    } else {
+      toast.error(res.error || "Erro ao adicionar VIP");
+    }
+    setLoading(false);
   }
 
   return (
@@ -83,6 +100,7 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
               <tr>
                 <th className="px-6 py-4">Clínica / Profissional</th>
                 <th className="px-6 py-4">Plano</th>
+                <th className="px-6 py-4">Vencimento VIP</th>
                 <th className="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
@@ -100,6 +118,26 @@ export default function AdminClient({ initialTenants }: { initialTenants: any[] 
                     >
                       {t.plan}
                     </button>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-2">
+                       <div className="text-xs font-medium text-slate-700">
+                          {t.planExpiresAt ? new Date(t.planExpiresAt).toLocaleDateString('pt-BR') : 'Sem expiração'}
+                       </div>
+                       <div className="flex items-center gap-1">
+                          {[1, 3, 6, 12].map(m => (
+                            <button 
+                              key={m}
+                              onClick={() => handleAddVip(t.id, m)}
+                              disabled={loading}
+                              className="px-1.5 py-0.5 bg-slate-100 hover:bg-teal-500 hover:text-white rounded text-[9px] font-bold transition-colors"
+                              title={`Adicionar ${m} meses`}
+                            >
+                              +{m}m
+                            </button>
+                          ))}
+                       </div>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right">
                      <div className="flex items-center justify-end gap-2">
