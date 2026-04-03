@@ -19,6 +19,7 @@ export default function EditClientForm({ patient }: { patient: any }) {
     active: patient.active,
     portalLogin: patient.user?.email || "",
     portalPassword: "",
+    createPortalAccess: false,
     birthDate: patient.birthDate ? new Date(patient.birthDate).toISOString().split('T')[0] : "",
     origin: patient.origin || "",
     treatmentStart: patient.treatmentStart ? new Date(patient.treatmentStart).toISOString().split('T')[0] : ""
@@ -143,6 +144,49 @@ export default function EditClientForm({ patient }: { patient: any }) {
            />
            <label htmlFor="active-check" className="text-sm font-bold text-slate-600 cursor-pointer">Paciente está ativo no consultório</label>
         </div>
+
+        {!patient.userId && (
+          <div className="pt-6 border-t border-slate-100 space-y-4">
+            <div className="flex items-center gap-2 text-teal-700">
+              <Shield className="w-5 h-5" />
+              <h3 className="font-bold text-sm uppercase tracking-wider">Acesso ao Portal do Paciente</h3>
+            </div>
+            
+            <div className="flex items-center gap-2">
+               <input 
+                type="checkbox" checked={formData.createPortalAccess}
+                onChange={e => setFormData({...formData, createPortalAccess: e.target.checked})}
+                className="w-5 h-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                id="create-portal-check"
+               />
+               <label htmlFor="create-portal-check" className="text-sm font-bold text-slate-600 cursor-pointer">Criar acesso ao portal agora</label>
+            </div>
+
+            {formData.createPortalAccess && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-1">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase ml-1">Usuário / Login (Email)</label>
+                  <input 
+                    value={formData.portalLogin}
+                    onChange={e => setFormData({...formData, portalLogin: e.target.value})}
+                    placeholder="Ex: joao@email.com"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase ml-1">Senha de Acesso</label>
+                  <input 
+                    type="text"
+                    value={formData.portalPassword}
+                    onChange={e => setFormData({...formData, portalPassword: e.target.value})}
+                    placeholder="Defina uma senha"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {patient.userId && (
           <div className="pt-6 border-t border-slate-100 space-y-6">

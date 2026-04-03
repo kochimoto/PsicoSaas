@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { addClinicalRecord } from "@/app/actions/records";
 import { revalidatePath } from "next/cache";
+import PatientActions from "./PatientActions";
 
 export default async function PatientDetailsPage({ params }: { params: any }) {
   const session = await getSession();
@@ -49,9 +50,14 @@ export default async function PatientDetailsPage({ params }: { params: any }) {
             <h1 className="text-2xl font-bold text-slate-900">{patient.name}</h1>
             <p className="text-slate-500 text-sm mb-6 capitalize">{patient.active ? 'Paciente Ativo' : 'Inativo'}</p>
             
-            <div className="grid grid-cols-2 gap-3">
-              <Link href={`/dashboard/pacientes/${id}/editar`} className="bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold text-xs transition-all">Editar Cadastro</Link>
-              <button className="bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 rounded-xl font-bold text-xs transition-all border border-rose-100">Desativar</button>
+            <div className="space-y-3">
+              <Link 
+                href={`/dashboard/pacientes/${id}/editar`} 
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-2xl font-bold text-xs transition-all text-center flex items-center justify-center shadow-lg shadow-slate-900/10"
+              >
+                Editar Dados do Cadastro
+              </Link>
+              <PatientActions patientId={id} active={patient.active} hasPortal={!!patient.userId} />
             </div>
           </div>
 

@@ -103,28 +103,39 @@ export async function updatePatientAction(id: string, data: PatientData) {
     const patient = await db.patient.findFirst({ where: { id, tenantId: tenant.id }, include: { user: true } });
     if (!patient) return { error: "Paciente não encontrado" };
 
-    // Atualiza dados do Usuário (Portal) se existirem
+    // Atualiza/Cria dados do Usuário (Portal)
+    let finalUserId = patient.userId;
+
     if (patient.userId) {
       const updateData: any = {};
-      
-      // Se informou nova senha
       if (data.portalPassword) {
         updateData.password = await bcrypt.hash(data.portalPassword, 10);
       }
-
-      // Se alterou o login/email
       if (data.portalLogin && data.portalLogin !== patient.user?.email) {
         const existing = await db.user.findUnique({ where: { email: data.portalLogin } });
         if (existing) return { error: "Este novo login/e-mail já está em uso." };
         updateData.email = data.portalLogin;
       }
-
       if (Object.keys(updateData).length > 0) {
         await db.user.update({
           where: { id: patient.userId },
           data: updateData
         });
       }
+    } else if (data.createPortalAccess && data.portalLogin && data.portalPassword) {
+      const existing = await db.user.findUnique({ where: { email: data.portalLogin } });
+      if (existing) return { error: "Este login/e-mail já está em uso para o portal." };
+
+      const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
+      const newUser = await db.user.create({
+        data: {
+          name: data.name,
+          email: data.portalLogin,
+          password: hashedPassword,
+          role: "PACIENTE"
+        }
+      });
+      finalUserId = newUser.id;
     }
 
     await db.patient.update({
@@ -140,6 +151,7 @@ export async function updatePatientAction(id: string, data: PatientData) {
         birthDate: (data.birthDate && !isNaN(Date.parse(data.birthDate))) ? new Date(data.birthDate) : null,
         origin: data.origin || null,
         treatmentStart: (data.treatmentStart && !isNaN(Date.parse(data.treatmentStart))) ? new Date(data.treatmentStart) : null,
+        userId: finalUserId
       }
     });
 
@@ -164,12 +176,65 @@ export async function deletePatientAction(id: string) {
     const patient = await db.patient.findFirst({ where: { id, tenantId: tenant.id } });
     if (!patient) return { error: "Paciente não encontrado" };
     
+    const userId = patient.userId;
+    
+    // Deleta o paciente primeiro
     await db.patient.delete({ where: { id } });
+
+    // Se houver usuário associado, deleta ele também
+    if (userId) {
+      await db.user.delete({ where: { id: userId } });
+    }
+
     revalidatePath("/dashboard/pacientes");
     return { success: true };
   } catch(err) {
     console.error(err);
     return { error: "Erro interno ao excluir paciente." };
+  }
+}
+
+export async function createPortalAccessForExistingPatientAction(patientId: string, data: { portalLogin: string; portalPassword: string }) {
+  const session = await getSession();
+  if (!session || session.user.role !== "PSICOLOGO") return { error: "Não autorizado" };
+
+  try {
+    const { prisma: db } = await import("@/lib/prisma");
+    const tenant = await db.tenant.findUnique({ where: { ownerId: session.user.id } });
+    if (!tenant) return { error: "Clínica não encontrada" };
+
+    const patient = await db.patient.findFirst({ where: { id: patientId, tenantId: tenant.id } });
+    if (!patient) return { error: "Paciente não encontrado" };
+    if (patient.userId) return { error: "Este paciente já possui acesso ao portal." };
+
+    const existingUser = await db.user.findUnique({ where: { email: data.portalLogin } });
+    if (existingUser) return { error: "Este nome de usuário/e-mail já está em uso." };
+
+    const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
+    const newUser = await db.user.create({
+      data: {
+        name: patient.name,
+        email: data.portalLogin,
+        password: hashedPassword,
+        role: "PACIENTE"
+      }
+    });
+
+    await db.patient.update({
+      where: { id: patientId },
+      data: { userId: newUser.id }
+    });
+
+    revalidatePath("/dashboard/pacientes");
+    revalidatePath(`/dashboard/pacientes/${patientId}`);
+    
+    return { 
+      success: true, 
+      message: `Acesso ao Portal Criado!\n\nWebsite: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/portal\nUsuário: ${data.portalLogin}\nSenha: ${data.portalPassword}`
+    };
+  } catch (err) {
+    console.error(err);
+    return { error: "Erro interno ao criar acesso ao portal." };
   }
 }
 
