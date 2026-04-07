@@ -118,6 +118,67 @@ export async function loginAction(data: LoginData) {
   }
 }
 
+import { sendPasswordRecoveryEmail } from "@/lib/mail";
+
+// ... (existing RegisterData interface)
+
+export async function forgotPasswordAction(email: string) {
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    
+    if (!user) {
+      // For security, don't reveal if user exists or not
+      return { success: true };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetExpires = new Date(Date.now() + 3600000); // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: resetExpires,
+      },
+    });
+
+    await sendPasswordRecoveryEmail(user.email, user.name, resetToken);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error in forgotPasswordAction:", error);
+    return { error: "Erro ao processar solicitação. Tente novamente." };
+  }
+}
+
+export async function resetPasswordAction(token: string, newPass: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { resetPasswordToken: token },
+    });
+
+    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      return { error: "Token inválido ou expirado." };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error in resetPasswordAction:", error);
+    return { error: "Erro ao redefinir senha. Tente novamente." };
+  }
+}
+
 export async function logoutAction() {
   await clearSession();
   redirect("/login");

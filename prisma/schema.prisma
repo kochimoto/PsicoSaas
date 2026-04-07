@@ -21,6 +21,9 @@ model User {
   emailVerified     DateTime?
   verificationToken String?   @unique
 
+  resetPasswordToken   String?   @unique
+  resetPasswordExpires DateTime?
+
   tenantOwner   Tenant?        @relation("TenantOwner")
   patient       Patient?
   employee      Employee?

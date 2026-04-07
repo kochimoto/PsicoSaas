@@ -102,9 +102,9 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-between">
               <div className="text-sm">
-                <a href="#" className="font-semibold text-blue-600 hover:text-blue-500">
+                <Link href="/esqueceu-senha" title="Recuperar Senha" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
                   Esqueceu a senha?
-                </a>
+                </Link>
               </div>
             </div>
 
