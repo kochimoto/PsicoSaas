@@ -57,7 +57,6 @@ export async function createInstance(instanceName: string) {
   try {
     return await whatsApiRequest("/instance/create", "POST", {
       instanceName,
-      token: WHATS_API_KEY,
       qrcode: true,
     });
   } catch (error: any) {
@@ -66,7 +65,6 @@ export async function createInstance(instanceName: string) {
       await deleteInstance(instanceName).catch(() => {});
       return await whatsApiRequest("/instance/create", "POST", {
         instanceName,
-        token: WHATS_API_KEY,
         qrcode: true,
       });
     }
