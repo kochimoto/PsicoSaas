@@ -6,7 +6,7 @@ const WHATS_API_URL = (process.env.WHATS_API_URL || "http://evolution:8080").rep
 const WHATS_API_KEY = (process.env.WHATS_API_KEY || "123456").replace(/"/g, "").trim();
 
 export async function whatsApiRequest(endpoint: string, method = "GET", body?: any) {
-  const url = `http://evolution:8080${endpoint}`;
+  const url = `${WHATS_API_URL}${endpoint}`;
   
   const options: RequestInit = {
     method,
@@ -32,11 +32,15 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
     // Melhora o report de erro para ler arrays internos (comum na Evolution)
     let errMsg = response.statusText;
     if (data?.message) {
-      if (Array.isArray(data.message) && Array.isArray(data.message[0])) {
-        errMsg = JSON.stringify(data.message[0]);
+      if (Array.isArray(data.message)) {
+        errMsg = data.message.join(", ");
       } else {
         errMsg = typeof data.message === 'object' ? JSON.stringify(data.message) : data.message;
       }
+    } else if (data?.response?.message) {
+      // Formato common em algumas versões: data.response.message
+      const msg = data.response.message;
+      errMsg = Array.isArray(msg) ? msg.join(", ") : String(msg);
     }
     
     console.error(`[WA] Response Error [Status: ${response.status}]:`, JSON.stringify(data));
@@ -99,11 +103,25 @@ export async function getConnectionState(instanceName: string) {
   }
 }
 
+export async function logoutInstance(instanceName: string) {
+  try {
+    await whatsApiRequest(`/instance/logout/${instanceName}`, "DELETE");
+    return true;
+  } catch (err: any) {
+    console.warn(`[WA] Logout failed (expected if already disconnected):`, err.message);
+    return false;
+  }
+}
+
 export async function deleteInstance(instanceName: string) {
   try {
+    // Tenta logout primeiro para limpar arquivos de sessão/memória
+    await logoutInstance(instanceName).catch(() => {});
+    
     await whatsApiRequest(`/instance/delete/${instanceName}`, "DELETE");
     return true;
-  } catch {
+  } catch (err: any) {
+    console.error(`[WA] Delete failed:`, err.message);
     return false;
   }
 }

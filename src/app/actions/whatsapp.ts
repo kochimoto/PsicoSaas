@@ -31,13 +31,15 @@ export async function getWhatsappQrCodeAction() {
       return { connected: true, state: "open" };
     }
 
-    // [AUTO-RECOVERY] Se estiver preso em "connecting" sem QR Code, reseta a instância
+    // [AUTO-RECOVERY] Se estiver em qualquer estado que não seja "open", e o usuário pediu novo QR,
+    // vamos garantir que a instância seja recriada para evitar sessões presas.
+    // Isso resolve o problema de "reconexão automática" com o número antigo.
     if (state.state === "initializing") {
       const qr = await getQrCode(name);
       if (!qr) {
-        console.log(`[WA] Instance ${name} stuck in connecting without QR. Force resetting...`);
+        console.log(`[WA] Instance ${name} stuck or need refresh. Force resetting...`);
         await deleteInstance(name);
-        state = { state: "close" }; // Força a recriação no passo seguinte
+        state = { state: "close" }; 
       } else {
         return { qrcode: qr, connected: false };
       }
@@ -45,6 +47,7 @@ export async function getWhatsappQrCodeAction() {
 
     // 2. Se não existe (ou foi resetada acima), cria
     if (state.state === "close") {
+      console.log(`[WA] Creating new instance for ${name}...`);
       await createInstance(name);
     }
 
@@ -55,11 +58,12 @@ export async function getWhatsappQrCodeAction() {
       return { qrcode: qr, connected: false };
     }
 
-    // QR ainda não gerado — cliente vai fazer polling
+    // QR ainda não gerado ou erro na conexão
     return { initializing: true, connected: false };
   } catch (error: any) {
-    console.error("[WA] getWhatsappQrCodeAction:", error?.message);
-    return { error: error?.message || "Erro ao conectar com o servidor de WhatsApp." };
+    console.error("[WA] getWhatsappQrCodeAction Error:", error);
+    // Retorna a mensagem de erro amigável (já formatada pelo whatsApiRequest)
+    return { error: error?.message || "Erro ao conectar com o servidor de WhatsApp. Verifique se o serviço está online." };
   }
 }
 
