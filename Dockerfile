@@ -1,4 +1,4 @@
-# Estágio de Dependências
+# ─── Etapa 1: Instalar dependências ────────────────────────────
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -6,36 +6,36 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-RUN npm install
+# npm ci é mais rápido e determinístico que npm install em CI/CD
+RUN npm ci
 
-# Estágio de Build
+# ─── Etapa 2: Build da aplicação ───────────────────────────────
 FROM node:20-alpine AS builder
 WORKDIR /app
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Desativar telemetria do Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npx prisma generate
 RUN npm run build
 
-# Estágio de Execução (Runner)
+# ─── Etapa 3: Runner mínimo (usa standalone output) ────────────
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Criar usuário não root para segurança
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Standalone já contém tudo que precisa — não copia node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
 
 USER nextjs
 
@@ -44,4 +44,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["npm", "start"]
+# Usa o server.js gerado pelo standalone (mais rápido que npm start)
+CMD ["node", "server.js"]
