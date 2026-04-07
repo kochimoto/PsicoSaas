@@ -54,6 +54,7 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 // ─── Instâncias ────────────────────────────────────────────────
 
 export async function createInstance(instanceName: string) {
+  console.log(`[WA] createInstance: Creating ${instanceName}...`);
   try {
     return await whatsApiRequest("/instance/create", "POST", {
       instanceName,
@@ -61,7 +62,7 @@ export async function createInstance(instanceName: string) {
     });
   } catch (error: any) {
     if (error.message.includes("400")) {
-      console.warn(`[WA] Instance ${instanceName} might exist. Retrying after delete...`);
+      console.warn(`[WA] Instance ${instanceName} conflict. Forcing delete and retry...`);
       await deleteInstance(instanceName).catch(() => {});
       return await whatsApiRequest("/instance/create", "POST", {
         instanceName,
