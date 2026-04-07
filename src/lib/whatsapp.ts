@@ -53,11 +53,19 @@ export async function whatsApiRequest(endpoint: string, method = "GET", body?: a
 
 // ─── Instâncias ────────────────────────────────────────────────
 
+// Gera um token único e estável por instância (evita conflito de "Token already exists")
+function instanceToken(instanceName: string): string {
+  // Combina a chave global com o nome da instância para garantir unicidade
+  return `${WHATS_API_KEY}_${instanceName}`.substring(0, 32);
+}
+
 export async function createInstance(instanceName: string) {
-  console.log(`[WA] createInstance: Creating ${instanceName}...`);
+  const token = instanceToken(instanceName);
+  console.log(`[WA] createInstance: Creating ${instanceName} with unique token...`);
   try {
     return await whatsApiRequest("/instance/create", "POST", {
       instanceName,
+      token,
       qrcode: true,
     });
   } catch (error: any) {
@@ -66,6 +74,7 @@ export async function createInstance(instanceName: string) {
       await deleteInstance(instanceName).catch(() => {});
       return await whatsApiRequest("/instance/create", "POST", {
         instanceName,
+        token,
         qrcode: true,
       });
     }
